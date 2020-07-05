@@ -33,3 +33,4 @@ class ImageEnum(Enum):
     # image enumerates for easily loading files without the whole file name
     TitleBackground = "res/backgrounds/Title_screen_background.png"
     DNE = "res/DNE.png"
+    ARROW = "res/arrow.png"

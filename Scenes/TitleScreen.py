@@ -1,6 +1,7 @@
 from Bases.SceneBase import SceneBase
 from Tools.Images import ImageEnum
-from Bases.BaseObjects import BaseObject
+from Objects.ExampleObjects import BouncingItem
+from Objects.ExampleObjects import SpinningArrow
 
 
 class TitleScene(SceneBase):
@@ -12,7 +13,8 @@ class TitleScene(SceneBase):
         SceneBase.__init__(self, il)
 
         self.scene_background = self.IL.load_image(ImageEnum.TitleBackground)
-        self.OH.new_object(BaseObject(self.IL))  # just an example of adding an object to a scene
+        self.OH.new_object(BouncingItem(self.IL))  # just an example of adding an object to a scene
+        self.OH.new_object(SpinningArrow(self.IL, x=582, y=375))
 
     def process_input(self, events, pressed_keys):
         SceneBase.process_input(self, events, pressed_keys)
