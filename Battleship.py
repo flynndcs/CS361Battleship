@@ -1,7 +1,11 @@
 from Scenes.TitleScreen import TitleScene
+from Scenes.GameScreen import GameScreen
+from Scenes.OptionsScreen import OptionsScreen
+from Scenes.AchievementsScreen import AchievementScreen
 import pygame
 import Tools.Images
 import datetime
+pygame.font.init()  # initialize font
 
 
 def run_game(width, height, fps, starting_scene):
@@ -42,7 +46,17 @@ def run_game(width, height, fps, starting_scene):
                     elif event.key == pygame.K_F4 and alt_pressed:
                         # user presses alt f4
                         quit_attempt = True
-
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    location = pygame.mouse.get_pos()
+                    # user presses play button, game is run using game screen
+                    if 384 < location[0] < 634 and 340 < location[1] < 437:
+                        run_game(1000, 955, 60, GameScreen(il))
+                    # user presses options button, game is run using options screen
+                    if 384 < location[0] < 634 and 463 < location[1] < 557:
+                        run_game(1000, 955, 60, OptionsScreen(il))
+                    # user presses achievements button, game is run using achievements screen
+                    if 384 < location[0] < 634 and 583 < location[1] < 674:
+                        run_game(1000, 955, 60, AchievementScreen(il))
                 if quit_attempt:
                     # terminate the scene
                     active_scene.terminate()
@@ -69,4 +83,4 @@ def run_game(width, height, fps, starting_scene):
 
 if __name__ == "__main__":
     il = Tools.Images.ImageLoader()
-    run_game(1200, 800, 60, TitleScene(il))
+    run_game(1000, 955, 60, TitleScene(il))

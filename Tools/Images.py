@@ -31,6 +31,9 @@ class ImageLoader:
 
 class ImageEnum(Enum):
     # image enumerates for easily loading files without the whole file name
-    TitleBackground = "res/backgrounds/Title_screen_background.png"
+    TitleBackground = "res/backgrounds/water.png"
     DNE = "res/DNE.png"
     ARROW = "res/arrow.png"
+    PLAY = "res/PlayGame.png"
+    OPTIONS = "res/Options.png"
+    ACHIEVEMENTS = "res/Achievements.png"
