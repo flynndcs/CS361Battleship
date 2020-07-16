@@ -1,6 +1,6 @@
 from Bases.SceneBase import SceneBase
-from Tools.Images import ImageEnum
 from Objects.OptionsScreenObjects import BackgroundImage, OptionsScreenMessage
+
 
 class OptionsScreen(SceneBase):
     def __init__(self, il):

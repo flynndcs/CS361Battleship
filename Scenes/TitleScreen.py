@@ -21,19 +21,18 @@ class TitleScene(SceneBase):
 
     def process_input(self, events, pressed_keys):
         SceneBase.process_input(self, events, pressed_keys)
-        # Not sure how this function works or if im supposed to be using it?
-        # for events in events:
-        #     if events.type == pygame.MOUSEBUTTONDOWN:
-        #         location = pygame.mouse.get_pos()
-        #         # user presses play button, screen is switched to game screen
-        #         if 384 < location[0] < 634 and 340 < location[1] < 437:
-        #             SceneBase.switch_to_scene(self, GameScreen)
-        #         # user presses options button, screen is switched to options screen
-        #         if 384 < location[0] < 636345 and 463 < location[1] < 557:
-        #             SceneBase.switch_to_scene(self, OptionsScreen)
-        #         # user presses achievements button, screen is switched to achievements screen
-        #         if 384 < location[0] < 634 and 583 < location[1] < 674:
-        #             SceneBase.switch_to_scene(self, AchievementScreen)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                location = pygame.mouse.get_pos()
+                # user presses play button, screen is switched to game screen
+                if 384 < location[0] < 634 and 340 < location[1] < 437:
+                    self.switch_to_scene(GameScreen(self.IL))
+                # user presses options button, screen is switched to options screen
+                if 384 < location[0] < 636345 and 463 < location[1] < 557:
+                    self.switch_to_scene(OptionsScreen(self.IL))
+                # user presses achievements button, screen is switched to achievements screen
+                if 384 < location[0] < 634 and 583 < location[1] < 674:
+                    self.switch_to_scene(AchievementScreen(self.IL))
 
     def update(self):
         SceneBase.update(self)

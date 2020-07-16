@@ -18,6 +18,7 @@ class BackgroundImage(BaseObject):
     def render(self, canvas):
         canvas.blit(self.resized_background, (self.x, self.y))
 
+
 class PlayButton(BaseObject):
     """
    Class that creates play button object and blits to screen
@@ -33,6 +34,7 @@ class PlayButton(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.resized_play_button, (self.x, self.y))
+
 
 class OptionsButton(BaseObject):
     """
@@ -50,6 +52,7 @@ class OptionsButton(BaseObject):
     def render(self, canvas):
         canvas.blit(self.resized_options_button, (self.x, self.y))
 
+
 class AchievementButton(BaseObject):
     """
     Class that creates achievements button object and blits to screen
@@ -65,6 +68,7 @@ class AchievementButton(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.resized_acievements_button, (self.x, self.y))
+
 
 class BattleshipTitle(BaseObject):
     """
