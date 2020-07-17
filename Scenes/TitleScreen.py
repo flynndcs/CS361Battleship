@@ -28,7 +28,7 @@ class TitleScene(SceneBase):
                 if 384 < location[0] < 634 and 340 < location[1] < 437:
                     self.switch_to_scene(GameScreen(self.IL))
                 # user presses options button, screen is switched to options screen
-                if 384 < location[0] < 636345 and 463 < location[1] < 557:
+                if 384 < location[0] < 634 and 463 < location[1] < 557:
                     self.switch_to_scene(OptionsScreen(self.IL))
                 # user presses achievements button, screen is switched to achievements screen
                 if 384 < location[0] < 634 and 583 < location[1] < 674:

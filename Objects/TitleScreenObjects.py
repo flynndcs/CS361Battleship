@@ -78,7 +78,7 @@ class BattleshipTitle(BaseObject):
     def __init__(self, il, x=200, y= 120):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.font = font.Font("freesansbold.ttf", 120)
+        self.font = font.Font("Fonts/freesansbold.ttf", 120)
         self.battleship_title = self.font.render("Battleship", True, (255, 255, 255))
 
     def render(self, canvas):
