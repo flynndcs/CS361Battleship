@@ -6,7 +6,7 @@ This project uses pipenv to manage its dependencies. Pipenv will enfore a specif
 python or not when it reads the pipfile. So first you will install some form of python just to get pip and pipenv, you may need to update or downgrade your python from there.
 In a little bit I will add more virtualenv stuff so that we actually run a local folder based python as well just to make it even easier.
 
-How to Run:
+# How to Run:
 
 first install some form of python
 
@@ -18,7 +18,7 @@ then "pipenv run python Battleship.py"
 
 
 
-How to create release executable:
+# How to create release executable:
 
 make sure you have the dev pipenv install - "pipenv install --dev"
 
