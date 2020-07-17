@@ -20,7 +20,7 @@ class GameScreenMessage(BaseObject):
     def __init__(self, il, x=300, y= 120):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.font = font.Font("freesansbold.ttf", 25)
+        self.font = font.Font("Fonts/freesansbold.ttf", 25)
         self.game_message = self.font.render("This is the Game Screen", True, (255, 255, 255))
 
     def render(self, canvas):
