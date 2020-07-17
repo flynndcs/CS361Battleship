@@ -15,3 +15,17 @@ then "pip install pipenv"
 then "pipenv install" while in the same directory as the clone.
 
 then "pipenv run python Battleship.py"
+
+
+
+How to create release executable:
+
+make sure you have the dev pipenv install - "pipenv install --dev"
+
+then while in the project folder run - "pipenv run pyinstaller -F Battleship.py"
+
+then the exe file is created and placed into dist/Battleship.exe
+
+This executable needs to be in the same folder as res/ and fonts/ and then it works just fine
+
+releases consist of the res/ folder the fonts/ folder and the Battleship.exe
