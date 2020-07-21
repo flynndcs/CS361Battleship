@@ -15,6 +15,7 @@ class BackgroundImage(BaseObject):
     def render(self, canvas):
         canvas.blit(self.resized_background, (self.x, self.y))
 
+
 class GameScreenMessage(BaseObject):
 
     def __init__(self, il, x=300, y= 120):
@@ -25,3 +26,45 @@ class GameScreenMessage(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.game_message, (self.x, self.y))
+
+
+class GameSceneManager(BaseObject):
+
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        # this variable will keep track of what phase of the game the player
+        # is in.
+        self.current_phase = "OPTIONS"
+
+    def update(self, oh):
+
+        if self.current_phase == "OPTIONS":
+            self.options_phase(oh)
+
+        elif self.current_phase == "PLACEMENT":
+            self.placement_phase(oh)
+
+        elif self.current_phase == "PLAYER_TURN":
+            self.player_turn_phase(oh)
+
+        elif self.current_phase == "ENEMY_TURN":
+            self.enemy_turn_phase(oh)
+
+        elif self.current_phase == "GAME_ENDING":
+            self.game_ending_phase(oh)
+
+    def options_phase(self, oh):
+        self.current_phase = "PLACEMENT"  # just skipping this phase for now
+
+    def placement_phase(self, oh):
+        pass
+
+    def player_turn_phase(self, oh):
+        pass
+
+    def enemy_turn_phase(self, oh):
+        pass
+
+    def game_ending_phase(self, oh):
+        pass
