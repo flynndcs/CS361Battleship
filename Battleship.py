@@ -1,5 +1,6 @@
 from Scenes.TitleScreen import TitleScene
 import pygame
+from pygame import *
 import Tools.Images
 import datetime
 pygame.font.init()  # initialize font
@@ -30,6 +31,7 @@ def run_game(width, height, fps, starting_scene):
             # event filtering
             filtered_events = []
             for event in pygame.event.get():
+                # print(event)
                 quit_attempt = False
                 if event.type == pygame.QUIT:
                     # user hit the red x to quit the game
@@ -65,6 +67,9 @@ def run_game(width, height, fps, starting_scene):
 
         pygame.display.flip()  # flip the display so that we can draw on it again
         # clock.tick(fps)  # limit the fps
+
+        # mouseX, mouseY = pygame.mouse.get_pos()
+        # print(mouseX, mouseY)
 
 
 if __name__ == "__main__":
