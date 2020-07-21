@@ -37,6 +37,16 @@ class GameSceneManager(BaseObject):
         # is in.
         self.current_phase = "OPTIONS"
 
+        # VARIABLES FOR THE OPTIONS PHASE
+
+        # -------------------------------
+
+        # VARIABLE FOR THE PLACEMENT PHASE
+
+        self.available_ships = []
+
+        # --------------------------------
+
     def update(self, oh):
 
         if self.current_phase == "OPTIONS":
