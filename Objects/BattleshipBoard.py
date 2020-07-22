@@ -5,6 +5,7 @@ from pygame import *
 
 '''
 Author: Daniel Brezavar
+Daniel Flynn
 Date: 21Jul2020
 Description: Class that keeps track of ship positions and has methods for interacting
              with the game board.
@@ -37,6 +38,8 @@ class BattleshipBoard(BaseObject):
         self.width = width
         self.height = height
 
+        self.hoverImage = pygame.Surface([50, 50])
+
         self.hoverStatus = False
         
         self.boardDisplaySource = il.load_image(Images.ImageEnum.BOARD)
@@ -45,12 +48,15 @@ class BattleshipBoard(BaseObject):
         self.blackHoverImage = il.load_image(Images.ImageEnum.BLACKHOVER)
         self.resizedBlackHoverImage = transform.scale(self.blackHoverImage, (self.width, self.height))
 
+        self.displayImage = self.resizedDisplaySource
+
         self.gameboard = [["0" for x in range(width)] for y in range(height)]
         self.ship_count_tracker = {}
         self.total_ship_positions = 0
 
     def render(self, canvas):
-        canvas.blit(self.resizedDisplaySource, (self.x, self.y))
+        print("rendering")
+        canvas.blit(self.displayImage, (self.x, self.y))
 
     def handle_input(self, objHandler, events, pressed_keys):
         mouseX, mouseY = pygame.mouse.get_pos()
@@ -58,11 +64,18 @@ class BattleshipBoard(BaseObject):
         if (mouseX > 100 and mouseX < 900) and (mouseY > 150 and mouseY < 950):
             self.hoverStatus = True
             # print("hovering")
+        else: 
+            self.hoverStatus = False
         
         if self.hoverStatus == True:
-            # print("hovering") uncomment this for the console to log hovering 
+            print("hovering") 
+            self.displayImage = self.resizedBlackHoverImage
+            # uncomment this for the console to log hovering 
             # once per tick
-
+        
+        if self.hoverStatus == False:
+            self.displayImage = self.resizedDisplaySource
+    
             
 
     def _update_ship_count_number(self, ship_name, t = 0):

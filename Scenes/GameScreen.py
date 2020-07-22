@@ -12,7 +12,7 @@ class GameScreen(SceneBase):
         SceneBase.__init__(self, il)
         self.OH.new_object(BackgroundImage(self.IL))
         self.OH.new_object(GameScreenMessage(self.IL))
-        self.OH.new_object(BattleshipBoard(self.IL, 800, 800))
+        self.OH.new_object(BattleshipBoard(self.IL, 800, 500))
 
     def update(self):
         SceneBase.update(self)
