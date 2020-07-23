@@ -32,49 +32,60 @@ class BattleshipBoard(BaseObject):
                                 been hit
     '''
 
-    def __init__(self, il, width, height):
-        BaseObject.__init__(self, il, 100, 150)
+    def __init__(self, il, x=100, y=150):
+        BaseObject.__init__(self, il, x=0, y=0)
 
-        self.width = width
-        self.height = height
+        self.width = 400
+        self.height = 400 
 
-        self.hoverImage = pygame.Surface([50, 50])
+        
+        self.x = x
+        self.y = y
 
         self.hoverStatus = False
-        
-        self.boardDisplaySource = il.load_image(Images.ImageEnum.BOARD)
-        self.resizedDisplaySource = transform.scale(self.boardDisplaySource, (self.width, self.height))
 
         self.blackHoverImage = il.load_image(Images.ImageEnum.BLACKHOVER)
         self.resizedBlackHoverImage = transform.scale(self.blackHoverImage, (self.width, self.height))
 
-        self.displayImage = self.resizedDisplaySource
+        self.image = Surface([self.width, self.height])
+        self.boardImage= il.load_image(Images.ImageEnum.BOARD)
+        self.resizedBoardImage = transform.scale(self.boardImage, (self.width, self.height))
+        self.image = self.resizedBoardImage
 
-        self.gameboard = [["0" for x in range(width)] for y in range(height)]
+        self.selectedBoardPosition = None 
+
+        self.gameboard = [["0" for x in range(10)] for y in range(10)]
+
+        self.boardPositions = [[] for y in range(10)] 
+
+        for i in range(10):
+            for j in range(10):
+                self.boardPositions[i].append(pygame.draw.rect(self.image, (0,0,0), (j * 40, i * 40, 35, 35)))
+
+        print(self.boardPositions)
+
+
         self.ship_count_tracker = {}
         self.total_ship_positions = 0
 
     def render(self, canvas):
-        print("rendering")
-        canvas.blit(self.displayImage, (self.x, self.y))
+        canvas.blit(self.image, (self.x, self.y))
 
     def handle_input(self, objHandler, events, pressed_keys):
         mouseX, mouseY = pygame.mouse.get_pos()
 
-        if (mouseX > 100 and mouseX < 900) and (mouseY > 150 and mouseY < 950):
-            self.hoverStatus = True
-            # print("hovering")
-        else: 
-            self.hoverStatus = False
+        # if (mouseX > self.x and mouseX < self.x + self.width) and (mouseY > self.y and mouseY < self.y + self.height):
+        #     self.hoverStatus = True
+        # else: 
+        #     self.hoverStatus = False
         
-        if self.hoverStatus == True:
-            print("hovering") 
-            self.displayImage = self.resizedBlackHoverImage
-            # uncomment this for the console to log hovering 
-            # once per tick
+        # if self.hoverStatus == True:
+        #     print("event hover")
+        #     self.image = self.resizedBlackHoverImage
         
-        if self.hoverStatus == False:
-            self.displayImage = self.resizedDisplaySource
+        # if self.hoverStatus == False:
+        #     print("event not hover")
+        #     self.image = self.resizedBoardDisplaySource
     
             
 

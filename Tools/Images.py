@@ -37,5 +37,5 @@ class ImageEnum(Enum):
     PLAY = "res/PlayGame.png"
     OPTIONS = "res/Options.png"
     ACHIEVEMENTS = "res/Achievements.png"
-    BOARD = "res/BattleshipDemo7.png"
+    BOARD = "res/board.png"
     BLACKHOVER = "res/Black.png"
