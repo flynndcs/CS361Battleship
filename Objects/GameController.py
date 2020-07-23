@@ -6,6 +6,9 @@ Description: GameController class controls the flow of the game. This class cont
 
 usage:
     game_controller = GameController()
+    
+    if (game_controller.continue_game()):
+        game_controller.next_turn()
 '''
 
 class GameController:
