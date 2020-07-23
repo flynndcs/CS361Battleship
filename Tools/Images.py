@@ -39,3 +39,8 @@ class ImageEnum(Enum):
     ACHIEVEMENTS = "res/Achievements.png"
     BOARD = "res/board.png"
     BLACKHOVER = "res/Black.png"
+    SUBMARINE = "res/ships/Submarine.png"
+    AIRCRAFTCARRIER = "res/ships/AircraftCarrier.png"
+    BATTLESHIP = "res/ships/Battleship.png"
+    CRUISER = "res/ships/Cruiser.png"
+    PATROLBOAT = "res/ships/PatrolBoat.png"
