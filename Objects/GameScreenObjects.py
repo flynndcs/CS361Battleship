@@ -55,6 +55,8 @@ class GameSceneManager(BaseObject):
                                 Objects.ShipObjects.Destroyer(il)]
         self.ships_placed = []
 
+        self.selected_ship = None
+
         self.ship_lot_start_x = 200
         self.ship_lot_start_y = 700
 
