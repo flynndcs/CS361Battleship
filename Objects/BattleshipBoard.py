@@ -32,38 +32,43 @@ class BattleshipBoard(BaseObject):
                                 been hit
     '''
 
-    def __init__(self, il, x=100, y=150):
+    def __init__(self, il, x, y):
         BaseObject.__init__(self, il, x=0, y=0)
 
+        # size of board, may need to change if scaling
         self.width = 400
         self.height = 400 
 
-        
+        #upper left corner of where object is created in scene
         self.x = x
         self.y = y
 
-        self.hoverStatus = False
-
-        self.blackHoverImage = il.load_image(Images.ImageEnum.BLACKHOVER)
-        self.resizedBlackHoverImage = transform.scale(self.blackHoverImage, (self.width, self.height))
-
-        self.image = Surface([self.width, self.height])
+        #the image behind the board (TODO: will be seen easier when board positions are transparent)
         self.boardImage= il.load_image(Images.ImageEnum.BOARD)
         self.resizedBoardImage = transform.scale(self.boardImage, (self.width, self.height))
+
+        #drawing surface that image placed upon
+        self.image = Surface([self.width, self.height])
         self.image = self.resizedBoardImage
 
+        #eventually will be used for ship/shot logic
         self.selectedBoardPosition = None 
 
-        self.gameboard = [["0" for x in range(10)] for y in range(10)]
+        #may be used for holding all ships, shots, ai logic
+        self.masterGameBoard = [["0" for x in range(10)] for y in range(10)]
 
+        #source of rectangles that outline board positions and handle interaction
         self.boardPositions = [[] for y in range(10)] 
 
+        #the rectangle for when a user is not hovering over it
+        self.rect = pygame.Surface([35, 35])
+        self.rect.fill((255,255,255))
+
+        #initialized boardPositions - this blits the grid of rectangles to the screen and 
+        #also stores their screen locations in boardPositions
         for i in range(10):
             for j in range(10):
-                self.boardPositions[i].append(pygame.draw.rect(self.image, (0,0,0), (j * 40, i * 40, 35, 35)))
-
-        print(self.boardPositions)
-
+                self.boardPositions[i].append(self.image.blit(self.rect, ((i * 40), (j * 40))))
 
         self.ship_count_tracker = {}
         self.total_ship_positions = 0
@@ -74,20 +79,20 @@ class BattleshipBoard(BaseObject):
     def handle_input(self, objHandler, events, pressed_keys):
         mouseX, mouseY = pygame.mouse.get_pos()
 
-        # if (mouseX > self.x and mouseX < self.x + self.width) and (mouseY > self.y and mouseY < self.y + self.height):
-        #     self.hoverStatus = True
-        # else: 
-        #     self.hoverStatus = False
-        
-        # if self.hoverStatus == True:
-        #     print("event hover")
-        #     self.image = self.resizedBlackHoverImage
-        
-        # if self.hoverStatus == False:
-        #     print("event not hover")
-        #     self.image = self.resizedBoardDisplaySource
-    
-            
+        #on any event, this checks all squares to see if they were hovered over
+        #if the square is also clicked, it writes to console (TODO: actual user interaction)
+        for i in range(10):
+            for j in range(10):
+                if self.boardPositions[i][j].collidepoint(mouseX - self.x, mouseY - self.y):
+                    if self.selectedBoardPosition is not None:
+                        self.image.blit(self.rect, self.selectedBoardPosition)
+
+                    self.selectedBoardPosition = self.boardPositions[i][j]
+                    highlightRect = pygame.Surface([35,35])
+                    highlightRect.fill((255,0,0))
+                    self.image.blit(highlightRect, self.boardPositions[i][j])
+                    if events[0].type == pygame.MOUSEBUTTONDOWN:
+                        print("clicked on", self.boardPositions[i][j])
 
     def _update_ship_count_number(self, ship_name, t = 0):
         '''
