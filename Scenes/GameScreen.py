@@ -1,5 +1,6 @@
 from Bases.SceneBase import SceneBase
 from Objects.GameScreenObjects import BackgroundImage, GameScreenMessage
+# from Objects.MasterBoard import MasterBoard
 from Objects.BattleshipBoard import BattleshipBoard
 from Objects.GameScreenObjects import GameSceneManager
 
@@ -13,6 +14,10 @@ class GameScreen(SceneBase):
         SceneBase.__init__(self, il)
         self.OH.new_object(BackgroundImage(self.IL))
         self.OH.new_object(GameScreenMessage(self.IL))
+
+        # self.master_board = MasterBoard()
+        # self.OH.new_object(self.master_board)
+
         self.player_board = BattleshipBoard(self.IL, 100, 150)
         self.OH.new_object(self.player_board)
         self.enemy_board = BattleshipBoard(self.IL, 550, 150)

@@ -7,8 +7,7 @@ from pygame import *
 Author: Daniel Brezavar
 Daniel Flynn
 Date: 21Jul2020
-Description: Class that keeps track of ship positions and has methods for interacting
-             with the game board.
+Description: Class that manages interactions with the battleship board
 
 usage: 
     player_board = BattleshipBoard()
@@ -43,44 +42,43 @@ class BattleshipBoard(BaseObject):
         self.x = x
         self.y = y
 
-        #the image behind the board (TODO: will be seen easier when board positions are transparent)
-        self.boardImage= il.load_image(Images.ImageEnum.BOARD)
-        self.resizedBoardImage = transform.scale(self.boardImage, (self.width, self.height))
-
-        #drawing surface that image placed upon
+        #drawing surface 
         self.image = Surface([self.width, self.height])
-        self.image = self.resizedBoardImage
 
         #eventually will be used for ship/shot logic
         self.selectedBoardPosition = None 
 
-        #may be used for holding all ships, shots, ai logic
-        self.masterGameBoard = [["0" for x in range(10)] for y in range(10)]
-
         #source of rectangles that outline board positions and handle interaction
         self.boardPositions = [[] for y in range(10)] 
 
-        #the rectangle for when a user is not hovering over it
+        #the blank rectangle for when a user is not hovering over it
         self.rect = pygame.Surface([35, 35])
+        # self.rect.set_alpha(0)
         self.rect.fill((255,255,255))
 
-        #initialized boardPositions - this blits the grid of rectangles to the screen and 
-        #also stores their screen locations in boardPositions
+        self.init_board_positions()
+        
+        self.ship_count_tracker = {}
+        self.total_ship_positions = 0
+    
+    def init_board_positions(self):
         for i in range(10):
             for j in range(10):
                 self.boardPositions[i].append(self.image.blit(self.rect, ((i * 40), (j * 40))))
 
-        self.ship_count_tracker = {}
-        self.total_ship_positions = 0
-
     def render(self, canvas):
         canvas.blit(self.image, (self.x, self.y))
+    
+    def confirm_shot_dialog(self, boardPosition):
+        shot_dialog = pygame.Surface([100, 50])
+        shot_dialog.fill((0,0,255))
+        self.image.blit(shot_dialog, boardPosition)
 
     def handle_input(self, objHandler, events, pressed_keys):
         mouseX, mouseY = pygame.mouse.get_pos()
 
         #on any event, this checks all squares to see if they were hovered over
-        #if the square is also clicked, it writes to console (TODO: actual user interaction)
+        #this is local
         for i in range(10):
             for j in range(10):
                 if self.boardPositions[i][j].collidepoint(mouseX - self.x, mouseY - self.y):
@@ -91,9 +89,7 @@ class BattleshipBoard(BaseObject):
                     highlightRect = pygame.Surface([35,35])
                     highlightRect.fill((255,0,0))
                     self.image.blit(highlightRect, self.boardPositions[i][j])
-                    if events[0].type == pygame.MOUSEBUTTONDOWN:
-                        print("clicked on", self.boardPositions[i][j])
-
+    
     def _update_ship_count_number(self, ship_name, t = 0):
         '''
         Uses the ship_count_tracker class dictionary to track the number of positions

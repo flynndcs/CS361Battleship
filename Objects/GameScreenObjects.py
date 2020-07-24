@@ -2,6 +2,7 @@ from Bases.BaseObjects import BaseObject
 from Tools import Images
 from pygame import transform, font
 import Objects.ShipObjects
+import Objects.BattleshipBoard
 import pygame.mouse
 
 
@@ -61,6 +62,10 @@ class GameSceneManager(BaseObject):
         self.ship_lot_start_y = 700
 
         # --------------------------------
+        #VARIABLES FOR THE PLAYER TURN PHASE
+        self.battleship_board_positions = enemy_board.boardPositions
+
+        self.selected_position = None
 
     def update(self, oh):
 
@@ -97,7 +102,9 @@ class GameSceneManager(BaseObject):
             self.game_ending_phase_input(oh, events, pressed_keys)
 
     def options_phase(self, oh):
-        self.current_phase = "PLACEMENT"  # just skipping this phase for now
+        # self.current_phase = "PLACEMENT"  # just skipping this phase for now
+        self.current_phase = "PLAYER_TURN"
+        print(self.current_phase)
 
     def placement_phase(self, oh):
         placed_x_offset = 0
@@ -116,6 +123,9 @@ class GameSceneManager(BaseObject):
                 pygame.mouse.get_pos()
 
     def player_turn_phase(self, oh):
+        if self.selected_position is not None:
+            shot_dialog = pygame.Surface([100, 50])
+            self.enemy_board.confirm_shot_dialog(self.selected_position)
         pass
 
     def enemy_turn_phase(self, oh):
@@ -146,6 +156,14 @@ class GameSceneManager(BaseObject):
                         self.selected_ship.rotate_ship_90()
 
     def player_turn_phase_input(self, oh, events, pressed_keys):
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    mouseX, mouseY= event.pos
+                    for i in range(10):
+                        for j in range(10):
+                            if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y):
+                                self.selected_position = self.battleship_board_positions[i][j]
         pass
 
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
