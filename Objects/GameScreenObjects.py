@@ -34,14 +34,14 @@ class GameScreenStatusMenu(BaseObject):
     Description: Displays game status and actions required for the user
     '''
 
-    def __init__(self, il, x=20, y= 20):
+    def __init__(self, il, x=45, y=45):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.font1 = font.Font("Fonts/freesansbold.ttf", 25)
         self.font2 = font.Font("Fonts/freesansbold.ttf", 20)
 
         self.rect_width = 900
-        self.rect_height = 100
+        self.rect_height = 110
 
         self.title = "Status Menu"
         self.title_x = 55
@@ -205,8 +205,8 @@ class GameSceneManager(BaseObject):
         self.current_phase = "PLACEMENT"  # just skipping this phase for now
 
     def placement_phase(self, oh):
-        self.player_board.activate_board()
-        self.enemy_board.deactivate_board()
+        # self.player_board.activate_board()
+        # self.enemy_board.deactivate_board()
         self.status_menu.set_status("Placement Phase")
         self.status_menu.set_action("Please place your ships on the gameboard")
 
@@ -229,8 +229,8 @@ class GameSceneManager(BaseObject):
         '''
         Change phase to player turn
         '''
-        self.player_board.deactivate_board()
-        self.enemy_board.activate_board()
+        # self.player_board.deactivate_board()
+        # self.enemy_board.activate_board()
         self.current_phase = "PLAYER_TURN"
         self.status_menu.set_status("Player Turn")
         self.status_menu.set_action("Please make a selection on the AI board")
@@ -239,8 +239,8 @@ class GameSceneManager(BaseObject):
         '''
         Change phase to enemey turn
         '''
-        self.player_board.deactivate_board()
-        self.enemy_board.deactivate_board()
+        # self.player_board.deactivate_board()
+        # self.enemy_board.deactivate_board()
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait while the AI makes a selection on your board")
