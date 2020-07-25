@@ -13,6 +13,53 @@ usage:
     player_board = BattleshipBoard()
     ai_board = BattleshipBoard()
 '''
+class DialogBox(BaseObject):
+
+    confirm_deny_buttons = []
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+        self.width = 100
+        self.height = 50
+        self.x = x
+        self.y = y
+
+        self.confirmX = self.x + 10
+        self.confirmY = self.y + 8
+
+        self.denyX = self.x + 55
+        self.denyY = self.y + 8
+
+        self.image = Surface([self.width, self.height])
+        self.image.fill((0,0,255))
+
+        self.init_confirm_deny_buttons()
+
+    
+    def init_confirm_deny_buttons(self):
+        confirm = pygame.Surface([35, 35])
+        confirm.fill((0,255,0))
+
+        deny = pygame.Surface([35, 35])
+        deny.fill((255,0,0))
+
+        self.confirm_deny_buttons.append(self.image.blit(confirm, (self.confirmX, self.confirmY)))
+        self.confirm_deny_buttons.append(self.image.blit(deny, (self.denyX, self.denyY)))
+
+    def confirm_shot(self):
+        # mouseX, mouseY = pygame.mouse.get_pos()
+        # for button in self.confirm_deny_buttons:
+        print("confirm within dialog class")
+        hit_or_miss = pygame.Surface([99,49])
+        hit_or_miss.fill((0,255,0))
+        
+        font = pygame.font.Font(pygame.font.get_default_font(),50)
+        text = font.render('Hit', True, (0,0,0))
+        hit_or_miss.blit(text, (0,0))
+        self.image.blit(hit_or_miss, (0,0))
+    
+    def clear_dialog(self):
+        self.image.fill((0,0,255))
+        self.image.set_alpha(0)
 
 class BattleshipBoard(BaseObject):
 
@@ -38,20 +85,22 @@ class BattleshipBoard(BaseObject):
         self.width = 400
         self.height = 400 
 
-        #upper left corner of where object is created in scene
+        #upper left corner of where board is created in scene
         self.x = x
         self.y = y
+
+        #dialog position
+        self.dialogX = None
+        self.dialogY = None
 
         #drawing surface 
         self.image = Surface([self.width, self.height])
         self.image.fill((255, 255, 255))
 
-        #eventually will be used for ship/shot logic
-        self.selectedBoardPosition = None 
-
         #dialog box open
         self.dialogOpen = False
         self.dialogPositions = []
+        self.dialogBoxPosition = [self.x, self.y]
 
         #source of rectangles that outline board positions and handle interaction
         self.boardPositions = [[] for y in range(10)] 
@@ -63,8 +112,8 @@ class BattleshipBoard(BaseObject):
 
         self.init_board_positions()
         
-        self.ship_count_tracker = {}
-        self.total_ship_positions = 0
+        # self.ship_count_tracker = {}
+        # self.total_ship_positions = 0
 
     def clear_board(self):
         self.image.fill((255,255,255))
@@ -92,6 +141,8 @@ class BattleshipBoard(BaseObject):
 
         self.dialogPositions.append(shot_dialog.blit(confirm, (10, 8)))
         self.dialogPositions.append(shot_dialog.blit(deny, (55, 8)))
+
+        print(self.dialogPositions)
 
         self.image.blit(shot_dialog, boardPosition)
 
