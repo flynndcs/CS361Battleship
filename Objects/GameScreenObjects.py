@@ -182,18 +182,17 @@ class GameSceneManager(BaseObject):
 
             elif event.type == pygame.MOUSEMOTION and self.selected_position is None:
                 mouseX, mouseY = pygame.mouse.get_pos()
-                for i in range(10):
-                    for j in range(10):
-                        if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y):
-                            if self.hover_position:
-                                self.enemy_board.clear_board()
-                            self.hover_position = self.battleship_board_positions[i][j]
-                            self.enemy_board.hoverHighlight(self.hover_position)
-            # # if dialog open and button pressed
-            # elif event.type == pygame.MOUSEMOTION and self.selected_position is not None:
-            #     mouseX, mouseY = pygame.mouse.get_pos()
-            #     for dialogButton in self.enemy_board.dialogPositions:
-            #         if dialogButton.collidepoint(mouseX - self.enemy_board.x - 
+                if (mouseX > 550 and mouseY > 150):
+                    mouse_pos_x = mouseX - self.enemy_board.x
+                    mouse_pos_y = mouseY - self.enemy_board.y
+
+                    board_position_x = int(mouse_pos_x / 40)
+                    board_position_y = int(mouse_pos_y / 40)
+
+                    if self.hover_position:
+                        self.enemy_board.clear_board()
+                    self.hover_position = self.battleship_board_positions[board_position_x][board_position_y]
+                    self.enemy_board.hoverHighlight(self.hover_position)
 
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
         pass

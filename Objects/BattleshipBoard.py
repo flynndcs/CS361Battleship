@@ -152,27 +152,7 @@ class BattleshipBoard(BaseObject):
         highlightRect.fill((255,0,0))
         self.image.blit(highlightRect, boardPosition)
 
-    # def handle_input(self, objHandler, events, pressed_keys):
-    #     mouseX, mouseY = pygame.mouse.get_pos()
-
-    #     # on any event, this checks all squares to see if they were hovered over
-    #     # this is not ideal for performance but with this grid size it should be ok.
-    #     #  
-    #     for i in range(10):
-    #         for j in range(10):
-    #             if self.boardPositions[i][j].collidepoint(mouseX - self.x, mouseY - self.y):
-    #                 if self.selectedBoardPosition is not None:
-    #                     self.image.blit(self.rect, self.selectedBoardPosition)
-
-    #                 self.selectedBoardPosition = self.boardPositions[i][j]
-    #                 # if self.selectedBoardPosition is not None and self.dialogOpen is True:
-
-
-    #                 self.clear_board()
-    #                 highlightRect = pygame.Surface([35,35])
-    #                 highlightRect.fill((255,0,0))
-    #                 self.image.blit(highlightRect, self.boardPositions[i][j])
-    
+        
     def _update_ship_count_number(self, ship_name, t = 0):
         '''
         Uses the ship_count_tracker class dictionary to track the number of positions
