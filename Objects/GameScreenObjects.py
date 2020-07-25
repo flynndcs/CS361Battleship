@@ -66,6 +66,7 @@ class GameSceneManager(BaseObject):
         self.battleship_board_positions = enemy_board.boardPositions
 
         self.selected_position = None
+        self.hover_position = None
 
     def update(self, oh):
 
@@ -123,9 +124,6 @@ class GameSceneManager(BaseObject):
                 pygame.mouse.get_pos()
 
     def player_turn_phase(self, oh):
-        if self.selected_position is not None:
-            shot_dialog = pygame.Surface([100, 50])
-            self.enemy_board.confirm_shot_dialog(self.selected_position)
         pass
 
     def enemy_turn_phase(self, oh):
@@ -159,12 +157,24 @@ class GameSceneManager(BaseObject):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    mouseX, mouseY= event.pos
+                    mouseX, mouseY = event.pos
                     for i in range(10):
                         for j in range(10):
-                            if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y):
+                            if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y) and self.selected_position is None:
+                                if self.selected_position:
+                                    self.enemy_board.clear_board()
                                 self.selected_position = self.battleship_board_positions[i][j]
-        pass
+                                self.enemy_board.confirm_shot_dialog(self.selected_position)
+
+            elif event.type == pygame.MOUSEMOTION and self.selected_position is None:
+                mouseX, mouseY = pygame.mouse.get_pos()
+                for i in range(10):
+                    for j in range(10):
+                        if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y):
+                            if self.hover_position:
+                                self.enemy_board.clear_board()
+                            self.hover_position = self.battleship_board_positions[i][j]
+                            self.enemy_board.hoverHighlight(self.hover_position)
 
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
         pass

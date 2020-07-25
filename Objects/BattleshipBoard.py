@@ -44,22 +44,33 @@ class BattleshipBoard(BaseObject):
 
         #drawing surface 
         self.image = Surface([self.width, self.height])
+        self.image.fill((255, 255, 255))
 
         #eventually will be used for ship/shot logic
         self.selectedBoardPosition = None 
+
+        #dialog box open
+        self.dialogOpen = False
+        self.dialogPositions = []
 
         #source of rectangles that outline board positions and handle interaction
         self.boardPositions = [[] for y in range(10)] 
 
         #the blank rectangle for when a user is not hovering over it
         self.rect = pygame.Surface([35, 35])
-        # self.rect.set_alpha(0)
-        self.rect.fill((255,255,255))
+        self.rect.set_alpha(50)
+        self.rect.fill((0, 0, 255))
 
         self.init_board_positions()
         
         self.ship_count_tracker = {}
         self.total_ship_positions = 0
+
+    def clear_board(self):
+        self.image.fill((255,255,255))
+        for i in range(10):
+            for j in range(10):
+                self.image.blit(self.rect, ((i*40), (j * 40)))
     
     def init_board_positions(self):
         for i in range(10):
@@ -70,25 +81,46 @@ class BattleshipBoard(BaseObject):
         canvas.blit(self.image, (self.x, self.y))
     
     def confirm_shot_dialog(self, boardPosition):
-        shot_dialog = pygame.Surface([100, 50])
+        shot_dialog = pygame.Surface([100, 51])
         shot_dialog.fill((0,0,255))
+
+        confirm = pygame.Surface([35, 35])
+        confirm.fill((0,255,0))
+
+        deny = pygame.Surface([35, 35])
+        deny.fill((255,0,0))
+
+        self.dialogPositions.append(shot_dialog.blit(confirm, (10, 8)))
+        self.dialogPositions.append(shot_dialog.blit(deny, (55, 8)))
+
         self.image.blit(shot_dialog, boardPosition)
 
-    def handle_input(self, objHandler, events, pressed_keys):
-        mouseX, mouseY = pygame.mouse.get_pos()
 
-        #on any event, this checks all squares to see if they were hovered over
-        #this is local
-        for i in range(10):
-            for j in range(10):
-                if self.boardPositions[i][j].collidepoint(mouseX - self.x, mouseY - self.y):
-                    if self.selectedBoardPosition is not None:
-                        self.image.blit(self.rect, self.selectedBoardPosition)
+    def hoverHighlight(self, boardPosition):
+        highlightRect = pygame.Surface([35,35])
+        highlightRect.fill((255,0,0))
+        self.image.blit(highlightRect, boardPosition)
 
-                    self.selectedBoardPosition = self.boardPositions[i][j]
-                    highlightRect = pygame.Surface([35,35])
-                    highlightRect.fill((255,0,0))
-                    self.image.blit(highlightRect, self.boardPositions[i][j])
+    # def handle_input(self, objHandler, events, pressed_keys):
+    #     mouseX, mouseY = pygame.mouse.get_pos()
+
+    #     # on any event, this checks all squares to see if they were hovered over
+    #     # this is not ideal for performance but with this grid size it should be ok.
+    #     #  
+    #     for i in range(10):
+    #         for j in range(10):
+    #             if self.boardPositions[i][j].collidepoint(mouseX - self.x, mouseY - self.y):
+    #                 if self.selectedBoardPosition is not None:
+    #                     self.image.blit(self.rect, self.selectedBoardPosition)
+
+    #                 self.selectedBoardPosition = self.boardPositions[i][j]
+    #                 # if self.selectedBoardPosition is not None and self.dialogOpen is True:
+
+
+    #                 self.clear_board()
+    #                 highlightRect = pygame.Surface([35,35])
+    #                 highlightRect.fill((255,0,0))
+    #                 self.image.blit(highlightRect, self.boardPositions[i][j])
     
     def _update_ship_count_number(self, ship_name, t = 0):
         '''
