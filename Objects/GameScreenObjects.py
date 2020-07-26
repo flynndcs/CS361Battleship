@@ -67,6 +67,11 @@ class GameSceneManager(BaseObject):
 
         self.dialog_box = Objects.BattleshipBoard.DialogBox(il)
 
+        #avoids bug where the second turn selection automatically pops up a "hit" dialog without confirm
+        self.post_confirm = False
+
+        self.shot_result_displayed = False
+
         self.selected_position = None
         self.hover_position = None
 
@@ -157,32 +162,42 @@ class GameSceneManager(BaseObject):
 
     def player_turn_phase_input(self, oh, events, pressed_keys):
         for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and self.selected_position is None:
+            if event.type == pygame.MOUSEBUTTONDOWN and self.shot_result_displayed is True:
+                self.enemy_board.clear_board(oh, self.dialog_box)
+                self.shot_result_displayed = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position is None:
+                self.dialog_box.init_confirm_deny_buttons()
                 if event.button == 1:
-                    mouseX, mouseY = event.pos
+                    mouseX, mouseY = pygame.mouse.get_pos()
                     for i in range(10):
                         for j in range(10):
-                            if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y) and self.selected_position is None:
-                                if self.selected_position:
-                                    self.enemy_board.clear_board()
+                            if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y):
+                                self.enemy_board.clear_board(oh, None)
                                 self.selected_position = self.battleship_board_positions[i][j]
-                                oh.new_object(self.dialog_box)
+                                if self.dialog_box not in oh.objects:
+                                    oh.new_object(self.dialog_box)
+                                else:
+                                    oh.remove_object(self.dialog_box)
+                                    oh.new_object(self.dialog_box)
                                 self.dialog_box.x = mouseX
                                 self.dialog_box.y = mouseY
 
-            elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position is not None:
+            elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position:
                 mouseX, mouseY = pygame.mouse.get_pos()
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
+                    print("pressed confirm")
                     self.dialog_box.confirm_shot()
+                    self.shot_result_displayed = True
+                    self.selected_position = None
 
                 elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
+                    print("pressed deny")
                     self.selected_position = None
-                    self.dialog_box.clear_dialog()
-                    self.enemy_board.clear_board()
+                    self.enemy_board.clear_board(oh, self.dialog_box)
 
-            elif event.type == pygame.MOUSEMOTION and self.selected_position is None:
+            elif event.type == pygame.MOUSEMOTION and self.selected_position is None and self.shot_result_displayed is False:
                 mouseX, mouseY = pygame.mouse.get_pos()
-                if (mouseX > 550 and mouseY > 150):
+                if ((mouseX > 550 and mouseX <= 950) and (mouseY > 150 and mouseY <= 550)):
                     mouse_pos_x = mouseX - self.enemy_board.x
                     mouse_pos_y = mouseY - self.enemy_board.y
 
@@ -190,7 +205,7 @@ class GameSceneManager(BaseObject):
                     board_position_y = int(mouse_pos_y / 40)
 
                     if self.hover_position:
-                        self.enemy_board.clear_board()
+                        self.enemy_board.clear_board(oh, None)
                     self.hover_position = self.battleship_board_positions[board_position_x][board_position_y]
                     self.enemy_board.hoverHighlight(self.hover_position)
 

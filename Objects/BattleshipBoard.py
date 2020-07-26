@@ -30,12 +30,12 @@ class DialogBox(BaseObject):
         self.denyY = self.y + 8
 
         self.image = Surface([self.width, self.height])
-        self.image.fill((0,0,255))
 
         self.init_confirm_deny_buttons()
 
     
     def init_confirm_deny_buttons(self):
+        self.image.fill((0,0,255))
         confirm = pygame.Surface([35, 35])
         confirm.fill((0,255,0))
 
@@ -57,10 +57,6 @@ class DialogBox(BaseObject):
         hit_or_miss.blit(text, (0,0))
         self.image.blit(hit_or_miss, (0,0))
     
-    def clear_dialog(self):
-        self.image.fill((0,0,255))
-        self.image.set_alpha(0)
-
 class BattleshipBoard(BaseObject):
 
     '''
@@ -115,7 +111,9 @@ class BattleshipBoard(BaseObject):
         # self.ship_count_tracker = {}
         # self.total_ship_positions = 0
 
-    def clear_board(self):
+    def clear_board(self, oh, surface):
+        if surface:
+            oh.remove_object(surface)
         self.image.fill((255,255,255))
         for i in range(10):
             for j in range(10):
