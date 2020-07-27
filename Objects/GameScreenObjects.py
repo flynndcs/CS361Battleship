@@ -162,8 +162,13 @@ class GameSceneManager(BaseObject):
 
         self.selected_ship = None
 
-        self.ship_lot_start_x = 200
-        self.ship_lot_start_y = 700
+        self.available_ships_text = AvailableShipsText(il)
+        self.start_game_text = StartBattleText(il)
+        self.text_placed = False
+
+        self.ship_lot_start_x = self.player_board.x + (self.player_board.width/2)
+        self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
+        self.ship_lot_x_offset = 20
 
         # --------------------------------
 
@@ -212,13 +217,38 @@ class GameSceneManager(BaseObject):
 
         placed_x_offset = 0
         if not self.ships_added:
+            total_width_of_lot = 0
+            for ship in self.available_ships:
+                total_width_of_lot += ship.width + self.ship_lot_x_offset
+            total_width_of_lot -= self.available_ships[0].width
+            self.ship_lot_start_x -= (total_width_of_lot/4)
             for ship in self.available_ships:
                 ship.x = self.ship_lot_start_x + placed_x_offset
                 ship.y = self.ship_lot_start_y
                 ship.change_directional_state("VERTICAL_DOWN")
-                placed_x_offset += ship.width + 20
+                placed_x_offset += ship.width + self.ship_lot_x_offset
                 oh.new_object(ship)
             self.ships_added = True
+
+        if not self.text_placed:
+            middle_x = self.ship_lot_start_x + (placed_x_offset/2)
+            above_y = self.ship_lot_start_y - self.available_ships_text.height - 10
+
+            self.available_ships_text.x = middle_x - (self.available_ships_text.width / 2)
+            self.available_ships_text.y = above_y
+
+            oh.new_object(self.available_ships_text)
+
+            board_1_right_x = self.player_board.x + self.player_board.width
+            board_2_left_x = self.enemy_board.x
+
+            self.start_game_text.x = board_1_right_x + ((board_2_left_x - board_1_right_x)/2)
+            self.start_game_text.x -= self.start_game_text.width / 2
+            self.start_game_text.y = self.ship_lot_start_y + 150
+
+            oh.new_object(self.start_game_text)
+
+            self.text_placed = True
 
         if self.selected_ship:
             self.selected_ship.selected = True
@@ -234,6 +264,7 @@ class GameSceneManager(BaseObject):
         self.current_phase = "PLAYER_TURN"
         self.status_menu.set_status("Player Turn")
         self.status_menu.set_action("Please make a selection on the AI board")
+
 
     def _change_to_enemy_phase(self):
         '''
@@ -275,9 +306,11 @@ class GameSceneManager(BaseObject):
                     if self.selected_ship:
                         self.selected_ship.rotate_ship_90()
 
-                #FOR TESTING PURPOSES ONLY - Daniel Brezavar
-                elif event.button == 2:
-                    self._change_to_player_phase()
+                #FOR TESTING PURPOSES ONLY - Joshua Shequin
+                if event.button == 1:
+                    if self.start_game_text.hovered:
+                        self.clean_up_placement_phase(oh)
+                        self._change_to_player_phase()
 
     def player_turn_phase_input(self, oh, events, pressed_keys):
         for event in events:
@@ -295,3 +328,64 @@ class GameSceneManager(BaseObject):
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
+
+    def clean_up_placement_phase(self, oh):
+
+        oh.remove_object(self.start_game_text)
+        self.start_game_text = None
+
+        oh.remove_object(self.available_ships_text)
+        self.available_ships_text = None
+
+
+class AvailableShipsText(BaseObject):
+
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.image = il.load_image(Images.ImageEnum.AVAILABLESHIPS)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
+    def scale_images(self, factor_x, factor_y):
+        self.image = transform.scale(self.image, (self.width*factor_x,
+                                                  self.height*factor_y))
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
+
+class StartBattleText(BaseObject):
+
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.image_normal = il.load_image(Images.ImageEnum.STARTBATTLE)
+        self.image_hovered = il.load_image(Images.ImageEnum.STARTBATTLEHOVERED)
+        self.width = self.image_normal.get_width()
+        self.height = self.image_normal.get_height()
+
+        self.hovered = False
+        self.image = self.image_normal
+
+    def scale_images(self, factor_x, factor_y):
+        self.image_normal = transform.scale(self.image_normal,
+                                            (self.width*factor_x,
+                                             self.height*factor_y))
+        self.image_hovered = transform.scale(self.image_hovered,
+                                             (self.width * factor_x,
+                                              self.height * factor_y))
+        self.width = self.image_normal.get_width()
+        self.height = self.image_normal.get_height()
+
+    def update(self, oh):
+
+        mouse_pos = pygame.mouse.get_pos()
+        self.hovered = False
+        if self.x <= mouse_pos[0] <= self.x + self.width:
+            if self.y <= mouse_pos[1] <= self.y + self.height:
+                self.hovered = True
+
+        if self.hovered:
+            self.image = self.image_hovered
+        else:
+            self.image = self.image_normal
