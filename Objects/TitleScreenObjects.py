@@ -6,7 +6,7 @@ import pygame
 
 class BackgroundImage(BaseObject):
     """
-    Class that creates background image object and blits to screen
+    Class that creates background image object and blits to canvas
     """
     def __init__(self, il, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
@@ -22,27 +22,25 @@ class BackgroundImage(BaseObject):
 
 class PlayButton(BaseObject):
     """
-   Class that creates play button object and blits to screen
+   Class that creates Start button object and blits to canvas.
     """
 
     def __init__(self, il, x=393, y=340):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.font = font.Font("Fonts/OpenSans-Light.ttf", 50)
-        self.play_button = self.font.render("Start Game", True, (255, 255, 255))
+        self.start_button = self.font.render("Start Game", True, (255, 255, 255))
 
     def update(self, oh):
         location = pygame.mouse.get_pos()
+        # if mouse is over start button, color is changed to red
         if 382 < location[0] < 642 and 358 < location[1] < 398:
-            self.play_button = self.font.render("Start Game", True, (166, 31, 36))
+            self.start_button = self.font.render("Start Game", True, (166, 31, 36))
         else:
-            self.play_button = self.font.render("Start Game", True, (255, 255, 255))
-
+            self.start_button = self.font.render("Start Game", True, (255, 255, 255))
 
     def render(self, canvas):
-        canvas.blit(self.play_button, (self.x, self.y))
-
-
+        canvas.blit(self.start_button, (self.x, self.y))
 
 
 class SettingsButton(BaseObject):
@@ -58,11 +56,11 @@ class SettingsButton(BaseObject):
 
     def update(self, oh):
         location = pygame.mouse.get_pos()
+        # if mouse is over settings button, color is changed to red
         if 420 < location[0] < 591 and 434 < location[1] < 516:
             self.settings_button = self.font.render("Settings", True, (166, 31, 36))
         else:
             self.settings_button = self.font.render("Settings", True, (255, 255, 255))
-
 
     def render(self, canvas):
         canvas.blit(self.settings_button, (self.x, self.y))
@@ -81,6 +79,7 @@ class AchievementButton(BaseObject):
 
     def update(self, oh):
         location = pygame.mouse.get_pos()
+        # if mouse is over achievements button, color is changed to red
         if 355 < location[0] < 662 and 598 < location[1] < 635:
             self.achievements_button = self.font.render("Achievements", True, (166, 31, 36))
         else:

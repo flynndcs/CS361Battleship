@@ -1,4 +1,4 @@
-from Scenes.TitleScreen import TitleScene
+from Scenes.TitleScene import TitleScene
 import pygame
 from pygame import *
 import Tools.Images
