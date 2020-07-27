@@ -32,3 +32,4 @@ class OptionsScreenMessage(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.game_message, (self.x, self.y))
+

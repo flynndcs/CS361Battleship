@@ -1,6 +1,7 @@
 from Bases.BaseObjects import BaseObject
 from Tools import Images
 from pygame import transform, font
+import pygame
 
 
 class BackgroundImage(BaseObject):
@@ -24,33 +25,47 @@ class PlayButton(BaseObject):
    Class that creates play button object and blits to screen
     """
 
-    def __init__(self, il, x=380, y=340):
+    def __init__(self, il, x=393, y=340):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.width = 260
-        self.height = 100
-        self.play_button = il.load_image(Images.ImageEnum.PLAY)
-        self.resized_play_button = transform.scale(self.play_button, (self.width, self.height))
+        self.font = font.Font("Fonts/OpenSans-Light.ttf", 50)
+        self.play_button = self.font.render("Start Game", True, (255, 255, 255))
+
+    def update(self, oh):
+        location = pygame.mouse.get_pos()
+        if 382 < location[0] < 642 and 358 < location[1] < 398:
+            self.play_button = self.font.render("Start Game", True, (166, 31, 36))
+        else:
+            self.play_button = self.font.render("Start Game", True, (255, 255, 255))
+
 
     def render(self, canvas):
-        canvas.blit(self.resized_play_button, (self.x, self.y))
+        canvas.blit(self.play_button, (self.x, self.y))
 
 
-class OptionsButton(BaseObject):
+
+
+class SettingsButton(BaseObject):
     """
     Class that creates options button object and blits to screen
     """
 
-    def __init__(self, il, x=380, y=460):
+    def __init__(self, il, x=416, y=460):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.width = 260
-        self.height = 100
-        self.options_button = il.load_image(Images.ImageEnum.OPTIONS)
-        self.resized_options_button = transform.scale(self.options_button, (self.width, self.height))
+        self.font = font.Font("Fonts/OpenSans-Light.ttf", 50)
+        self.settings_button = self.font.render("Settings", True, (255, 255, 255))
+
+    def update(self, oh):
+        location = pygame.mouse.get_pos()
+        if 420 < location[0] < 591 and 434 < location[1] < 516:
+            self.settings_button = self.font.render("Settings", True, (166, 31, 36))
+        else:
+            self.settings_button = self.font.render("Settings", True, (255, 255, 255))
+
 
     def render(self, canvas):
-        canvas.blit(self.resized_options_button, (self.x, self.y))
+        canvas.blit(self.settings_button, (self.x, self.y))
 
 
 class AchievementButton(BaseObject):
@@ -58,16 +73,21 @@ class AchievementButton(BaseObject):
     Class that creates achievements button object and blits to screen
     """
 
-    def __init__(self, il, x=380, y=580):
+    def __init__(self, il, x=355, y=580):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.width = 260
-        self.height = 100
-        self.achievements_button = il.load_image(Images.ImageEnum.ACHIEVEMENTS)
-        self.resized_acievements_button = transform.scale(self.achievements_button, (self.width, self.height))
+        self.font = font.Font("Fonts/OpenSans-Light.ttf", 50)
+        self.achievements_button = self.font.render("Achievements", True, (255, 255, 255))
+
+    def update(self, oh):
+        location = pygame.mouse.get_pos()
+        if 355 < location[0] < 662 and 598 < location[1] < 635:
+            self.achievements_button = self.font.render("Achievements", True, (166, 31, 36))
+        else:
+            self.achievements_button = self.font.render("Achievements", True, (255, 255, 255))
 
     def render(self, canvas):
-        canvas.blit(self.resized_acievements_button, (self.x, self.y))
+        canvas.blit(self.achievements_button, (self.x, self.y))
 
 
 class BattleshipTitle(BaseObject):
