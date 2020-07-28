@@ -202,6 +202,7 @@ class GameSceneManager(BaseObject):
     def _initialize_enemy_board(self):
         self.OH.new_object(self.enemy_board)
         self.OH.new_object(self.enemy_title)
+        self.enemy_board_initialized = True
 
     def update(self, oh):
         if self.current_phase == "OPTIONS":
