@@ -305,7 +305,7 @@ class GameSceneManager(BaseObject):
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
 
-    def _change_to_player_phase(self):
+    def change_to_player_phase(self):
         '''
         Change phase to player turn
         '''
@@ -362,6 +362,10 @@ class PlacementPhaseHandler:
         self.error_display_timer_current = self.error_display_timer_maximum
         self.epm = ErrorPlacingMessage(il)
 
+        self.error_NASP_display_timer_maximum = 64
+        self.error_NASP_display_timer_current = self.error_NASP_display_timer_maximum
+        self.NASP = ErrorNotAllShipsPlaced(il)
+
         self.resize_ships()
 
     def update(self, oh):
@@ -377,6 +381,14 @@ class PlacementPhaseHandler:
 
             if self.error_display_timer_current == self.error_display_timer_maximum:
                 oh.remove_object(self.epm)
+
+        if self.error_NASP_display_timer_current < self.error_NASP_display_timer_maximum:
+            if self.error_NASP_display_timer_current == 0:
+                oh.new_object(self.NASP)
+            self.error_NASP_display_timer_current += 1
+
+            if self.error_NASP_display_timer_current == self.error_NASP_display_timer_maximum:
+                oh.remove_object(self.NASP)
 
         placed_x_offset = 0
         if not self.ships_added:
@@ -452,18 +464,12 @@ class PlacementPhaseHandler:
 
                 if event.button == 1:
                     if self.start_game_text.hovered:
-                        self.clean_up_placement_phase(oh)
-                        self.phase_manager._change_to_player_phase()
 
-                        """
-                        this will be used when the ship placement is correctly
-                        implemented.
                         if len(self.ships_placed) == len(self.available_ships):
                             self.clean_up_placement_phase(oh)
                             self.phase_manager.change_to_player_phase()
                         else:
                             self.display_not_all_ships_placed()
-                        """
 
     def clean_up_placement_phase(self, oh):
 
@@ -472,6 +478,13 @@ class PlacementPhaseHandler:
 
         oh.remove_object(self.available_ships_text)
         self.available_ships_text = None
+
+        if self.error_NASP_display_timer_current < self.error_NASP_display_timer_maximum:
+            oh.remove_object(self.NASP)
+        if self.error_display_timer_current < self.error_display_timer_maximum:
+            oh.remove_object(self.epm)
+
+        self.put_ships_in_board()
 
     def get_size_of_rects(self):
         # currently just a placeholder function return until there is an
@@ -549,7 +562,7 @@ class PlacementPhaseHandler:
             if ship == self.selected_ship:
                 continue
             else:
-                if ship.x - self.selected_ship.width <= self.selected_ship.x <= ship.x + ship.width + self.selected_ship.width - self.get_size_of_rects()[0]:
+                if ship.x - self.selected_ship.width <= self.selected_ship.x <= ship.x + ship.width:
                     if ship.y - self.selected_ship.height <= self.selected_ship.y <= ship.y + ship.height:
                         allowed = False
 
@@ -564,7 +577,10 @@ class PlacementPhaseHandler:
 
     def display_not_all_ships_placed(self):
 
-        pass
+        self.NASP.x = (self.start_game_text.x + self.start_game_text.width/2) - (self.NASP.width/2)
+        self.NASP.y = self.start_game_text.y + self.start_game_text.height + 50
+
+        self.error_NASP_display_timer_current = 0
 
     def place_ship(self):
         if self.selected_ship not in self.ships_placed:
@@ -581,6 +597,31 @@ class PlacementPhaseHandler:
     def get_number_of_squares(self):
 
         return 10, 10
+
+    def put_ships_in_board(self):
+
+        for ship in self.ships_placed:
+            ship_array = self.get_ship_array(ship)
+            # self.player_board.add_ship(ship.name, ship_array)
+
+    def get_ship_array(self, ship):
+        ship_array = []
+        starting_x_square = (ship.selected_x - self.player_board.x) // 40
+        starting_y_square = (ship.selected_y - self.player_board.y) // 40
+        for x in range(0, ship.size):
+            if ship.directional_state == "HORIZONTAL_RIGHT":
+                ship_array.append(
+                    str(starting_x_square + x) + "-" + str(starting_y_square))
+            elif ship.directional_state == "HORIZONTAL_LEFT":
+                ship_array.append(
+                    str(starting_x_square - x) + "-" + str(starting_y_square))
+            elif ship.directional_state == "VERTICAL_DOWN":
+                ship_array.append(
+                    str(starting_x_square) + "-" + str(starting_y_square+x))
+            elif ship.directional_state == "VERTICAL_UP":
+                ship_array.append(
+                    str(starting_x_square) + "-" + str(starting_y_square-x))
+        return ship_array
 
 
 class AvailableShipsText(BaseObject):
@@ -642,5 +683,15 @@ class ErrorPlacingMessage(BaseObject):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.image = il.load_image(Images.ImageEnum.INCORRECTPLACEMENT)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
+
+class ErrorNotAllShipsPlaced(BaseObject):
+
+    def __init__(self, il, x=0, y=0):
+
+        BaseObject.__init__(self, il, x=x, y=y)
+        self.image = il.load_image(Images.ImageEnum.NOTALLSHIPSPLACED)
         self.width = self.image.get_width()
         self.height = self.image.get_height()

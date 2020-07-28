@@ -28,6 +28,8 @@ class BaseShip(BaseObject):
 
         self.selected = False
 
+        self.name = None
+
         self.life = []
         for segment in range(self.size):
             self.life.append(1)
@@ -108,6 +110,8 @@ class Submarine(BaseShip):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+        self.name = "submarine"
+
         self.size = 3
 
 
@@ -132,6 +136,8 @@ class Battleship(BaseShip):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+        self.name = "battleship"
+
         self.size = 4
 
 
@@ -144,6 +150,8 @@ class Cruiser(BaseShip):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+        self.name = "cruiser"
+
         self.size = 3
 
 
@@ -155,6 +163,8 @@ class Destroyer(BaseShip):
         self.image = il.load_image(Images.ImageEnum.PATROLBOAT)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+
+        self.name = "destroyer"
 
         self.size = 2
 

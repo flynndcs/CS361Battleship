@@ -48,3 +48,4 @@ class ImageEnum(Enum):
     STARTBATTLE = "res/StartBattle.png"
     STARTBATTLEHOVERED = "res/StartBattle_hovered.png"
     INCORRECTPLACEMENT = "res/IncorrectPlacement.png"
+    NOTALLSHIPSPLACED = "res/NotAllShipsPlaced.png"
