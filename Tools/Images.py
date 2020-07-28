@@ -44,3 +44,6 @@ class ImageEnum(Enum):
     BATTLESHIP = "res/ships/Battleship.png"
     CRUISER = "res/ships/Cruiser.png"
     PATROLBOAT = "res/ships/PatrolBoat.png"
+    AVAILABLESHIPS = "res/AvailableShipsText.png"
+    STARTBATTLE = "res/StartBattle.png"
+    STARTBATTLEHOVERED = "res/StartBattle_hovered.png"
