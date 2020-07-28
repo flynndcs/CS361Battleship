@@ -1,9 +1,10 @@
-from Bases.BaseObjects import BaseObject
-from Tools import Images
-from pygame import transform, font
 import Objects.ShipObjects
 import Objects.BattleshipBoard
 import pygame.mouse
+from Objects.BattleshipBoard import BattleshipBoard
+from Bases.BaseObjects import BaseObject
+from Tools import Images
+from pygame import transform, font
 
 class GameScreenStatusMenu(BaseObject):
     '''
@@ -11,36 +12,36 @@ class GameScreenStatusMenu(BaseObject):
     Description: Displays game status and actions required for the user
     '''
 
-    def __init__(self, il, x=45, y=45):
+    def __init__(self, il, x=0, y= 0):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.font1 = font.Font("Fonts/freesansbold.ttf", 25)
-        self.font2 = font.Font("Fonts/freesansbold.ttf", 20)
+        self.font1 = font.Font("Fonts/OpenSans-Light.ttf", 25)
+        self.font2 = font.Font("Fonts/OpenSans-Light.ttf", 20)
 
-        self.rect_width = 900
-        self.rect_height = 110
+        self.window_width, self.window_height = pygame.display.get_surface().get_size()
+
+        self.border_width = 700
+        self.border_height = 80
+        self.border_circle_radius = 10
+        self.border_x = int((self.window_width - self.border_width) / 2)
 
         self.title = "Status Menu"
-        self.title_x = 55
-        self.title_y = 55
+        self.title_x = x + 22
+        self.title_y = y - 33
 
         self.status = ""
-        self.status_x = 80
-        self.status_y = 90
+        self.status_x = self.border_x + 15
+        self.status_y = y + 10
 
         self.action = ""
-        self.action_x = 80
-        self.action_y = 120
-
-        self.line_x1 = 55
-        self.line_x2 = 214
-        self.line_y = 80
+        self.action_x = self.border_x + 15
+        self.action_y = y + 40
 
     def _get_formatted_status_message(self):
         '''
         Returns the status message with font format
         '''
-        message = "Status: " + self.status
+        message = "Phase: " + self.status
         return self.font2.render(message, True, (0, 0, 0))
 
     def _render_status(self, canvas):
@@ -70,29 +71,19 @@ class GameScreenStatusMenu(BaseObject):
         '''
         return self.font1.render(self.title, True, (0, 0, 0))
 
-    def _render_title(self, canvas):
-        '''
-        Renders the status menu title
-        '''
-        message = self._get_formatted_title_message()
-        canvas.blit(message, (self.title_x, self.title_y))
-
-    def _render_title_underscore(self, canvas):
-        '''
-        Renders the underscore for the status menu title
-        '''
-        pygame.draw.line(canvas, (0, 0, 0), (self.line_x1, self.line_y), (self.line_x2, self.line_y))
-
     def _render_status_menu_border(self, canvas):
         '''
         Renders the status menu border
         '''
-        pygame.draw.rect(canvas, (255, 255, 255, .5), pygame.Rect(self.x, self.y, self.rect_width, self.rect_height))
+        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x, self.y), self.border_circle_radius)
+        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x, self.y + self.border_height), self.border_circle_radius)
+        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x + self.border_width, self.y), self.border_circle_radius)
+        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x + self.border_width, self.y + self.border_height), self.border_circle_radius)
+        pygame.draw.rect(canvas, (255, 255, 255), (self.border_x, self.y - self.border_circle_radius, self.border_width, self.border_height + (2 * self.border_circle_radius)))
+        pygame.draw.rect(canvas, (255, 255, 255), (self.border_x - self.border_circle_radius, self.y, self.border_width + (2 * self.border_circle_radius), self.border_height))
 
     def render(self, canvas):
         self._render_status_menu_border(canvas)
-        self._render_title(canvas)
-        self._render_title_underscore(canvas)
         self._render_status(canvas)
         self._render_action(canvas)
 
@@ -108,6 +99,50 @@ class GameScreenStatusMenu(BaseObject):
         '''
         self.action = message
 
+class BoardIdentifier(BaseObject):
+    def __init__(self, il, title, width, height, x=0, y= 0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.font = font.Font("Fonts/OpenSans-Light.ttf", 20)
+
+        self.title = title
+
+        self.border_width = width
+        self.border_height = height
+        self.border_circle_radius = 10
+
+    def _get_formatted_title(self):
+        '''
+        Returns the status message with font format
+        '''
+        return self.font.render(self.title, True, (0, 0, 0))
+
+    def _render_title(self, canvas):
+        title = self._get_formatted_title()
+        canvas.blit(title, (self.x + 5, self.y - 3))
+
+    def _render_border(self, canvas):
+        '''
+        Renders the status menu border
+        '''
+        pygame.draw.circle(canvas, (255, 255, 255), (self.x, self.y), self.border_circle_radius)
+        pygame.draw.circle(canvas, (255, 255, 255), (self.x, self.y + self.border_height), self.border_circle_radius)
+        pygame.draw.circle(canvas, (255, 255, 255), (self.x + self.border_width, self.y), self.border_circle_radius)
+        pygame.draw.circle(canvas, (255, 255, 255), (self.x + self.border_width, self.y + self.border_height), self.border_circle_radius)
+        pygame.draw.rect(canvas, (255, 255, 255), (self.x, 
+                                                   self.y - self.border_circle_radius, 
+                                                   self.border_width, 
+                                                   self.border_height + (2 * self.border_circle_radius)))
+        pygame.draw.rect(canvas, (255, 255, 255), (self.x - self.border_circle_radius, 
+                                                   self.y, 
+                                                   self.border_width + (2 * self.border_circle_radius), 
+                                                   self.border_height + self.border_circle_radius))
+        pygame.draw.line(canvas, (0, 0, 0), (self.x - 10, self.y + self.border_height + self.border_circle_radius - 1), 
+                                            (self.x + self.border_circle_radius + self.border_width, self.y + self.height + self.border_height + self.border_circle_radius - 1))
+
+    def render(self, canvas):
+        self._render_border(canvas)
+        self._render_title(canvas)
 
 class BackgroundImage(BaseObject):
     def __init__(self, il, x=0, y=0):
@@ -123,30 +158,33 @@ class BackgroundImage(BaseObject):
 
 
 class GameSceneManager(BaseObject):
-
-    def __init__(self, il, status_menu, player_board, enemy_board, x=0, y=0):
-        BaseObject.__init__(self, il, x=x, y=y)
+    def __init__(self, IL, OH, x=0, y=0):
+        BaseObject.__init__(self, IL, x=x, y=y)
 
         # this variable will keep track of what phase of the game the player
         # is in.
+        self.IL = IL
+        self.OH = OH
         self.current_phase = "OPTIONS"
-        self.status_menu = status_menu
-        self.player_board = player_board
-        self.enemy_board = enemy_board
+        self.player_board_x = 100
+        self.enemy_board_x = 550
+        self.board_y = 300
+        self.enemy_board_initialized = False
+        
+        self.player_board = BattleshipBoard(self.IL, self.player_board_x, self.board_y)
+        self.player_title = BoardIdentifier(self.IL, "Player Board", 128, 25, self.player_board_x + 10, self.board_y - 35)
+        self.enemy_board = BattleshipBoard(self.IL, self.enemy_board_x, self.board_y)
+        self.enemy_title = BoardIdentifier(self.IL, "Enemy Board", 128, 25, self.enemy_board_x + 10, self.board_y - 35)
+        self.status_menu = GameScreenStatusMenu(self.IL, 60, 60)
 
-        # VARIABLES FOR THE OPTIONS PHASE
+        self.placement_phase_manager = PlacementPhaseHandler(self.IL, self.status_menu, self.player_board, self.enemy_board, self)
+        self._initialize_placement_phase_objects()
 
-        # -------------------------------
 
-        # VARIABLE FOR THE PLACEMENT PHASE
-
-        self.placement_phase_manager = PlacementPhaseHandler(il, self.status_menu, self.player_board, self.enemy_board, self)
-
-        # --------------------------------
         #VARIABLES FOR THE PLAYER TURN PHASE
-        self.battleship_board_positions = enemy_board.boardPositions
+        self.battleship_board_positions = self.enemy_board.boardPositions
 
-        self.dialog_box = Objects.BattleshipBoard.DialogBox(il)
+        self.dialog_box = Objects.BattleshipBoard.DialogBox(self.IL)
 
         #avoids bug where the second turn selection automatically pops up a "hit" dialog without confirm
         self.post_confirm = False
@@ -156,37 +194,36 @@ class GameSceneManager(BaseObject):
         self.selected_position = None
         self.hover_position = None
 
-    def update(self, oh):
+    def _initialize_placement_phase_objects(self):
+        self.OH.new_object(self.player_board)
+        self.OH.new_object(self.status_menu)
+        self.OH.new_object(self.player_title)
+    
+    def _initialize_enemy_board(self):
+        self.OH.new_object(self.enemy_board)
+        self.OH.new_object(self.enemy_title)
 
+    def update(self, oh):
         if self.current_phase == "OPTIONS":
             self.options_phase(oh)
-
         elif self.current_phase == "PLACEMENT":
             self.placement_phase(oh)
-
         elif self.current_phase == "PLAYER_TURN":
             self.player_turn_phase(oh)
-
         elif self.current_phase == "ENEMY_TURN":
             self.enemy_turn_phase(oh)
-
         elif self.current_phase == "GAME_ENDING":
             self.game_ending_phase(oh)
 
     def handle_input(self, oh, events, pressed_keys):
-
         if self.current_phase == "OPTIONS":
             self.options_phase_input(oh, events, pressed_keys)
-
         elif self.current_phase == "PLACEMENT":
             self.placement_phase_input(oh, events, pressed_keys)
-
         elif self.current_phase == "PLAYER_TURN":
             self.player_turn_phase_input(oh, events, pressed_keys)
-
         elif self.current_phase == "ENEMY_TURN":
             self.enemy_turn_phase_input(oh, events, pressed_keys)
-
         elif self.current_phase == "GAME_ENDING":
             self.game_ending_phase_input(oh, events, pressed_keys)
 
@@ -197,7 +234,8 @@ class GameSceneManager(BaseObject):
         self.placement_phase_manager.update(oh)
 
     def player_turn_phase(self, oh):
-        pass
+        if (self.enemy_board_initialized == False):
+            self._initialize_enemy_board()
 
     def enemy_turn_phase(self, oh):
         pass
@@ -209,7 +247,6 @@ class GameSceneManager(BaseObject):
         pass
 
     def placement_phase_input(self, oh, events, pressed_keys):
-
         self.placement_phase_manager.handle_input(oh, events, pressed_keys)
 
     def player_turn_phase_input(self, oh, events, pressed_keys):
@@ -267,7 +304,7 @@ class GameSceneManager(BaseObject):
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
 
-    def change_to_player_phase(self):
+    def _change_to_player_phase(self):
         '''
         Change phase to player turn
         '''
@@ -275,7 +312,7 @@ class GameSceneManager(BaseObject):
         # self.enemy_board.activate_board()
         self.current_phase = "PLAYER_TURN"
         self.status_menu.set_status("Player Turn")
-        self.status_menu.set_action("Please make a selection on the AI board")
+        self.status_menu.set_action("Please make a selection on the Enemy board")
 
     def _change_to_enemy_phase(self):
         '''
@@ -285,9 +322,7 @@ class GameSceneManager(BaseObject):
         # self.enemy_board.deactivate_board()
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
-        self.status_menu.set_action(
-            "Please wait while the AI makes a selection on your board")
-
+        self.status_menu.set_action("Please wait while the Enemy makes a selection on your board")
 
 class PlacementPhaseHandler:
 
@@ -315,6 +350,7 @@ class PlacementPhaseHandler:
         self.ship_lot_start_x = self.player_board.x + (
                     self.player_board.width / 2)
         self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
+
         self.ship_lot_x_offset = 20
 
         self.resize_ships()
@@ -322,8 +358,8 @@ class PlacementPhaseHandler:
     def update(self, oh):
         # self.player_board.activate_board()
         # self.enemy_board.deactivate_board()
-        self.status_menu.set_status("Placement Phase")
-        self.status_menu.set_action("Please place your ships on the gameboard")
+        self.status_menu.set_status("Placement")
+        self.status_menu.set_action("Please place your ships on the player gameboard")
 
         placed_x_offset = 0
         if not self.ships_added:
@@ -393,7 +429,7 @@ class PlacementPhaseHandler:
                 if event.button == 1:
                     if self.start_game_text.hovered:
                         self.clean_up_placement_phase(oh)
-                        self.phase_manager.change_to_player_phase()
+                        self.phase_manager._change_to_player_phase()
 
     def clean_up_placement_phase(self, oh):
 
@@ -472,7 +508,7 @@ class AvailableShipsText(BaseObject):
 
 class StartBattleText(BaseObject):
 
-    def __init__(self, il, x=0, y=0):
+    def __init__(self, il, x=0, y=200):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.image_normal = il.load_image(Images.ImageEnum.STARTBATTLE)
@@ -485,8 +521,8 @@ class StartBattleText(BaseObject):
 
     def scale_images(self, factor_x, factor_y):
         self.image_normal = transform.scale(self.image_normal,
-                                            (self.width*factor_x,
-                                             self.height*factor_y))
+                                            (self.width * factor_x,
+                                             self.height * factor_y))
         self.image_hovered = transform.scale(self.image_hovered,
                                              (self.width * factor_x,
                                               self.height * factor_y))
