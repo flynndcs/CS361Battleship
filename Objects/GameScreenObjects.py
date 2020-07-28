@@ -316,7 +316,7 @@ class GameSceneManager(BaseObject):
         y = randrange(10)
         self.player_board.set_square_selection(x, y)
         self.player_board.determine_selection_result(self.IL, self.OH)
-        self._change_to_player_phase()
+        self.change_to_player_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
