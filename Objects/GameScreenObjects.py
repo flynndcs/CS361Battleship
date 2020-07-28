@@ -97,8 +97,7 @@ class GameSceneManager(BaseObject):
             self.game_ending_phase_input(oh, events, pressed_keys)
 
     def options_phase(self, oh):
-        # self.current_phase = "PLACEMENT"  # just skipping this phase for now
-        self.current_phase = "PLAYER_TURN"
+        self.current_phase = "PLACEMENT"  # just skipping this phase for now
 
     def placement_phase(self, oh):
         placed_x_offset = 0
@@ -145,6 +144,11 @@ class GameSceneManager(BaseObject):
                 elif event.button == 3:
                     if self.selected_ship:
                         self.selected_ship.rotate_ship_90()
+            #temporary
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_g:
+                    self.current_phase = "PLAYER_TURN"
+
 
     def player_turn_phase_input(self, oh, events, pressed_keys):
         for event in events:
