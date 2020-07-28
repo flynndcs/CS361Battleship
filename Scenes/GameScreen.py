@@ -1,5 +1,5 @@
 from Bases.SceneBase import SceneBase
-from Objects.GameScreenObjects import BackgroundImage, GameScreenMessage
+from Objects.GameScreenObjects import BackgroundImage 
 # from Objects.MasterBoard import MasterBoard
 from Objects.BattleshipBoard import BattleshipBoard
 from Objects.GameScreenObjects import GameSceneManager
