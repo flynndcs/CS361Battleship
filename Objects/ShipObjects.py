@@ -28,6 +28,8 @@ class BaseShip(BaseObject):
 
         self.selected = False
 
+        self.name = None
+
         self.life = []
         for segment in range(self.size):
             self.life.append(1)
@@ -94,9 +96,9 @@ class BaseShip(BaseObject):
                 self.x = self.selected_x
                 self.y = self.selected_y - self.height
 
-    def scale_ship(self, new_x, new_y):
+    def scale_ship(self, new_x, new_y, offset_size):
 
-        self.image = pygame.transform.scale(self.image, (new_x*self.size, new_y))
+        self.image = pygame.transform.scale(self.image, (new_x*self.size - offset_size, new_y - offset_size))
 
 
 class Submarine(BaseShip):
@@ -107,6 +109,8 @@ class Submarine(BaseShip):
         self.image = il.load_image(Images.ImageEnum.SUBMARINE)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+
+        self.name = "submarine"
 
         self.size = 3
 
@@ -132,6 +136,8 @@ class Battleship(BaseShip):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+        self.name = "battleship"
+
         self.size = 4
 
 
@@ -144,6 +150,8 @@ class Cruiser(BaseShip):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+        self.name = "cruiser"
+
         self.size = 3
 
 
@@ -155,6 +163,8 @@ class Destroyer(BaseShip):
         self.image = il.load_image(Images.ImageEnum.PATROLBOAT)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+
+        self.name = "destroyer"
 
         self.size = 2
 
