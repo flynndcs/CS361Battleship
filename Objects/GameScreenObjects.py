@@ -353,10 +353,14 @@ class PlacementPhaseHandler:
         #             self.player_board.width / 2)
         # self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
 
-        self.ship_lot_start_x = self.player_board.x + self.player_board.width + 225
+        self.ship_lot_start_x = self.player_board.x + self.get_board_width() + 200
         self.ship_lot_start_y = self.player_board.y + 125
 
         self.ship_lot_x_offset = 20
+
+        self.error_display_timer_maximum = 64
+        self.error_display_timer_current = self.error_display_timer_maximum
+        self.epm = ErrorPlacingMessage(il)
 
         self.resize_ships()
 
@@ -365,6 +369,14 @@ class PlacementPhaseHandler:
         # self.enemy_board.deactivate_board()
         self.status_menu.set_status("Placement")
         self.status_menu.set_action("Please place your ships on the player gameboard")
+
+        if self.error_display_timer_current < self.error_display_timer_maximum:
+            if self.error_display_timer_current == 0:
+                oh.new_object(self.epm)
+            self.error_display_timer_current += 1
+
+            if self.error_display_timer_current == self.error_display_timer_maximum:
+                oh.remove_object(self.epm)
 
         placed_x_offset = 0
         if not self.ships_added:
@@ -422,8 +434,11 @@ class PlacementPhaseHandler:
                             self.place_ship()
                             self.selected_ship.selected = False
                             self.selected_ship = None
+                            if self.error_display_timer_current < self.error_display_timer_maximum:
+                                self.error_display_timer_current = self.error_display_timer_maximum
+                                oh.remove_object(self.epm)
                         else:
-                            self.display_not_possible()
+                            self.display_not_possible(self.selected_ship.x, self.selected_ship.y)
                     else:
                         mouse_pos = event.pos
                         for ship in self.available_ships:
@@ -487,13 +502,37 @@ class PlacementPhaseHandler:
         mouse_pos_x = mouse_x - self.player_board.x
         mouse_pos_y = mouse_y - self.player_board.y
 
-        board_position_x = (mouse_pos_x // x_box_size) * x_box_size + left_side_of_board
-        board_position_y = (mouse_pos_y // y_box_size) * y_box_size + y_of_board
+        min_right = self.get_board_width() + self.player_board.x
+        min_down = self.get_board_height() + self.player_board.y
 
-        if mouse_y > y_of_board:
-            snapped_y = board_position_y
-        if mouse_x > left_side_of_board:
-            snapped_x = board_position_x
+        max_left = self.player_board.x
+        max_up = self.player_board.y
+
+        if self.selected_ship.directional_state == "HORIZONTAL_RIGHT":
+            min_right = min_right - self.selected_ship.width - (self.get_size_of_rects()[0] - self.get_offset_size()[0])
+            min_down -= self.get_size_of_rects()[1]
+        elif self.selected_ship.directional_state == "HORIZONTAL_LEFT":
+            min_right -= self.get_size_of_rects()[0]
+            min_down -= self.get_size_of_rects()[1]
+            max_left += (self.selected_ship.width - self.get_size_of_rects()[0])+(self.get_size_of_rects()[0] - self.get_offset_size()[0])
+        elif self.selected_ship.directional_state == "VERTICAL_DOWN":
+            min_down -= self.selected_ship.height+(self.get_size_of_rects()[1] - self.get_offset_size()[1])
+            min_right -= self.get_size_of_rects()[0]
+        elif self.selected_ship.directional_state == "VERTICAL_UP":
+            min_right -= self.get_size_of_rects()[0]
+            min_down -= self.get_size_of_rects()[1]
+            max_up += (self.selected_ship.height - self.get_size_of_rects()[1])+(self.get_size_of_rects()[1] - self.get_offset_size()[1])
+
+        board_position_x = min((mouse_pos_x // x_box_size) * x_box_size + left_side_of_board,
+                               min_right)
+        board_position_y = min((mouse_pos_y // y_box_size) * y_box_size + y_of_board,
+                               min_down)
+
+        board_position_x = max(max_left, board_position_x)
+        board_position_y = max(max_up, board_position_y)
+
+        snapped_y = board_position_y
+        snapped_x = board_position_x
 
         if self.selected_ship.directional_state == "HORIZONTAL_LEFT":
             snapped_x += self.get_offset_size()[0]
@@ -504,15 +543,44 @@ class PlacementPhaseHandler:
 
     def check_placement(self):
 
-        return True
+        allowed = True
 
-    def display_not_possible(self):
+        for ship in self.ships_placed:
+            if ship == self.selected_ship:
+                continue
+            else:
+                if ship.x - self.selected_ship.width <= self.selected_ship.x <= ship.x + ship.width + self.selected_ship.width - self.get_size_of_rects()[0]:
+                    if ship.y - self.selected_ship.height <= self.selected_ship.y <= ship.y + ship.height:
+                        allowed = False
+
+        return allowed
+
+    def display_not_possible(self, x, y):
+
+        self.epm.x = x - self.epm.width
+        self.epm.y = y - self.epm.height
+
+        self.error_display_timer_current = 0
+
+    def display_not_all_ships_placed(self):
 
         pass
 
     def place_ship(self):
+        if self.selected_ship not in self.ships_placed:
+            self.ships_placed.append(self.selected_ship)
 
-        pass
+    def get_board_width(self):
+
+        return self.get_number_of_squares()[0] * self.get_size_of_rects()[0]
+
+    def get_board_height(self):
+
+        return self.get_number_of_squares()[1] * self.get_size_of_rects()[1]
+
+    def get_number_of_squares(self):
+
+        return 10, 10
 
 
 class AvailableShipsText(BaseObject):
@@ -566,3 +634,13 @@ class StartBattleText(BaseObject):
             self.image = self.image_hovered
         else:
             self.image = self.image_normal
+
+
+class ErrorPlacingMessage(BaseObject):
+
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.image = il.load_image(Images.ImageEnum.INCORRECTPLACEMENT)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
