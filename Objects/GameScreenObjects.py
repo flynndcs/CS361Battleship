@@ -348,9 +348,12 @@ class PlacementPhaseHandler:
         self.start_game_text = StartBattleText(il)
         self.text_placed = False
 
-        self.ship_lot_start_x = self.player_board.x + (
-                    self.player_board.width / 2)
-        self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
+        # self.ship_lot_start_x = self.player_board.x + (
+        #             self.player_board.width / 2)
+        # self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
+
+        self.ship_lot_start_x = self.player_board.x + 640
+        self.ship_lot_start_y = self.player_board.y + 125
 
         self.ship_lot_x_offset = 20
 
@@ -390,10 +393,14 @@ class PlacementPhaseHandler:
             board_1_right_x = self.player_board.x + self.player_board.width
             board_2_left_x = self.enemy_board.x
 
-            self.start_game_text.x = board_1_right_x + (
-                        (board_2_left_x - board_1_right_x) / 2)
-            self.start_game_text.x -= self.start_game_text.width / 2
-            self.start_game_text.y = self.ship_lot_start_y + 150
+            # self.start_game_text.x = board_1_right_x + (
+            #             (board_2_left_x - board_1_right_x) / 2)
+            # self.start_game_text.x -= self.start_game_text.width / 2
+            # self.start_game_text.y = self.ship_lot_start_y + 150
+
+            self.start_game_text.x = self.ship_lot_start_x
+            # self.start_game_text.x -= self.start_game_text.width / 2
+            self.start_game_text.y = self.ship_lot_start_y + 225
 
             oh.new_object(self.start_game_text)
 
