@@ -5,6 +5,7 @@ from Objects.BattleshipBoard import BattleshipBoard
 from Bases.BaseObjects import BaseObject
 from Tools import Images
 from pygame import transform, font
+from random import randrange
 
 class GameScreenStatusMenu(BaseObject):
     '''
@@ -279,6 +280,9 @@ class GameSceneManager(BaseObject):
                     self.dialog_box.confirm_shot()
                     self.shot_result_displayed = True
                     self.selected_position = None
+                    self.enemy_board.determine_selection_result(self.IL, self.OH)
+                    self._change_to_enemy_phase()
+                    self.enemy_board.clear_board(oh, self.dialog_box)
 
                 elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
                     print("pressed deny")
@@ -287,12 +291,20 @@ class GameSceneManager(BaseObject):
 
             elif event.type == pygame.MOUSEMOTION and self.selected_position is None and self.shot_result_displayed is False:
                 mouseX, mouseY = pygame.mouse.get_pos()
-                if ((mouseX > 550 and mouseX <= 950) and (mouseY > 150 and mouseY <= 550)):
+                if ((mouseX > 550 and mouseX <= 950) and (mouseY > 300 and mouseY <= 700)):
                     mouse_pos_x = mouseX - self.enemy_board.x
                     mouse_pos_y = mouseY - self.enemy_board.y
 
                     board_position_x = int(mouse_pos_x / 40)
                     board_position_y = int(mouse_pos_y / 40)
+
+                    if (board_position_x == 10):
+                        board_position_x -= 1
+                    
+                    if (board_position_y == 10):
+                        board_position_y -= 1
+
+                    self.enemy_board.set_square_selection(board_position_x, board_position_y)
 
                     if self.hover_position:
                         self.enemy_board.clear_board(oh, None)
@@ -300,7 +312,11 @@ class GameSceneManager(BaseObject):
                     self.enemy_board.hoverHighlight(self.hover_position)
 
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
-        pass
+        x = randrange(10)
+        y = randrange(10)
+        self.player_board.set_square_selection(x, y)
+        self.player_board.determine_selection_result(self.IL, self.OH)
+        self._change_to_player_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
@@ -323,7 +339,7 @@ class GameSceneManager(BaseObject):
         # self.enemy_board.deactivate_board()
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
-        self.status_menu.set_action("Please wait while the Enemy makes a selection on your board")
+        self.status_menu.set_action("Please wait. The enemy is making a selection.")
 
 
 class PlacementPhaseHandler:

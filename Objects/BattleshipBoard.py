@@ -13,6 +13,23 @@ usage:
     player_board = BattleshipBoard()
     ai_board = BattleshipBoard()
 '''
+
+class HitIcon(BaseObject):
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.image = il.load_image(Images.ImageEnum.HIT)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
+class MissIcon(BaseObject):
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.image = il.load_image(Images.ImageEnum.MISS)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
 class DialogBox(BaseObject):
 
     confirm_deny_buttons = []
@@ -46,16 +63,16 @@ class DialogBox(BaseObject):
         self.confirm_deny_buttons.append(self.image.blit(deny, (self.denyX, self.denyY)))
 
     def confirm_shot(self):
-        # mouseX, mouseY = pygame.mouse.get_pos()
-        # for button in self.confirm_deny_buttons:
-        print("confirm within dialog class")
-        hit_or_miss = pygame.Surface([99,49])
-        hit_or_miss.fill((0,255,0))
+        mouseX, mouseY = pygame.mouse.get_pos()
+    #     for button in self.confirm_deny_buttons:
+    #     print("confirm within dialog class")
+    #     hit_or_miss = pygame.Surface([99,49])
+    #     hit_or_miss.fill((0,255,0))
         
-        font = pygame.font.Font(pygame.font.get_default_font(),50)
-        text = font.render('Hit', True, (0,0,0))
-        hit_or_miss.blit(text, (0,0))
-        self.image.blit(hit_or_miss, (0,0))
+    #     font = pygame.font.Font(pygame.font.get_default_font(),50)
+    #     text = font.render('Hit', True, (0,0,0))
+    #     hit_or_miss.blit(text, (0,0))
+    #     self.image.blit(hit_or_miss, (0,0))
     
 class BattleshipBoard(BaseObject):
 
@@ -107,6 +124,10 @@ class BattleshipBoard(BaseObject):
         self.rect.fill((0, 0, 255))
 
         self.init_board_positions()
+
+        self.hit = True
+        self.selection_x = -1
+        self.selection_y = -1
         
         # self.ship_count_tracker = {}
         # self.total_ship_positions = 0
@@ -144,122 +165,150 @@ class BattleshipBoard(BaseObject):
 
         self.image.blit(shot_dialog, boardPosition)
 
-
     def hoverHighlight(self, boardPosition):
         highlightRect = pygame.Surface([35,35])
         highlightRect.fill((255,0,0))
         self.image.blit(highlightRect, boardPosition)
 
-        
-    def _update_ship_count_number(self, ship_name, t = 0):
-        '''
-        Uses the ship_count_tracker class dictionary to track the number of positions
-        each ship has taken up on the board. 
-        '''
+    def set_square_selection(self, x, y):
+        self.selection_x = x
+        self.selection_y = y
 
-        if (t == 0):
-            if ship_name in self.ship_count_tracker:
-                self.ship_count_tracker[ship_name] += 1
-            else:
-                self.ship_count_tracker[ship_name] = 1
+    def _generate_icon_x(self):
+        return self.x + (self.selection_x * 40)
+
+    def _generate_icon_y(self):
+        return self.y + (self.selection_y * 40)
+
+    def _show_hit(self, il, oh):
+        icon_x = self._generate_icon_x()
+        icon_y = self._generate_icon_y()
+
+        oh.new_object(HitIcon(il, icon_x, icon_y))
+
+    def _show_miss(self, il, oh):
+        icon_x = self._generate_icon_x()
+        icon_y = self._generate_icon_y()
+
+        oh.new_object(MissIcon(il, icon_x, icon_y))
+
+    def determine_selection_result(self, il, oh):
+        if (self.hit):
+            self._show_hit(il, oh)
+            self.hit = False
         else:
-            self.ship_count_tracker[ship_name] -= 1
-
-    def _is_ship_sunk(self, ship_name):
-        '''
-        Determines if the ship that was hit has been sunk
-        '''
-
-        if (self.ship_count_tracker[ship_name] == 0):
-            return True
-
-        return False
-
-    def _extract_location(self, location):
-        '''
-        Return the row and column location as an array with 2 elements
-
-        Precondition: location must be in the format "a-b" where a is the row
-                      number and b is the column number
-        '''
-
-        return location.split("-")
-
-    def _update_location_to_used(self, row, column):
-        '''
-        Updates the gameboard location to "used" to signify that location has
-        already been guessed
-        '''
-
-        self.gameboard[row][column] = "used"
-
-    def _get_gameboard_info(self, row, column):
-        '''
-        Returns string of the gameboard that is located at the row and column
-        position passed into function
-        '''
-
-        return self.gameboard[row][column]
-
-    def _gameboard_hit(self, row, column, ship_name):
-        '''
-        Updates the gameboard and ship_count_tracker to account for a hit on the board.
-        '''
+            self._show_miss(il, oh)
+            self.hit = True
         
-        self._update_ship_count_number(ship_name, 1)
-        self.total_ship_positions -= 1
+    # def _update_ship_count_number(self, ship_name, t = 0):
+    #     '''
+    #     Uses the ship_count_tracker class dictionary to track the number of positions
+    #     each ship has taken up on the board. 
+    #     '''
 
-    def add_ship(self, ship_name, ship_array):
-        '''
-        Add a ship to the game board. 
+    #     if (t == 0):
+    #         if ship_name in self.ship_count_tracker:
+    #             self.ship_count_tracker[ship_name] += 1
+    #         else:
+    #             self.ship_count_tracker[ship_name] = 1
+    #     else:
+    #         self.ship_count_tracker[ship_name] -= 1
 
-        Precondition: funtion must be passed a ship name
+    # def _is_ship_sunk(self, ship_name):
+    #     '''
+    #     Determines if the ship that was hit has been sunk
+    #     '''
 
-        Precondition: function must be passed an array of locations. Each element
-                      of the location array must be structured "a-b" where a is the
-                      row number and b is the column number
-        '''
-        for location in ship_array:
-            row, column = self._extract_location(location)
+    #     if (self.ship_count_tracker[ship_name] == 0):
+    #         return True
 
-            self.total_ship_positions += 1
-            self.gameboard[row][column] = ship_name
-            self._update_ship_count_number(ship_name, 0)
+    #     return False
 
-    def all_ships_sunk_check(self):
-        '''
-        Determine if all ships have been sunk on a gameboard. Return true if 
-        all ships are sunk. Otherwise return false
-        '''
+    # def _extract_location(self, location):
+    #     '''
+    #     Return the row and column location as an array with 2 elements
 
-        if (self.total_ship_positions == 0):
-            return True
+    #     Precondition: location must be in the format "a-b" where a is the row
+    #                   number and b is the column number
+    #     '''
 
-        return False
+    #     return location.split("-")
 
-    def make_guess(self, location):
-        '''
-        Allows for the user or AI to make a guess on the board.
+    # def _update_location_to_used(self, row, column):
+    #     '''
+    #     Updates the gameboard location to "used" to signify that location has
+    #     already been guessed
+    #     '''
 
-        Precondition: location must be in the format "a-b" where a is the row
-                      number and b is the column number
+    #     self.gameboard[row][column] = "used"
 
-        Return types:
-            0 = Guess was a miss
-            1 = Guess was a hit
-            2 = Location has already been guessed
-        '''
+    # def _get_gameboard_info(self, row, column):
+    #     '''
+    #     Returns string of the gameboard that is located at the row and column
+    #     position passed into function
+    #     '''
 
-        row, column = self._extract_location(location)
-        location_info = self._get_gameboard_info(row, column)
+    #     return self.gameboard[row][column]
 
-        if (location_info == "used"):
-            return 2
+    # def _gameboard_hit(self, row, column, ship_name):
+    #     '''
+    #     Updates the gameboard and ship_count_tracker to account for a hit on the board.
+    #     '''
         
-        self._update_location_to_used(row, column)
+    #     self._update_ship_count_number(ship_name, 1)
+    #     self.total_ship_positions -= 1
 
-        if (location_info == "0"):
-            return 0
-        else:
-            self._gameboard_hit(row, column, location_info)
-            return 1
+    # def add_ship(self, ship_name, ship_array):
+    #     '''
+    #     Add a ship to the game board. 
+
+    #     Precondition: funtion must be passed a ship name
+
+    #     Precondition: function must be passed an array of locations. Each element
+    #                   of the location array must be structured "a-b" where a is the
+    #                   row number and b is the column number
+    #     '''
+    #     for location in ship_array:
+    #         row, column = self._extract_location(location)
+
+    #         self.total_ship_positions += 1
+    #         self.gameboard[row][column] = ship_name
+    #         self._update_ship_count_number(ship_name, 0)
+
+    # def all_ships_sunk_check(self):
+    #     '''
+    #     Determine if all ships have been sunk on a gameboard. Return true if 
+    #     all ships are sunk. Otherwise return false
+    #     '''
+
+    #     if (self.total_ship_positions == 0):
+    #         return True
+
+    #     return False
+
+    # def make_guess(self, location):
+    #     '''
+    #     Allows for the user or AI to make a guess on the board.
+
+    #     Precondition: location must be in the format "a-b" where a is the row
+    #                   number and b is the column number
+
+    #     Return types:
+    #         0 = Guess was a miss
+    #         1 = Guess was a hit
+    #         2 = Location has already been guessed
+    #     '''
+
+    #     row, column = self._extract_location(location)
+    #     location_info = self._get_gameboard_info(row, column)
+
+    #     if (location_info == "used"):
+    #         return 2
+        
+    #     self._update_location_to_used(row, column)
+
+    #     if (location_info == "0"):
+    #         return 0
+    #     else:
+    #         self._gameboard_hit(row, column, location_info)
+    #         return 1
