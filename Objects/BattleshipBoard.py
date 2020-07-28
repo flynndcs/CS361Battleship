@@ -7,14 +7,56 @@ from pygame import *
 Author: Daniel Brezavar
 Daniel Flynn
 Date: 21Jul2020
-Description: Class that keeps track of ship positions and has methods for interacting
-             with the game board.
+Description: Class that manages interactions with the battleship board
 
 usage: 
     player_board = BattleshipBoard()
     ai_board = BattleshipBoard()
 '''
+class DialogBox(BaseObject):
 
+    confirm_deny_buttons = []
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+        self.width = 100
+        self.height = 50
+        self.x = x
+        self.y = y
+
+        self.confirmX = self.x + 10
+        self.confirmY = self.y + 8
+
+        self.denyX = self.x + 55
+        self.denyY = self.y + 8
+
+        self.image = Surface([self.width, self.height])
+
+        self.init_confirm_deny_buttons()
+
+    
+    def init_confirm_deny_buttons(self):
+        self.image.fill((0,0,255))
+        confirm = pygame.Surface([35, 35])
+        confirm.fill((0,255,0))
+
+        deny = pygame.Surface([35, 35])
+        deny.fill((255,0,0))
+
+        self.confirm_deny_buttons.append(self.image.blit(confirm, (self.confirmX, self.confirmY)))
+        self.confirm_deny_buttons.append(self.image.blit(deny, (self.denyX, self.denyY)))
+
+    def confirm_shot(self):
+        # mouseX, mouseY = pygame.mouse.get_pos()
+        # for button in self.confirm_deny_buttons:
+        print("confirm within dialog class")
+        hit_or_miss = pygame.Surface([99,49])
+        hit_or_miss.fill((0,255,0))
+        
+        font = pygame.font.Font(pygame.font.get_default_font(),50)
+        text = font.render('Hit', True, (0,0,0))
+        hit_or_miss.blit(text, (0,0))
+        self.image.blit(hit_or_miss, (0,0))
+    
 class BattleshipBoard(BaseObject):
 
     '''
@@ -39,61 +81,76 @@ class BattleshipBoard(BaseObject):
         self.width = 400
         self.height = 400 
 
-        #upper left corner of where object is created in scene
+        #upper left corner of where board is created in scene
         self.x = x
         self.y = y
 
-        #the image behind the board (TODO: will be seen easier when board positions are transparent)
-        self.boardImage= il.load_image(Images.ImageEnum.BOARD)
-        self.resizedBoardImage = transform.scale(self.boardImage, (self.width, self.height))
+        #dialog position
+        self.dialogX = None
+        self.dialogY = None
 
-        #drawing surface that image placed upon
+        #drawing surface 
         self.image = Surface([self.width, self.height])
-        self.image = self.resizedBoardImage
+        self.image.fill((255, 255, 255))
 
-        #eventually will be used for ship/shot logic
-        self.selectedBoardPosition = None 
-
-        #may be used for holding all ships, shots, ai logic
-        self.masterGameBoard = [["0" for x in range(10)] for y in range(10)]
+        #dialog box open
+        self.dialogOpen = False
+        self.dialogPositions = []
+        self.dialogBoxPosition = [self.x, self.y]
 
         #source of rectangles that outline board positions and handle interaction
         self.boardPositions = [[] for y in range(10)] 
 
-        #the rectangle for when a user is not hovering over it
+        #the blank rectangle for when a user is not hovering over it
         self.rect = pygame.Surface([35, 35])
-        self.rect.fill((255,255,255))
+        self.rect.set_alpha(50)
+        self.rect.fill((0, 0, 255))
 
-        #initialized boardPositions - this blits the grid of rectangles to the screen and 
-        #also stores their screen locations in boardPositions
+        self.init_board_positions()
+        
+        # self.ship_count_tracker = {}
+        # self.total_ship_positions = 0
+
+    def clear_board(self, oh, surface):
+        if surface:
+            oh.remove_object(surface)
+        self.image.fill((255,255,255))
+        for i in range(10):
+            for j in range(10):
+                self.image.blit(self.rect, ((i*40), (j * 40)))
+    
+    def init_board_positions(self):
         for i in range(10):
             for j in range(10):
                 self.boardPositions[i].append(self.image.blit(self.rect, ((i * 40), (j * 40))))
 
-        self.ship_count_tracker = {}
-        self.total_ship_positions = 0
-
     def render(self, canvas):
         canvas.blit(self.image, (self.x, self.y))
+    
+    def confirm_shot_dialog(self, boardPosition):
+        shot_dialog = pygame.Surface([100, 51])
+        shot_dialog.fill((0,0,255))
 
-    def handle_input(self, objHandler, events, pressed_keys):
-        mouseX, mouseY = pygame.mouse.get_pos()
+        confirm = pygame.Surface([35, 35])
+        confirm.fill((0,255,0))
 
-        #on any event, this checks all squares to see if they were hovered over
-        #if the square is also clicked, it writes to console (TODO: actual user interaction)
-        for i in range(10):
-            for j in range(10):
-                if self.boardPositions[i][j].collidepoint(mouseX - self.x, mouseY - self.y):
-                    if self.selectedBoardPosition is not None:
-                        self.image.blit(self.rect, self.selectedBoardPosition)
+        deny = pygame.Surface([35, 35])
+        deny.fill((255,0,0))
 
-                    self.selectedBoardPosition = self.boardPositions[i][j]
-                    highlightRect = pygame.Surface([35,35])
-                    highlightRect.fill((255,0,0))
-                    self.image.blit(highlightRect, self.boardPositions[i][j])
-                    if events[0].type == pygame.MOUSEBUTTONDOWN:
-                        print("clicked on", self.boardPositions[i][j])
+        self.dialogPositions.append(shot_dialog.blit(confirm, (10, 8)))
+        self.dialogPositions.append(shot_dialog.blit(deny, (55, 8)))
 
+        print(self.dialogPositions)
+
+        self.image.blit(shot_dialog, boardPosition)
+
+
+    def hoverHighlight(self, boardPosition):
+        highlightRect = pygame.Surface([35,35])
+        highlightRect.fill((255,0,0))
+        self.image.blit(highlightRect, boardPosition)
+
+        
     def _update_ship_count_number(self, ship_name, t = 0):
         '''
         Uses the ship_count_tracker class dictionary to track the number of positions
