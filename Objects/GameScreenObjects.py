@@ -389,11 +389,21 @@ class PlacementPhaseHandler:
                 elif event.button == 3:
                     if self.selected_ship:
                         self.selected_ship.rotate_ship_90()
-                # FOR TESTING PURPOSES ONLY - Joshua Shequin
+
                 if event.button == 1:
                     if self.start_game_text.hovered:
                         self.clean_up_placement_phase(oh)
                         self.phase_manager.change_to_player_phase()
+
+                        """
+                        this will be used when the ship placement is correctly
+                        implemented.
+                        if len(self.ships_placed) == len(self.available_ships):
+                            self.clean_up_placement_phase(oh)
+                            self.phase_manager.change_to_player_phase()
+                        else:
+                            self.display_not_all_ships_placed()
+                        """
 
     def clean_up_placement_phase(self, oh):
 
@@ -407,6 +417,11 @@ class PlacementPhaseHandler:
         # currently just a placeholder function return until there is an
         # outward facing function/variable from the boards.
         return 40, 40
+
+    def get_offset_size(self):
+        # currently just a placeholder function return until there is an
+        # outward facing function/variable from the boards.
+        return 35, 35
 
     def resize_ships(self):
 
@@ -426,8 +441,8 @@ class PlacementPhaseHandler:
         mouse_pos_x = mouse_x - self.player_board.x
         mouse_pos_y = mouse_y - self.player_board.y
 
-        board_position_x = (mouse_pos_x // x_box_size) * 40 + left_side_of_board
-        board_position_y = (mouse_pos_y // y_box_size) * 40 + y_of_board
+        board_position_x = (mouse_pos_x // x_box_size) * x_box_size + left_side_of_board
+        board_position_y = (mouse_pos_y // y_box_size) * y_box_size + y_of_board
 
         if mouse_y > y_of_board:
             snapped_y = board_position_y
