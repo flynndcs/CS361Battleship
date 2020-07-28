@@ -94,9 +94,9 @@ class BaseShip(BaseObject):
                 self.x = self.selected_x
                 self.y = self.selected_y - self.height
 
-    def scale_ship(self, new_x, new_y):
+    def scale_ship(self, new_x, new_y, offset_size):
 
-        self.image = pygame.transform.scale(self.image, (new_x*self.size, new_y))
+        self.image = pygame.transform.scale(self.image, (new_x*self.size - offset_size, new_y - offset_size))
 
 
 class Submarine(BaseShip):

@@ -325,6 +325,7 @@ class GameSceneManager(BaseObject):
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait while the Enemy makes a selection on your board")
 
+
 class PlacementPhaseHandler:
 
     def __init__(self, il, status_menu, player_board, enemy_board, phase_manager):
@@ -352,7 +353,7 @@ class PlacementPhaseHandler:
         #             self.player_board.width / 2)
         # self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
 
-        self.ship_lot_start_x = self.player_board.x + 640
+        self.ship_lot_start_x = self.player_board.x + self.player_board.width + 225
         self.ship_lot_start_y = self.player_board.y + 125
 
         self.ship_lot_x_offset = 20
@@ -470,9 +471,10 @@ class PlacementPhaseHandler:
     def resize_ships(self):
 
         new_x, new_y = self.get_size_of_rects()
+        offset_size = self.get_size_of_rects()[0] - self.get_offset_size()[0]
 
         for ship in self.available_ships:
-            ship.scale_ship(new_x, new_y)
+            ship.scale_ship(new_x, new_y, offset_size)
 
     def snap_ship_to_grid(self, mouse_x, mouse_y):
 
@@ -494,9 +496,9 @@ class PlacementPhaseHandler:
             snapped_x = board_position_x
 
         if self.selected_ship.directional_state == "HORIZONTAL_LEFT":
-            snapped_x += 40
+            snapped_x += self.get_offset_size()[0]
         elif self.selected_ship.directional_state == "VERTICAL_UP":
-            snapped_y += 40
+            snapped_y += self.get_offset_size()[1]
         self.selected_ship.selected_x = snapped_x
         self.selected_ship.selected_y = snapped_y
 
