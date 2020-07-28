@@ -373,8 +373,12 @@ class PlacementPhaseHandler:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if self.selected_ship:
-                        self.selected_ship.selected = False
-                        self.selected_ship = None
+                        if self.check_placement():
+                            self.place_ship()
+                            self.selected_ship.selected = False
+                            self.selected_ship = None
+                        else:
+                            self.display_not_possible()
                     else:
                         mouse_pos = event.pos
                         for ship in self.available_ships:
@@ -436,6 +440,18 @@ class PlacementPhaseHandler:
             snapped_y += 40
         self.selected_ship.selected_x = snapped_x
         self.selected_ship.selected_y = snapped_y
+
+    def check_placement(self):
+
+        return True
+
+    def display_not_possible(self):
+
+        pass
+
+    def place_ship(self):
+
+        pass
 
 
 class AvailableShipsText(BaseObject):
