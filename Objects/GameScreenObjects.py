@@ -112,7 +112,6 @@ class GameSceneManager(BaseObject):
     def options_phase(self, oh):
         # self.current_phase = "PLACEMENT"  # just skipping this phase for now
         self.current_phase = "PLAYER_TURN"
-        print(self.current_phase)
 
     def placement_phase(self, oh):
         placed_x_offset = 0

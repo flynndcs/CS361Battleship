@@ -13,7 +13,6 @@ class GameScreen(SceneBase):
         """
         SceneBase.__init__(self, il)
         self.OH.new_object(BackgroundImage(self.IL))
-        self.OH.new_object(GameScreenMessage(self.IL))
 
         # self.master_board = MasterBoard()
         # self.OH.new_object(self.master_board)
