@@ -317,6 +317,8 @@ class PlacementPhaseHandler:
         self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
         self.ship_lot_x_offset = 20
 
+        self.resize_ships()
+
     def update(self, oh):
         # self.player_board.activate_board()
         # self.enemy_board.deactivate_board()
@@ -362,8 +364,8 @@ class PlacementPhaseHandler:
 
         if self.selected_ship:
             self.selected_ship.selected = True
-            self.selected_ship.selected_x, self.selected_ship.selected_y = \
-                pygame.mouse.get_pos()
+            self.snap_ship_to_grid(pygame.mouse.get_pos()[0],
+                                   pygame.mouse.get_pos()[1])
 
     def handle_input(self, oh, events, pressed_keys):
 
@@ -371,8 +373,12 @@ class PlacementPhaseHandler:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if self.selected_ship:
-                        self.selected_ship.selected = False
-                        self.selected_ship = None
+                        if self.check_placement():
+                            self.place_ship()
+                            self.selected_ship.selected = False
+                            self.selected_ship = None
+                        else:
+                            self.display_not_possible()
                     else:
                         mouse_pos = event.pos
                         for ship in self.available_ships:
@@ -396,6 +402,56 @@ class PlacementPhaseHandler:
 
         oh.remove_object(self.available_ships_text)
         self.available_ships_text = None
+
+    def get_size_of_rects(self):
+        # currently just a placeholder function return until there is an
+        # outward facing function/variable from the boards.
+        return 40, 40
+
+    def resize_ships(self):
+
+        new_x, new_y = self.get_size_of_rects()
+
+        for ship in self.available_ships:
+            ship.scale_ship(new_x, new_y)
+
+    def snap_ship_to_grid(self, mouse_x, mouse_y):
+
+        left_side_of_board = self.player_board.x
+        y_of_board = self.player_board.y
+        snapped_x = left_side_of_board
+        snapped_y = y_of_board
+        x_box_size, y_box_size = self.get_size_of_rects()
+
+        mouse_pos_x = mouse_x - self.player_board.x
+        mouse_pos_y = mouse_y - self.player_board.y
+
+        board_position_x = (mouse_pos_x // x_box_size) * 40 + left_side_of_board
+        board_position_y = (mouse_pos_y // y_box_size) * 40 + y_of_board
+
+        if mouse_y > y_of_board:
+            snapped_y = board_position_y
+        if mouse_x > left_side_of_board:
+            snapped_x = board_position_x
+
+        if self.selected_ship.directional_state == "HORIZONTAL_LEFT":
+            snapped_x += 40
+        elif self.selected_ship.directional_state == "VERTICAL_UP":
+            snapped_y += 40
+        self.selected_ship.selected_x = snapped_x
+        self.selected_ship.selected_y = snapped_y
+
+    def check_placement(self):
+
+        return True
+
+    def display_not_possible(self):
+
+        pass
+
+    def place_ship(self):
+
+        pass
 
 
 class AvailableShipsText(BaseObject):
