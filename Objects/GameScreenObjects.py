@@ -712,6 +712,7 @@ class ErrorNotAllShipsPlaced(BaseObject):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+
 class ToMainScreen(BaseObject):
     """
     Returns users to the main screen
