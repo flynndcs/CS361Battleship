@@ -19,6 +19,21 @@ class BackgroundImage(BaseObject):
         canvas.blit(self.resized_background, (self.x, self.y))
 
 
+class OptionsScreenMessage(BaseObject):
+    """
+    Displays message to show user they have reached the Options screen
+    """
+
+    def __init__(self, il, x = 230, y = 120):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.font = pygame.font.Font("Fonts/freesansbold.ttf", 120)
+        self.options = self.font.render("Settings", True, (255, 255, 255))
+
+    def render(self, canvas):
+        canvas.blit(self.options, (self.x, self.y))
+
+
 class ToMainScreen(BaseObject):
     """
     Returns users to the main screen
