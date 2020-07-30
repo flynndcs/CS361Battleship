@@ -19,6 +19,21 @@ class BackgroundImage(BaseObject):
         canvas.blit(self.resized_background, (self.x, self.y))
 
 
+class OptionsScreenMessage(BaseObject):
+    """
+    Displays message to show user they have reached the Options screen
+    """
+
+    def __init__(self, il, x = 230, y = 120):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.font = pygame.font.Font("Fonts/freesansbold.ttf", 120)
+        self.options = self.font.render("Settings", True, (255, 255, 255))
+
+    def render(self, canvas):
+        canvas.blit(self.options, (self.x, self.y))
+
+
 class ToMainScreen(BaseObject):
     """
     Returns users to the main screen
@@ -28,18 +43,15 @@ class ToMainScreen(BaseObject):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
-        self.return_to_menu = self.font.render("Return to Main Menu", True, (255, 255, 255))
+        self.start_button = self.font.render("Return to Main Menu", True, (255, 255, 255))
 
     def update(self, oh):
-        """
-        Changes color of Return to Main Menu message from white to red with hover
-        """
         location = pygame.mouse.get_pos()
         # if mouse is over to main screen button, color is changed to red
         if 26 < location[0] < 307 and 912 < location[1] < 934:
-            self.return_to_menu = self.font.render("Return to Main Menu", True, (166, 31, 36))
+            self.start_button = self.font.render("Return to Main Menu", True, (166, 31, 36))
         else:
-            self.return_to_menu = self.font.render("Return to Main Menu", True, (255, 255, 255))
+            self.start_button = self.font.render("Return to Main Menu", True, (255, 255, 255))
 
     def render(self, canvas):
-        canvas.blit(self.return_to_menu, (self.x, self.y))
+        canvas.blit(self.start_button, (self.x, self.y))

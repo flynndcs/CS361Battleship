@@ -7,7 +7,6 @@ from Tools import Images
 from pygame import transform, font
 from random import randrange
 
-
 class GameScreenStatusMenu(BaseObject):
     '''
     Author: Daniel Brezavar
@@ -317,12 +316,12 @@ class GameSceneManager(BaseObject):
         y = randrange(10)
         self.player_board.set_square_selection(x, y)
         self.player_board.determine_selection_result(self.IL, self.OH)
-        self._change_to_player_phase()
+        self.change_to_player_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
 
-    def _change_to_player_phase(self):
+    def change_to_player_phase(self):
         '''
         Change phase to player turn
         '''
@@ -341,6 +340,7 @@ class GameSceneManager(BaseObject):
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
+
 
 class PlacementPhaseHandler:
 
@@ -369,10 +369,18 @@ class PlacementPhaseHandler:
         #             self.player_board.width / 2)
         # self.ship_lot_start_y = self.player_board.y + self.player_board.height + 125
 
-        self.ship_lot_start_x = self.player_board.x + 640
+        self.ship_lot_start_x = self.player_board.x + self.get_board_width() + 200
         self.ship_lot_start_y = self.player_board.y + 125
 
         self.ship_lot_x_offset = 20
+
+        self.error_display_timer_maximum = 64
+        self.error_display_timer_current = self.error_display_timer_maximum
+        self.epm = ErrorPlacingMessage(il)
+
+        self.error_NASP_display_timer_maximum = 64
+        self.error_NASP_display_timer_current = self.error_NASP_display_timer_maximum
+        self.NASP = ErrorNotAllShipsPlaced(il)
 
         self.resize_ships()
 
@@ -381,6 +389,22 @@ class PlacementPhaseHandler:
         # self.enemy_board.deactivate_board()
         self.status_menu.set_status("Placement")
         self.status_menu.set_action("Please place your ships on the player gameboard")
+
+        if self.error_display_timer_current < self.error_display_timer_maximum:
+            if self.error_display_timer_current == 0:
+                oh.new_object(self.epm)
+            self.error_display_timer_current += 1
+
+            if self.error_display_timer_current == self.error_display_timer_maximum:
+                oh.remove_object(self.epm)
+
+        if self.error_NASP_display_timer_current < self.error_NASP_display_timer_maximum:
+            if self.error_NASP_display_timer_current == 0:
+                oh.new_object(self.NASP)
+            self.error_NASP_display_timer_current += 1
+
+            if self.error_NASP_display_timer_current == self.error_NASP_display_timer_maximum:
+                oh.remove_object(self.NASP)
 
         placed_x_offset = 0
         if not self.ships_added:
@@ -438,8 +462,11 @@ class PlacementPhaseHandler:
                             self.place_ship()
                             self.selected_ship.selected = False
                             self.selected_ship = None
+                            if self.error_display_timer_current < self.error_display_timer_maximum:
+                                self.error_display_timer_current = self.error_display_timer_maximum
+                                oh.remove_object(self.epm)
                         else:
-                            self.display_not_possible()
+                            self.display_not_possible(self.selected_ship.x, self.selected_ship.y)
                     else:
                         mouse_pos = event.pos
                         for ship in self.available_ships:
@@ -450,11 +477,15 @@ class PlacementPhaseHandler:
                 elif event.button == 3:
                     if self.selected_ship:
                         self.selected_ship.rotate_ship_90()
-                # FOR TESTING PURPOSES ONLY - Joshua Shequin
+
                 if event.button == 1:
                     if self.start_game_text.hovered:
-                        self.clean_up_placement_phase(oh)
-                        self.phase_manager._change_to_player_phase()
+
+                        if len(self.ships_placed) == len(self.available_ships):
+                            self.clean_up_placement_phase(oh)
+                            self.phase_manager.change_to_player_phase()
+                        else:
+                            self.display_not_all_ships_placed()
 
     def clean_up_placement_phase(self, oh):
 
@@ -464,17 +495,30 @@ class PlacementPhaseHandler:
         oh.remove_object(self.available_ships_text)
         self.available_ships_text = None
 
+        if self.error_NASP_display_timer_current < self.error_NASP_display_timer_maximum:
+            oh.remove_object(self.NASP)
+        if self.error_display_timer_current < self.error_display_timer_maximum:
+            oh.remove_object(self.epm)
+
+        self.put_ships_in_board()
+
     def get_size_of_rects(self):
         # currently just a placeholder function return until there is an
         # outward facing function/variable from the boards.
         return 40, 40
 
+    def get_offset_size(self):
+        # currently just a placeholder function return until there is an
+        # outward facing function/variable from the boards.
+        return 35, 35
+
     def resize_ships(self):
 
         new_x, new_y = self.get_size_of_rects()
+        offset_size = self.get_size_of_rects()[0] - self.get_offset_size()[0]
 
         for ship in self.available_ships:
-            ship.scale_ship(new_x, new_y)
+            ship.scale_ship(new_x, new_y, offset_size)
 
     def snap_ship_to_grid(self, mouse_x, mouse_y):
 
@@ -487,32 +531,113 @@ class PlacementPhaseHandler:
         mouse_pos_x = mouse_x - self.player_board.x
         mouse_pos_y = mouse_y - self.player_board.y
 
-        board_position_x = (mouse_pos_x // x_box_size) * 40 + left_side_of_board
-        board_position_y = (mouse_pos_y // y_box_size) * 40 + y_of_board
+        min_right = self.get_board_width() + self.player_board.x
+        min_down = self.get_board_height() + self.player_board.y
 
-        if mouse_y > y_of_board:
-            snapped_y = board_position_y
-        if mouse_x > left_side_of_board:
-            snapped_x = board_position_x
+        max_left = self.player_board.x
+        max_up = self.player_board.y
+
+        if self.selected_ship.directional_state == "HORIZONTAL_RIGHT":
+            min_right = min_right - self.selected_ship.width - (self.get_size_of_rects()[0] - self.get_offset_size()[0])
+            min_down -= self.get_size_of_rects()[1]
+        elif self.selected_ship.directional_state == "HORIZONTAL_LEFT":
+            min_right -= self.get_size_of_rects()[0]
+            min_down -= self.get_size_of_rects()[1]
+            max_left += (self.selected_ship.width - self.get_size_of_rects()[0])+(self.get_size_of_rects()[0] - self.get_offset_size()[0])
+        elif self.selected_ship.directional_state == "VERTICAL_DOWN":
+            min_down -= self.selected_ship.height+(self.get_size_of_rects()[1] - self.get_offset_size()[1])
+            min_right -= self.get_size_of_rects()[0]
+        elif self.selected_ship.directional_state == "VERTICAL_UP":
+            min_right -= self.get_size_of_rects()[0]
+            min_down -= self.get_size_of_rects()[1]
+            max_up += (self.selected_ship.height - self.get_size_of_rects()[1])+(self.get_size_of_rects()[1] - self.get_offset_size()[1])
+
+        board_position_x = min((mouse_pos_x // x_box_size) * x_box_size + left_side_of_board,
+                               min_right)
+        board_position_y = min((mouse_pos_y // y_box_size) * y_box_size + y_of_board,
+                               min_down)
+
+        board_position_x = max(max_left, board_position_x)
+        board_position_y = max(max_up, board_position_y)
+
+        snapped_y = board_position_y
+        snapped_x = board_position_x
 
         if self.selected_ship.directional_state == "HORIZONTAL_LEFT":
-            snapped_x += 40
+            snapped_x += self.get_offset_size()[0]
         elif self.selected_ship.directional_state == "VERTICAL_UP":
-            snapped_y += 40
+            snapped_y += self.get_offset_size()[1]
         self.selected_ship.selected_x = snapped_x
         self.selected_ship.selected_y = snapped_y
 
     def check_placement(self):
 
-        return True
+        allowed = True
 
-    def display_not_possible(self):
+        for ship in self.ships_placed:
+            if ship == self.selected_ship:
+                continue
+            else:
+                if ship.x - self.selected_ship.width <= self.selected_ship.x <= ship.x + ship.width:
+                    if ship.y - self.selected_ship.height <= self.selected_ship.y <= ship.y + ship.height:
+                        allowed = False
 
-        pass
+        return allowed
+
+    def display_not_possible(self, x, y):
+
+        self.epm.x = x - self.epm.width
+        self.epm.y = y - self.epm.height
+
+        self.error_display_timer_current = 0
+
+    def display_not_all_ships_placed(self):
+
+        self.NASP.x = (self.start_game_text.x + self.start_game_text.width/2) - (self.NASP.width/2)
+        self.NASP.y = self.start_game_text.y + self.start_game_text.height + 50
+
+        self.error_NASP_display_timer_current = 0
 
     def place_ship(self):
+        if self.selected_ship not in self.ships_placed:
+            self.ships_placed.append(self.selected_ship)
 
-        pass
+    def get_board_width(self):
+
+        return self.get_number_of_squares()[0] * self.get_size_of_rects()[0]
+
+    def get_board_height(self):
+
+        return self.get_number_of_squares()[1] * self.get_size_of_rects()[1]
+
+    def get_number_of_squares(self):
+
+        return 10, 10
+
+    def put_ships_in_board(self):
+
+        for ship in self.ships_placed:
+            ship_array = self.get_ship_array(ship)
+            # self.player_board.add_ship(ship.name, ship_array)
+
+    def get_ship_array(self, ship):
+        ship_array = []
+        starting_x_square = (ship.selected_x - self.player_board.x) // 40
+        starting_y_square = (ship.selected_y - self.player_board.y) // 40
+        for x in range(0, ship.size):
+            if ship.directional_state == "HORIZONTAL_RIGHT":
+                ship_array.append(
+                    str(starting_x_square + x) + "-" + str(starting_y_square))
+            elif ship.directional_state == "HORIZONTAL_LEFT":
+                ship_array.append(
+                    str(starting_x_square - x) + "-" + str(starting_y_square))
+            elif ship.directional_state == "VERTICAL_DOWN":
+                ship_array.append(
+                    str(starting_x_square) + "-" + str(starting_y_square+x))
+            elif ship.directional_state == "VERTICAL_UP":
+                ship_array.append(
+                    str(starting_x_square) + "-" + str(starting_y_square-x))
+        return ship_array
 
 
 class AvailableShipsText(BaseObject):
@@ -568,62 +693,21 @@ class StartBattleText(BaseObject):
             self.image = self.image_normal
 
 
-class ToMainScreen(BaseObject):
-    """
-    Returns users to the main screen
-    Author: Alex Wilson
-    """
+class ErrorPlacingMessage(BaseObject):
 
-    def __init__(self, il, x=23, y=900):
+    def __init__(self, il, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.click_num = 0
-        self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
-        self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
-        self.quit_game_hover = self.font.render("Quit Game", True, (166, 31, 36))
-        self.quit_game_pressed = self.font.render("Click again to confirm", True, (255, 255, 255))
-        self.quit_game_pressed_hover = self.font.render("Click again to confirm", True, (166, 31, 36))
-
-    def update(self, oh):
-        """
-        Changes color of Quit Game message from white to red with hover
-        """
-        location = pygame.mouse.get_pos()
-        # if user hovers over quit game, color is changed from white to red
-        if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
-            self.quit_game = self.quit_game_hover
-        # if users cursor anywhere else on board, quit message is white
-        elif self.click_num == 0:
-            self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
-        # if user hovers over confirm quit, color is changed from white to red
-        elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
-            self.quit_game = self.quit_game = self.quit_game_pressed_hover
-        # if user is not hovering over confirm quit, color is white
-        elif self.click_num == 1:
-            self.quit_game = self.quit_game = self.quit_game_pressed
-
-    def handle_input(self, oh, events, pressed_keys):
-        """
-        Returns user to home screen if user clicks quit game message. 1st click prompts confirm, 2nd returns user to
-        menu scene.
-        """
-        location = pygame.mouse.get_pos()
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # if user clicks quit game, they are prompted with a confirm quit message
-                if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
-                    self.click_num += 1
-                    self.quit_game = self.quit_game_pressed
-                # if the user clicks to confirm quit, true is returned and they are returned to menu screen
-                elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
-                    return True
-                # if user doesn't confirm to quit, quit game message and click number are reset
-                else:
-                    self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
-                    self.click_num = 0
-
-    def render(self, canvas):
-        canvas.blit(self.quit_game, (self.x, self.y))
+        self.image = il.load_image(Images.ImageEnum.INCORRECTPLACEMENT)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
 
+class ErrorNotAllShipsPlaced(BaseObject):
 
+    def __init__(self, il, x=0, y=0):
+
+        BaseObject.__init__(self, il, x=x, y=y)
+        self.image = il.load_image(Images.ImageEnum.NOTALLSHIPSPLACED)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()

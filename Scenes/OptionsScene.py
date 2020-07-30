@@ -1,5 +1,5 @@
 from Bases.SceneBase import SceneBase
-from Objects.OptionsScreenObjects import BackgroundImage, ToMainScreen
+from Objects.OptionsScreenObjects import BackgroundImage, ToMainScreen, OptionsScreenMessage
 from Scenes import TitleScene
 import pygame
 
@@ -13,6 +13,7 @@ class OptionsScene(SceneBase):
         SceneBase.__init__(self, il)
 
         self.OH.new_object(BackgroundImage(self.IL))
+        self.OH.new_object(OptionsScreenMessage(self.IL))
         self.OH.new_object(ToMainScreen(self.IL))
 
     def process_input(self, events, pressed_keys):
