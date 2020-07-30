@@ -6,7 +6,7 @@ from Objects.GameScreenObjects import GameSceneManager
 import pygame
 
 
-class GameScreen(SceneBase, ToMainScreen):
+class GameScreen(SceneBase):
     def __init__(self, il):
         """
         title screen scene
