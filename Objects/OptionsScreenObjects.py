@@ -46,6 +46,7 @@ class ToMainScreen(BaseObject):
         self.start_button = self.font.render("Return to Main Menu", True, (255, 255, 255))
 
     def update(self, oh):
+        """ Changes text color from white to red"""
         location = pygame.mouse.get_pos()
         # if mouse is over to main screen button, color is changed to red
         if 26 < location[0] < 307 and 912 < location[1] < 934:
