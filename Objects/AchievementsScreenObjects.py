@@ -28,15 +28,18 @@ class ToMainScreen(BaseObject):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
-        self.start_button = self.font.render("Return to Main Menu", True, (255, 255, 255))
+        self.return_to_menu = self.font.render("Return to Main Menu", True, (255, 255, 255))
 
     def update(self, oh):
+        """
+        Changes color of Return to Main Menu message from white to red with hover
+        """
         location = pygame.mouse.get_pos()
         # if mouse is over to main screen button, color is changed to red
         if 26 < location[0] < 307 and 912 < location[1] < 934:
-            self.start_button = self.font.render("Return to Main Menu", True, (166, 31, 36))
+            self.return_to_menu = self.font.render("Return to Main Menu", True, (166, 31, 36))
         else:
-            self.start_button = self.font.render("Return to Main Menu", True, (255, 255, 255))
+            self.return_to_menu = self.font.render("Return to Main Menu", True, (255, 255, 255))
 
     def render(self, canvas):
-        canvas.blit(self.start_button, (self.x, self.y))
+        canvas.blit(self.return_to_menu, (self.x, self.y))

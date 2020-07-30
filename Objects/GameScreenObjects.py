@@ -7,6 +7,7 @@ from Tools import Images
 from pygame import transform, font
 from random import randrange
 
+
 class GameScreenStatusMenu(BaseObject):
     '''
     Author: Daniel Brezavar
@@ -565,3 +566,64 @@ class StartBattleText(BaseObject):
             self.image = self.image_hovered
         else:
             self.image = self.image_normal
+
+
+class ToMainScreen(BaseObject):
+    """
+    Returns users to the main screen
+    Author: Alex Wilson
+    """
+
+    def __init__(self, il, x=23, y=900):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.click_num = 0
+        self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
+        self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
+        self.quit_game_hover = self.font.render("Quit Game", True, (166, 31, 36))
+        self.quit_game_pressed = self.font.render("Click again to confirm", True, (255, 255, 255))
+        self.quit_game_pressed_hover = self.font.render("Click again to confirm", True, (166, 31, 36))
+
+    def update(self, oh):
+        """
+        Changes color of Quit Game message from white to red with hover
+        """
+        location = pygame.mouse.get_pos()
+        # if user hovers over quit game, color is changed from white to red
+        if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
+            self.quit_game = self.quit_game_hover
+        # if users cursor anywhere else on board, quit message is white
+        elif self.click_num == 0:
+            self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
+        # if user hovers over confirm quit, color is changed from white to red
+        elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
+            self.quit_game = self.quit_game = self.quit_game_pressed_hover
+        # if user is not hovering over confirm quit, color is white
+        elif self.click_num == 1:
+            self.quit_game = self.quit_game = self.quit_game_pressed
+
+    def handle_input(self, oh, events, pressed_keys):
+        """
+        Returns user to home screen if user clicks quit game message. 1st click prompts confirm, 2nd returns user to
+        menu scene.
+        """
+        location = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # if user clicks quit game, they are prompted with a confirm quit message
+                if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
+                    self.click_num += 1
+                    self.quit_game = self.quit_game_pressed
+                # if the user clicks to confirm quit, true is returned and they are returned to menu screen
+                elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
+                    return True
+                # if user doesn't confirm to quit, quit game message and click number are reset
+                else:
+                    self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
+                    self.click_num = 0
+
+    def render(self, canvas):
+        canvas.blit(self.quit_game, (self.x, self.y))
+
+
+
