@@ -6,6 +6,8 @@ from Bases.BaseObjects import BaseObject
 from Tools import Images
 from pygame import transform, font
 from random import randrange
+from os import path, mkdir
+
 
 class GameScreenStatusMenu(BaseObject):
     '''
@@ -711,3 +713,60 @@ class ErrorNotAllShipsPlaced(BaseObject):
         self.image = il.load_image(Images.ImageEnum.NOTALLSHIPSPLACED)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+
+
+class PlacementSaveManager(BaseObject):
+
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        # only 5 slots of saves
+        self.saves = [[], [], [], [], []]
+
+        self.save_file = "saves/placement_saves.ps"
+        self.save_folder = "saves"
+
+        self.check_save_file_exists()
+        self.load_saves()
+
+    def load_saves(self):
+
+        open_file = open(self.save_file, "r")
+        file_content = open_file.read()
+        saved_content = file_content.split("\n")
+
+        for x in range(len(saved_content)):
+            save_split = saved_content[x].split(" ")
+            date_created = save_split[0]
+            time_created = save_split[1]
+            carrier_placement = save_split[2]
+            battleship_placement = save_split[3]
+            cruiser_placement = save_split[4]
+            submarine_placement = save_split[5]
+            destroyer_placement = save_split[6]
+
+            self.saves[x] = [date_created, time_created, carrier_placement,
+                             battleship_placement, cruiser_placement,
+                             submarine_placement, destroyer_placement]
+
+    def new_save(self, save_data, slot):
+
+        open_file = open(self.save_file, "w+")
+        file_content = open_file.read()
+        saved_content = file_content.split("\n")
+
+    def check_save_file_exists(self):
+
+        if not path.exists(self.save_file):
+            if not path.exists(self.save_folder):
+                try:
+                    mkdir(self.save_folder)
+                except OSError:
+                    print("Creation of the save directory failed")
+                    return False
+            open_file = open(self.save_file, "w")
+            open_file.close()
+
+    def draw_save_slot(self, screen, save_slot_data):
+
+        pass
