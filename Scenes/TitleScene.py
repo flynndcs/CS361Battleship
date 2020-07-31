@@ -1,5 +1,5 @@
 from Bases.SceneBase import SceneBase
-from Objects.TitleScreenObjects import BackgroundImage, PlayButton, SettingsButton, AchievementButton, BattleshipTitle
+from Objects.TitleScreenObjects import *
 from Scenes.GameScreen import GameScreen
 from Scenes.OptionsScene import OptionsScene
 from Scenes.AchievementsScene import AchievementScene
@@ -18,6 +18,7 @@ class TitleScene(SceneBase):
         self.OH.new_object(SettingsButton(self.IL))
         self.OH.new_object(AchievementButton(self.IL))
         self.OH.new_object(BattleshipTitle(self.IL))
+        self.OH.new_object(ExitGame(self.IL))
 
     def process_input(self, events, pressed_keys):
         SceneBase.process_input(self, events, pressed_keys)
@@ -27,12 +28,15 @@ class TitleScene(SceneBase):
                 # user presses play button, screen is switched to game screen
                 if 382 < location[0] < 642 and 358 < location[1] < 398:
                     self.switch_to_scene(GameScreen(self.IL))
-                # user presses options button, screen is switched to options screen
+                # user presses settings button, screen is switched to settings screen
                 if 420 < location[0] < 591 and 434 < location[1] < 516:
                     self.switch_to_scene(OptionsScene(self.IL))
                 # user presses achievements button, screen is switched to achievements screen
                 if 355 < location[0] < 662 and 598 < location[1] < 635:
                     self.switch_to_scene(AchievementScene(self.IL))
+                # user presses exit game button, game is terminated
+                if 25 < location[0] < 159 and 912 < location[1] < 935:
+                    self.terminate()
 
     def update(self):
         SceneBase.update(self)
