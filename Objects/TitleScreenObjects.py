@@ -102,6 +102,3 @@ class BattleshipTitle(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.battleship_title, (self.x, self.y))
-
-
-
