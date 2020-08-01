@@ -506,6 +506,8 @@ class PlacementPhaseHandler:
         if self.error_display_timer_current < self.error_display_timer_maximum:
             oh.remove_object(self.epm)
 
+        oh.remove_object(self.psm)
+
         self.put_ships_in_board()
 
     def get_size_of_rects(self):
