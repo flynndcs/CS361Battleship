@@ -96,6 +96,24 @@ class BaseShip(BaseObject):
                 self.x = self.selected_x
                 self.y = self.selected_y - self.height
 
+    def change_base_coords(self):
+        if self.directional_state == "HORIZONTAL_RIGHT":
+            self.x = self.selected_x
+            self.y = self.selected_y
+
+        elif self.directional_state == "VERTICAL_DOWN":
+            self.x = self.selected_x
+            self.y = self.selected_y
+
+        elif self.directional_state == "HORIZONTAL_LEFT":
+            self.x = self.selected_x - self.width
+            self.y = self.selected_y
+
+        elif self.directional_state == "VERTICAL_UP":
+            self.x = self.selected_x
+            self.y = self.selected_y - self.height
+
+
     def scale_ship(self, new_x, new_y, offset_size):
 
         self.image = pygame.transform.scale(self.image, (new_x*self.size - offset_size, new_y - offset_size))

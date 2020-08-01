@@ -51,3 +51,4 @@ class ImageEnum(Enum):
     NOTALLSHIPSPLACED = "res/NotAllShipsPlaced.png"
     HIT = "res/Hit.png"
     MISS = "res/Miss.png"
+    SAVEDPLACEMENTS = "res/SavedPlacements_smaller.png"

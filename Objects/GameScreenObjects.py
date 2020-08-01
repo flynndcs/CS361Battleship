@@ -6,6 +6,9 @@ from Bases.BaseObjects import BaseObject
 from Tools import Images
 from pygame import transform, font
 from random import randrange
+from os import path, mkdir
+from datetime import datetime
+
 
 class GameScreenStatusMenu(BaseObject):
     '''
@@ -382,6 +385,8 @@ class PlacementPhaseHandler:
         self.error_NASP_display_timer_current = self.error_NASP_display_timer_maximum
         self.NASP = ErrorNotAllShipsPlaced(il)
 
+        self.psm = PlacementSaveManager(il, self, x=200, y=700)
+
         self.resize_ships()
 
     def update(self, oh):
@@ -444,6 +449,7 @@ class PlacementPhaseHandler:
             self.start_game_text.y = self.ship_lot_start_y + 225
 
             oh.new_object(self.start_game_text)
+            oh.new_object(self.psm)
 
             self.text_placed = True
 
@@ -639,6 +645,55 @@ class PlacementPhaseHandler:
                     str(starting_x_square) + "-" + str(starting_y_square-x))
         return ship_array
 
+    def get_ship_placement_save_info(self):
+        output_data = []
+
+        directional_dict = {"HORIZONTAL_RIGHT": "0",
+                            "VERTICAL_DOWN": "1",
+                            "HORIZONTAL_LEFT": "2",
+                            "VERTICAL_UP": "3"}
+        for ship in self.ships_placed:
+            starting_x_square = (ship.selected_x - self.player_board.x) // 40
+            starting_y_square = (ship.selected_y - self.player_board.y) // 40
+            """
+            if ship.directional_state == "HORIZONTAL_LEFT":
+                if starting_x_square > 0:
+                    starting_x_square += 1
+            elif ship.directional_state == "VERTICAL_UP":
+                if starting_y_square > 0:
+                    starting_y_square += 1
+            """
+            output_data.append((directional_dict[ship.directional_state] +
+                                ":" + str(starting_x_square) + ":" +
+                                str(starting_y_square)))
+
+        return output_data
+
+    def place_ships_from_save(self, ship_info):
+
+        directional_dict = {"0": "HORIZONTAL_RIGHT",
+                            "1": "VERTICAL_DOWN",
+                            "2": "HORIZONTAL_LEFT",
+                            "3": "VERTICAL_UP"}
+
+        for x in range(len(self.available_ships)):
+            specific_ship_info = ship_info[x].split(":")
+            self.available_ships[x].change_directional_state(directional_dict[
+                specific_ship_info[0]])
+            self.available_ships[x].selected_x = int(
+                specific_ship_info[1]) * 40 + self.player_board.x
+            if self.available_ships[x].directional_state == "HORIZONTAL_LEFT":
+                self.available_ships[x].selected_x += self.get_offset_size()[0]
+            self.available_ships[x].selected_y = int(
+                specific_ship_info[2]) * 40 + self.player_board.y
+            if self.available_ships[x].directional_state == "VERTICAL_UP":
+                self.available_ships[x].selected_y += self.get_offset_size()[1]
+            self.available_ships[x].change_base_coords()
+            if self.available_ships[x] not in self.ships_placed:
+                self.ships_placed.append(self.available_ships[x])
+
+        self.selected_ship = None
+
 
 class AvailableShipsText(BaseObject):
 
@@ -713,6 +768,171 @@ class ErrorNotAllShipsPlaced(BaseObject):
         self.height = self.image.get_height()
 
 
+class PlacementSaveManager(BaseObject):
+
+    def __init__(self, il, placement_phase_manager, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        # only 5 slots of saves
+        self.saves = [[], [], [], [], []]
+
+        self.image = il.load_image(Images.ImageEnum.SAVEDPLACEMENTS)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
+        self.save_file = "saves/placement_saves.ps"
+        self.save_folder = "saves"
+
+        self.check_save_file_exists()
+        self.load_saves()
+
+        self.font = font.Font("Fonts/OpenSans-Light.ttf", 20)
+
+        self.placement_phase_manager = placement_phase_manager
+
+    def load_saves(self):
+
+        open_file = open(self.save_file, "r")
+        file_content = open_file.read()
+        saved_content = file_content.split("\n")
+
+        for x in range(len(saved_content)):
+            save_split = saved_content[x].split(" ")
+            if len(save_split) > 6:
+                date_created = save_split[0]
+                time_created = save_split[1]
+                carrier_placement = save_split[2]
+                battleship_placement = save_split[3]
+                cruiser_placement = save_split[4]
+                submarine_placement = save_split[5]
+                destroyer_placement = save_split[6]
+
+                self.saves[x] = [date_created, time_created, carrier_placement,
+                                 battleship_placement, cruiser_placement,
+                                 submarine_placement, destroyer_placement]
+
+
+    def new_save(self, save_data, slot):
+
+        open_file = open(self.save_file, "w+")
+        open_file.truncate(0)
+
+        self.saves[slot] = save_data
+
+        for save in self.saves:
+            for info in save:
+                open_file.write(info + " ")
+            open_file.write("\n")
+
+    def check_save_file_exists(self):
+
+        if not path.exists(self.save_file):
+            if not path.exists(self.save_folder):
+                try:
+                    mkdir(self.save_folder)
+                except OSError:
+                    print("Creation of the save directory failed")
+                    return False
+            open_file = open(self.save_file, "w")
+            open_file.close()
+
+    def create_new_save_data(self, ship_placements, slot):
+        if len(ship_placements) == 5:
+            time_info = datetime.now()
+            date = str(time_info.day) + str(time_info.month) + str(time_info.year)
+            time = str(time_info.hour) + str(time_info.minute)
+            save_data = [date, time, ship_placements[0], ship_placements[1],
+                         ship_placements[2], ship_placements[3],
+                         ship_placements[4]]
+
+            self.new_save(save_data, slot)
+
+    def initiate_load(self, slot):
+        if len(self.saves[slot]) > 0:
+            save_data = list()
+            save_data.append(self.saves[slot][2])
+            save_data.append(self.saves[slot][3])
+            save_data.append(self.saves[slot][4])
+            save_data.append(self.saves[slot][5])
+            save_data.append(self.saves[slot][6])
+            self.placement_phase_manager.place_ships_from_save(save_data)
+
+    def draw_save_slots(self, canvas):
+
+        save_strings = list()
+        for save in self.saves:
+            if len(save) == 0:
+                continue
+            apparent_string = save[0] + " " + save[1]
+            save_strings.append(self.font.render(apparent_string,
+                                                 True, (0, 0, 184)))
+
+        y_offset = 27
+        x_offset = 7
+        for save in save_strings:
+            pygame.draw.rect(canvas, (94, 197, 255), pygame.Rect(self.x + x_offset, self.y + y_offset + 3, 198, 40))
+            canvas.blit(save, (self.x + x_offset, self.y + y_offset + 5))
+            y_offset += 42
+
+    def render(self, canvas):
+        canvas.blit(self.image, (self.x, self.y))
+
+        self.draw_save_slots(canvas)
+
+    def handle_input(self, oh, events, pressed_keys):
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    # left click pressed
+
+                    mouse_pos = event.pos
+                    if self.x <= mouse_pos[0] <= self.x+self.width:
+                        if self.y <= mouse_pos[1] <= self.y+self.height:
+                            save_clicked = False
+                            ship_placements = []
+                            # mouse clicked within the object
+                            if self.x + 208 <= mouse_pos[0] <= self.x + 238:
+                                save_clicked = True
+                                ship_placements = self.placement_phase_manager.get_ship_placement_save_info()
+
+                            # slot one
+                            if mouse_pos[1] <= self.y + 68:
+                                if save_clicked:
+                                    self.create_new_save_data(
+                                        ship_placements, 0)
+                                else:
+                                    self.initiate_load(0)
+                            # slot two
+                            elif mouse_pos[1] <= self.y + 111:
+                                if save_clicked:
+                                    self.create_new_save_data(
+                                        ship_placements, 1)
+                                else:
+                                    self.initiate_load(1)
+                            # slot three
+                            elif mouse_pos[1] <= self.y + 154:
+                                if save_clicked:
+                                    self.create_new_save_data(
+                                        ship_placements, 2)
+                                else:
+                                    self.initiate_load(2)
+                            # slot four
+                            elif mouse_pos[1] <= self.y + 197:
+                                if save_clicked:
+                                    self.create_new_save_data(
+                                        ship_placements, 3)
+                                else:
+                                    self.initiate_load(3)
+                            # slot five
+                            else:
+                                if save_clicked:
+                                    self.create_new_save_data(
+                                        ship_placements, 4)
+                                else:
+                                    self.initiate_load(4)
+
+                                    
 class ToMainScreen(BaseObject):
     """
     Returns users to the main screen
@@ -769,4 +989,3 @@ class ToMainScreen(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.quit_game, (self.x, self.y))
-
