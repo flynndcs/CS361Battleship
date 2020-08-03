@@ -20,6 +20,8 @@ then "pipenv run python Battleship.py"
 
 # How to create release executable:
 
+start with fresh clone of master - "git clone THE-URL-ON-THE-SITE"
+
 make sure you have the dev pipenv install - "pipenv install --dev"
 
 Uninstall the setuptools that gets installed - "pipenv uninstall setuptools"
