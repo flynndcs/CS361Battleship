@@ -22,6 +22,10 @@ then "pipenv run python Battleship.py"
 
 make sure you have the dev pipenv install - "pipenv install --dev"
 
+Uninstall the setuptools that gets installed - "pipenv uninstall setuptools"
+
+install a specific version of setuptools - "pipenv install setuptools'<45.0.0'"
+
 then while in the project folder run - "pipenv run pyinstaller -F Battleship.py"
 
 then the exe file is created and placed into dist/Battleship.exe
