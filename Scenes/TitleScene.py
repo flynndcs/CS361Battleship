@@ -20,6 +20,7 @@ class TitleScene(SceneBase):
         self.OH.new_object(BattleshipTitle(self.IL))
         self.OH.new_object(ExitGame(self.IL))
 
+    
     def process_input(self, events, pressed_keys):
         SceneBase.process_input(self, events, pressed_keys)
         for event in events:

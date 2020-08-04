@@ -1,4 +1,5 @@
 from Bases.BaseObjects import BaseObject
+from Scenes import OptionsScene
 from Tools import Images
 import pygame
 
@@ -51,16 +52,18 @@ class DropDownBox(BaseObject):
 
     # Creates a drop down box to switch the resolution
 
-    def __init__(self, il, x = 375, y = 375):
+    def __init__(self, il, options_scene, x = 375, y = 375): ##
         BaseObject.__init__(self, il, x = x, y = y)
 
         # Rectangle dimensions and color
         self.width = 250
         self.height = 40
         self.rgb = 255
-        self.resWide = 1000
-        self.resHeight = 955
-        
+        self.resolution = [1000, 955]
+
+        # Variable to hold the options scene
+        self.opScene = options_scene
+
         # Used to track if dropdown box is open or not
         self.active = False
 
@@ -90,9 +93,6 @@ class DropDownBox(BaseObject):
         self.activeDisplayX = self.x + 10
         self.activeDisplayY = self.y - 5
 
-        #Screen
-        self.screen = [1000, 955]
-
 
     def handle_input(self, oh, events, pressed_keys):
         for event in events:
@@ -100,7 +100,7 @@ class DropDownBox(BaseObject):
             if event.type == pygame.MOUSEBUTTONDOWN and self.active == False:
                 # User clicks on the display
                 if 375 < location[0] < 625 and 375 < location[1] < 415:
-                    # Expand drop down box to larger size to accomodate all options
+                    # Expand dropdown box to larger size to accomodate all options
                     self.active = True
                     self.width = 250
                     self.height = 160  # space for 20 pxl between each dropdown option
@@ -108,29 +108,29 @@ class DropDownBox(BaseObject):
             elif event.type == pygame.MOUSEBUTTONDOWN and self.active == True:
                 # User selects menu option 1
                 if 375 < location[0] < 625 and 425 < location[1] < 455:
-                    # Contract dropdown menu and display selection
+                    # Minimize dropdown menu and display selection
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1000
-                    self.resHeight = 955
+                    self.resolution = [1000, 955]
+                    self.opScene.change_resolution(self, self.resolution)
                     self.activeDisplay = self.res1Display
                 elif 375 < location[0] < 625 and 465 < location[1] < 495:
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1100
-                    self.resHeight = 955
+                    self.resolution = [1100, 955]
+                    self.opScene.change_resolution(self, self.resolution)
                     self.activeDisplay = self.res2Display
                 elif 375 < location[0] < 625 and 505 < location[1] < 535:
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1200
-                    self.resHeight = 955
+                    self.resolution = [1200, 955]
+                    self.opScene.change_resolution(self, self.resolution)
                     self.activeDisplay = self.res3Display
                 else:
                     self.active = False
