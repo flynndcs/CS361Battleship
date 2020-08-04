@@ -102,3 +102,28 @@ class BattleshipTitle(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.battleship_title, (self.x, self.y))
+
+
+class ExitGame(BaseObject):
+    """
+    Terminates game
+    """
+
+    def __init__(self, il, x=23, y=900):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
+        self.start_button = self.font.render("Exit Game", True, (255, 255, 255))
+
+    def update(self, oh):
+        """ Changes text color from white to red"""
+        location = pygame.mouse.get_pos()
+        # if mouse is over to Exit Game button, color is changed to red
+        if 25 < location[0] < 159 and 912 < location[1] < 935:
+            self.start_button = self.font.render("Exit Game", True, (166, 31, 36))
+        else:
+            self.start_button = self.font.render("Exit Game", True, (255, 255, 255))
+
+    def render(self, canvas):
+        canvas.blit(self.start_button, (self.x, self.y))
+
