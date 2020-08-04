@@ -90,9 +90,8 @@ class DropDownBox(BaseObject):
         self.activeDisplayX = self.x + 10
         self.activeDisplayY = self.y - 5
 
-
-    def get_resolution(self):
-        return self.resWide, self.resHeight
+        #Screen
+        self.screen = [1000, 955]
 
 
     def handle_input(self, oh, events, pressed_keys):
