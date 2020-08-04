@@ -38,7 +38,7 @@ class SoundLoader:
         self.volume = volume
         for sound in self.sounds:
             self.sounds[sound].set_volume(self.volume)
-            
+
 
 class SoundEnum(Enum):
 
