@@ -3,13 +3,16 @@ import pygame.sprite
 
 class ObjectHandler:
 
-    def __init__(self):
+    def __init__(self, sl):
         """
         This is where all of our meta-level object manipulation will take place.
         """
 
         self.objects = pygame.sprite.Group()  # just a simple list to hold all of our objects.
         #  We can extend this to multiple lists if needed.
+
+        self.sound_loader = sl  # just keeping it in OH to lower the amount of
+        # refactoring that would have to be done.
 
     def update_objects(self):
         """

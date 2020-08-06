@@ -9,37 +9,61 @@ class SoundLoader:
 
         pygame.mixer.init()
 
-        self.sounds = {}
+        self.sound_effects = {}
+        self.bgm = {}
 
-        self.volume = 1  # float value 0 to 1 inclusive
+        self.se_volume = 0.5  # float value 0 to 1 inclusive
+        self.bgm_volume = 0.5
 
-    def _load_image(self, sound):
-        if os.path.isfile(SoundEnum.value):
-            if sound not in self.sounds:
-                self.sounds[sound] = pygame.mixer.Sound(SoundEnum.sound)
-                self.sounds[sound].set_volume(self.volume)
+    def _load_sound(self, sound):
+        if os.path.isfile(sound.value):
+            if sound == SoundEnum.BGM:
+                if sound not in self.bgm:
+                    self.bgm[sound] = pygame.mixer.Sound(sound.value)
+                    self.bgm[sound].set_volume(self.bgm_volume)
+            elif sound not in self.sound_effects:
+                self.sound_effects[sound] = pygame.mixer.Sound(sound.value)
+                self.sound_effects[sound].set_volume(self.se_volume)
         else:
             print('SOUND FILE NOT FOUND')
-            self.sounds[sound] = None
 
     def play_sound(self, sound):
 
-        self._load_image(sound)
-
-        self.sounds[sound].play()
+        self._load_sound(sound)
+        if sound in self.sound_effects:
+            self.sound_effects[sound].play()
+        elif sound in self.bgm:
+            self.bgm[sound].play()
 
     def stop_sound(self, sound, fadeout=True):
         if fadeout:
-            self.sounds[sound].fadeout()
+            if sound in self.sound_effects:
+                self.sound_effects[sound].fadeout()
+            elif sound in self.bgm:
+                self.bgm[sound].fadeout()
         else:
-            self.sounds[sound].stop()
+            if sound in self.sound_effects:
+                self.sound_effects[sound].fadeout()
+            elif sound in self.bgm:
+                self.bgm[sound].fadeout()
 
-    def set_volume(self, volume):
-        self.volume = volume
-        for sound in self.sounds:
-            self.sounds[sound].set_volume(self.volume)
+    def set_se_volume(self, volume):
+        self.se_volume = volume
+        for sound in self.sound_effects:
+            self.sound_effects[sound].set_volume(self.se_volume)
+
+    def set_bgm_volume(self, volume):
+        self.bgm_volume = volume
+        for sound in self.sound_effects:
+            self.sound_effects[sound].set_volume(self.bgm_volume)
 
 
 class SoundEnum(Enum):
 
-    pass
+    CLICK = "res/sounds/click.wav"
+    EXPLOSION = "res/sounds/Explosion.wav"
+    INCORRECTPLACEMENT = "res/sounds/incorrect_placement.wav"
+    LOSS = "res/sounds/loss.wav"
+    MISS = "res/sounds/miss.wav"
+    BGM = "Victory-AShamaluevMusic.wav"
+    WIN = "win.wav"
