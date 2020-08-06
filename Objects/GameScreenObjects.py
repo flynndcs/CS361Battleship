@@ -8,6 +8,7 @@ from pygame import transform, font
 from random import randrange
 from os import path, mkdir
 from datetime import datetime
+from Tools.Sounds import SoundEnum
 
 
 class GameScreenStatusMenu(BaseObject):
@@ -354,6 +355,8 @@ class PlacementPhaseHandler:
         self.status_menu = status_menu
         self.phase_manager = phase_manager
 
+        self.incorrect_placement_sound = SoundEnum.INCORRECTPLACEMENT
+
         self.ships_added = False
         self.available_ships = [Objects.ShipObjects.Carrier(il),
                                 Objects.ShipObjects.Battleship(il),
@@ -472,7 +475,7 @@ class PlacementPhaseHandler:
                                 self.error_display_timer_current = self.error_display_timer_maximum
                                 oh.remove_object(self.epm)
                         else:
-                            self.display_not_possible(self.selected_ship.x, self.selected_ship.y)
+                            self.display_not_possible(self.selected_ship.x, self.selected_ship.y, oh)
                     else:
                         mouse_pos = event.pos
                         for ship in self.available_ships:
@@ -592,12 +595,14 @@ class PlacementPhaseHandler:
 
         return allowed
 
-    def display_not_possible(self, x, y):
+    def display_not_possible(self, x, y, oh):
 
         self.epm.x = x - self.epm.width
         self.epm.y = y - self.epm.height
 
         self.error_display_timer_current = 0
+
+        oh.sound_loader.play_sound(self.incorrect_placement_sound)
 
     def display_not_all_ships_placed(self):
 

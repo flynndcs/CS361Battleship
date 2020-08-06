@@ -1,4 +1,5 @@
 import Bases.ObjectHandler
+import Tools.Sounds
 
 
 class SceneBase:
@@ -9,7 +10,8 @@ class SceneBase:
         """
         self.next = self  # the next scene to switch to
         self.IL = il  # image loader to make sure we are not loading images multiple times.
-        self.OH = Bases.ObjectHandler.ObjectHandler()
+        self.SL = Tools.Sounds.SoundLoader()
+        self.OH = Bases.ObjectHandler.ObjectHandler(self.SL)
 
     def process_input(self, events, pressed_keys):
         """
