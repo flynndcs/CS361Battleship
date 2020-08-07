@@ -10,15 +10,18 @@ class OptionsScene(SceneBase):
         Options screen scene
         :param il: the imageloader
         """
+        
         SceneBase.__init__(self, il)
 
         self.OH.new_object(BackgroundImage(self.IL))
         self.OH.new_object(OptionsScreenMessage(self.IL))
         self.OH.new_object(ResolutionSetting(self.IL))
-        self.OH.new_object(DropDownBox(self.IL, OptionsScene))
+        self.OH.new_object(DropDownBox(self.IL, self))
         self.OH.new_object(ApplyButton(self.IL))
         self.OH.new_object(ToMainScreen(self.IL))
 
+        self.new_resolution = None
+        self.change_resolution_bool = False
     
     def change_resolution(self, resolution):
         print("Calling change_resolution function") ## debugging line
@@ -36,12 +39,15 @@ class OptionsScene(SceneBase):
                     self.switch_to_scene(TitleScene.TitleScene(self.IL))
                 # if user presses the apply button, change the resolution
                 if 450 < location [0] < 550 and 700 < location[1] < 740:
-                    print(self.new_resolution) ## debugging line
-                    self.screen = pygame.display.set_mode(self.new_resolution)
+                    self.change_resolution_bool = True
+                    print(self.new_resolution)
 
 
     def update(self):
         SceneBase.update(self)
 
     def render(self, screen):
+        if self.new_resolution is not None and self.change_resolution_bool:
+            screen = pygame.display.set_mode(self.new_resolution)
+            self.change_resolution_bool = False
         SceneBase.render(self, screen)

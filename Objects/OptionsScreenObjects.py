@@ -52,7 +52,7 @@ class DropDownBox(BaseObject):
 
     # Creates a drop down box to switch the resolution
 
-    def __init__(self, il, options_scene, x = 375, y = 375): ##
+    def __init__(self, il, options_scene, x = 375, y = 375):
         BaseObject.__init__(self, il, x = x, y = y)
 
         # Rectangle dimensions and color
