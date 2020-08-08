@@ -57,8 +57,7 @@ class DropDownBox(BaseObject):
         self.width = 250
         self.height = 40
         self.rgb = 255
-        self.resWide = 1000
-        self.resHeight = 955
+        self.resolution = [1000, 955]
         
         self.active = False
 
@@ -103,24 +102,21 @@ class DropDownBox(BaseObject):
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1000
-                    self.resHeight = 955
+                    self.resolution = [1000, 955]
                     self.activeDisplay = self.res1Display
                 elif 375 < location[0] < 625 and 465 < location[1] < 495:
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1100
-                    self.resHeight = 955
+                    self.resolution = [1100, 955]
                     self.activeDisplay = self.res2Display
                 elif 375 < location[0] < 625 and 505 < location[1] < 535:
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1200
-                    self.resHeight = 955
+                    self.resolution = [1200, 955]
                     self.activeDisplay = self.res3Display
                 else:
                     self.active = False
