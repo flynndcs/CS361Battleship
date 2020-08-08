@@ -73,7 +73,83 @@ class DialogBox(BaseObject):
     #     text = font.render('Hit', True, (0,0,0))
     #     hit_or_miss.blit(text, (0,0))
     #     self.image.blit(hit_or_miss, (0,0))
+
+
+# Brian Add
+
+class ShipTracker():
+    def __init___(self):
+        self.gameboard = [[0 for i in range(10)] for j in range(10)]
+        self.ship_counts = {}
+        self.total_ship_positions = 0
+
+
+    def add_ship(self, ship_name, ship_array):
+
+        for location in ship_array:
+            row = self._extract_location(location)
+            column = self._extract_location(location)
+
+        self.total_ship_positions = self.total_ship_positions + 1
+        self.gameboard[row][column] = ship_name
+        self._update_ship_count_number(ship_name, 0)
+
     
+    def _extract_location(self, location):
+    
+    #     Return the row and column location as an array with 2 elements
+
+    #     Precondition: location must be in the format "a-b" where a is the row
+    #                   number and b is the column number
+
+        return location.split("-")
+
+    
+    def _update_ship_count_number(self, ship_name, t = 0):
+    #     '''
+    #     Uses the ship_count_tracker class dictionary to track the number of positions
+    #     each ship has taken up on the board. 
+    #     '''
+
+         if (t == 0):
+             if ship_name in self.ship_counts:
+                 self.ship_counts[ship_name] += 1
+             else:
+                 self.ship_counts[ship_name] = 1
+         else:
+             self.ship_counts[ship_name] -= 1
+
+
+    def check_hit(self, guess):
+
+        arrayLoc = _extract_location(self, guess)
+        if self.gameboard[arrayLoc[0]][arrayLoc[1]] != 0
+            return [True, gameboard[arrayLoc[0]][arrayLoc[1]]]
+    
+    
+    def _is_ship_sunk(self, ship_name):
+    #     '''
+    #     Determines if the ship that was hit has been sunk
+    #     '''
+
+         if (self.ship_counts[ship_name] == 0):
+             return True
+
+         return False
+
+    def all_ships_sunk_check(self):
+    #     '''
+    #     Determine if all ships have been sunk on a gameboard. Return true if 
+    #     all ships are sunk. Otherwise return false
+    #     '''
+
+         if (self.total_ship_positions == 0):
+             return True
+
+         return False
+
+
+
 class BattleshipBoard(BaseObject):
 
     '''
