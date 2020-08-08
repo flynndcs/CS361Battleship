@@ -76,16 +76,50 @@ class GameScreenStatusMenu(BaseObject):
         '''
         return self.font1.render(self.title, True, (0, 0, 0))
 
+    def _draw_circle(self, x, y, canvas):
+        '''
+        Draws a circle on the screen. This represents a rounded corner of the menu screen border
+        '''
+        pygame.draw.circle(canvas, (255, 255, 255), (x, y), self.border_circle_radius)
+
+    def _draw_rectangle(self, x, y, width, height, canvas):
+        '''
+        Draws a rectangle on the screen. This represents the north/south or east/west border of the menu screen border
+        '''
+        pygame.draw.rect(canvas, (255, 255, 255), (x, y, width, height))
+
     def _render_status_menu_border(self, canvas):
         '''
         Renders the status menu border
+
+        The version of pygame that was used to develop this version of battleship does not support rounded corners
+        for rectangles. Therefore, to create rounded corners, 4 circles and 2 rectangles need to be rendered on the screen.
         '''
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x, self.y), self.border_circle_radius)
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x, self.y + self.border_height), self.border_circle_radius)
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x + self.border_width, self.y), self.border_circle_radius)
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x + self.border_width, self.y + self.border_height), self.border_circle_radius)
-        pygame.draw.rect(canvas, (255, 255, 255), (self.border_x, self.y - self.border_circle_radius, self.border_width, self.border_height + (2 * self.border_circle_radius)))
-        pygame.draw.rect(canvas, (255, 255, 255), (self.border_x - self.border_circle_radius, self.y, self.border_width + (2 * self.border_circle_radius), self.border_height))
+        #draw top left circle of border
+        self._draw_circle(self.border_x, self.y, canvas)
+
+        #draw bottom left circle of border
+        self._draw_circle(self.border_x, (self.y + self.border_height), canvas)
+
+        #draw top right circle of border
+        self._draw_circle((self.border_x + self.border_width), self.y, canvas)
+
+        #draw bottom right circle of border
+        self._draw_circle((self.border_x + self.border_width), (self.y + self.border_height), canvas)
+
+        #draw rectangle that represents the north/south border
+        x = self.border_x
+        y = self.y - self.border_circle_radius
+        width = self.border_width
+        height = self.border_height + (2 * self.border_circle_radius)
+        self._draw_rectangle(x, y, width, height, canvas)
+
+        #draw rectangle that represents the east/west border
+        x = self.border_x - self.border_circle_radius
+        y = self.y
+        width = self.border_width + (2 * self.border_circle_radius)
+        height = self.border_height
+        self._draw_rectangle(x, y, width, height, canvas)
 
     def render(self, canvas):
         self._render_status_menu_border(canvas)
