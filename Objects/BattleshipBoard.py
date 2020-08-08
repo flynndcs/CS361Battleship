@@ -1,11 +1,5 @@
-from Bases.BaseObjects import BaseObject
-from Tools import Images
-import pygame
-from pygame import *
-
 '''
-Author: Daniel Brezavar
-Daniel Flynn
+Author: Daniel Brezavar, Daniel Flynn
 Date: 21Jul2020
 Description: Class that manages interactions with the battleship board
 
@@ -14,19 +8,20 @@ usage:
     ai_board = BattleshipBoard()
 '''
 
-class HitIcon(BaseObject):
-    def __init__(self, il, x=0, y=0):
+from Bases.BaseObjects import BaseObject
+from Tools import Images
+import pygame
+from pygame import *
+
+class BoardIcon(BaseObject):
+    def __init__(self, il, icon_type, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.image = il.load_image(Images.ImageEnum.HIT)
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
+        if (icon_type == "HIT"):
+            self.image = il.load_image(Images.ImageEnum.HIT)
+        elif (icon_type == "MISS"):
+            self.image = il.load_image(Images.ImageEnum.MISS)
 
-class MissIcon(BaseObject):
-    def __init__(self, il, x=0, y=0):
-        BaseObject.__init__(self, il, x=x, y=y)
-
-        self.image = il.load_image(Images.ImageEnum.MISS)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
@@ -184,13 +179,13 @@ class BattleshipBoard(BaseObject):
         icon_x = self._generate_icon_x()
         icon_y = self._generate_icon_y()
 
-        oh.new_object(HitIcon(il, icon_x, icon_y))
+        oh.new_object(BoardIcon(il, "HIT", icon_x, icon_y))
 
     def _show_miss(self, il, oh):
         icon_x = self._generate_icon_x()
         icon_y = self._generate_icon_y()
 
-        oh.new_object(MissIcon(il, icon_x, icon_y))
+        oh.new_object(BoardIcon(il, "MISS", icon_x, icon_y))
 
     def determine_selection_result(self, il, oh):
         if (self.hit):
