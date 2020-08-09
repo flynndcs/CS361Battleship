@@ -315,7 +315,6 @@ class GameSceneManager(BaseObject):
                 mouseX, mouseY = pygame.mouse.get_pos()
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
                     print("pressed confirm")
-                    self.dialog_box.confirm_shot()
                     self.shot_result_displayed = True
                     self.selected_position = None
                     self.enemy_board.determine_selection_result(self.IL, self.OH)

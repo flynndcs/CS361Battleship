@@ -57,18 +57,6 @@ class DialogBox(BaseObject):
         self.confirm_deny_buttons.append(self.image.blit(confirm, (self.confirmX, self.confirmY)))
         self.confirm_deny_buttons.append(self.image.blit(deny, (self.denyX, self.denyY)))
 
-    def confirm_shot(self):
-        mouseX, mouseY = pygame.mouse.get_pos()
-    #     for button in self.confirm_deny_buttons:
-    #     print("confirm within dialog class")
-    #     hit_or_miss = pygame.Surface([99,49])
-    #     hit_or_miss.fill((0,255,0))
-        
-    #     font = pygame.font.Font(pygame.font.get_default_font(),50)
-    #     text = font.render('Hit', True, (0,0,0))
-    #     hit_or_miss.blit(text, (0,0))
-    #     self.image.blit(hit_or_miss, (0,0))
-    
 class BattleshipBoard(BaseObject):
 
     '''
