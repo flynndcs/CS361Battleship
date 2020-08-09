@@ -33,8 +33,9 @@ class PlayButton(BaseObject):
 
     def update(self, oh):
         location = pygame.mouse.get_pos()
+        play_coordinates = 382 < location[0] < 642 and 358 < location[1] < 398
         # if mouse is over start button, color is changed to red
-        if 382 < location[0] < 642 and 358 < location[1] < 398:
+        if play_coordinates:
             self.start_button = self.font.render("Start Game", True, (166, 31, 36))
         else:
             self.start_button = self.font.render("Start Game", True, (255, 255, 255))
@@ -57,7 +58,8 @@ class SettingsButton(BaseObject):
     def update(self, oh):
         location = pygame.mouse.get_pos()
         # if mouse is over settings button, color is changed to red
-        if 420 < location[0] < 591 and 434 < location[1] < 516:
+        setting_coordinates = 420 < location[0] < 591 and 434 < location[1] < 516
+        if setting_coordinates:
             self.settings_button = self.font.render("Settings", True, (166, 31, 36))
         else:
             self.settings_button = self.font.render("Settings", True, (255, 255, 255))
@@ -79,8 +81,9 @@ class AchievementButton(BaseObject):
 
     def update(self, oh):
         location = pygame.mouse.get_pos()
+        achievement_coordinates = 355 < location[0] < 662 and 598 < location[1] < 635
         # if mouse is over achievements button, color is changed to red
-        if 355 < location[0] < 662 and 598 < location[1] < 635:
+        if achievement_coordinates:
             self.achievements_button = self.font.render("Achievements", True, (166, 31, 36))
         else:
             self.achievements_button = self.font.render("Achievements", True, (255, 255, 255))
@@ -118,8 +121,9 @@ class ExitGame(BaseObject):
     def update(self, oh):
         """ Changes text color from white to red"""
         location = pygame.mouse.get_pos()
+        button_coordinates = 25 < location[0] < 159 and 912 < location[1] < 935
         # if mouse is over to Exit Game button, color is changed to red
-        if 25 < location[0] < 159 and 912 < location[1] < 935:
+        if button_coordinates:
             self.start_button = self.font.render("Exit Game", True, (166, 31, 36))
         else:
             self.start_button = self.font.render("Exit Game", True, (255, 255, 255))

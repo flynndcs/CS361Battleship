@@ -980,7 +980,7 @@ class ToMainScreen(BaseObject):
     Author: Alex Wilson
     """
 
-    def __init__(self, il, x=23, y=900):
+    def __init__(self, il, x=700, y=3):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.click_num = 0
@@ -989,20 +989,22 @@ class ToMainScreen(BaseObject):
         self.quit_game_hover = self.font.render("Quit Game", True, (166, 31, 36))
         self.quit_game_pressed = self.font.render("Click again to confirm", True, (255, 255, 255))
         self.quit_game_pressed_hover = self.font.render("Click again to confirm", True, (166, 31, 36))
-
+        
     def update(self, oh):
         """
         Changes color of Quit Game message from white to red with hover
         """
         location = pygame.mouse.get_pos()
+        quit_coord = 703 < location[0] < 845 and 13 < location[1] < 41
+        confirm_coord = 700 < location[0] < 989 and 12 < location[1] < 38
         # if user hovers over quit game, color is changed from white to red
-        if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
+        if quit_coord and self.click_num == 0:
             self.quit_game = self.quit_game_hover
         # if users cursor anywhere else on board, quit message is white
         elif self.click_num == 0:
             self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
         # if user hovers over confirm quit, color is changed from white to red
-        elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
+        elif confirm_coord and self.click_num == 1:
             self.quit_game = self.quit_game = self.quit_game_pressed_hover
         # if user is not hovering over confirm quit, color is white
         elif self.click_num == 1:
@@ -1014,14 +1016,16 @@ class ToMainScreen(BaseObject):
         menu scene.
         """
         location = pygame.mouse.get_pos()
+        quit_coord = 703 < location[0] < 845 and 13 < location[1] < 41
+        confirm_coord = 700 < location[0] < 989 and 12 < location[1] < 38
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # if user clicks quit game, they are prompted with a confirm quit message
-                if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
+                if quit_coord and self.click_num == 0:
                     self.click_num += 1
                     self.quit_game = self.quit_game_pressed
                 # if the user clicks to confirm quit, true is returned and they are returned to menu screen
-                elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
+                elif confirm_coord and self.click_num == 1:
                     return True
                 # if user doesn't confirm to quit, quit game message and click number are reset
                 else:
