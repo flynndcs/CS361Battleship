@@ -5,7 +5,7 @@ import pygame
 
 class BaseShip(BaseObject):
 
-    def __init__(self, il, x=0, y=0):
+    def __init__(self, il, name, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.size = 0  # number of squares to take up
@@ -28,7 +28,17 @@ class BaseShip(BaseObject):
 
         self.selected = False
 
-        self.name = None
+        self.name = name
+        self.size = {"submarine": 3,
+                     "carrier": 5,
+                     "battleship": 4,
+                     "cruiser": 3,
+                     "destroyer": 2}[self.name]
+        self.image = {"submarine": il.load_image(Images.ImageEnum.SUBMARINE),
+                      "carrier": il.load_image(Images.ImageEnum.AIRCRAFTCARRIER),
+                      "battleship": il.load_image(Images.ImageEnum.BATTLESHIP),
+                      "cruiser": il.load_image(Images.ImageEnum.CRUISER),
+                      "destroyer": il.load_image(Images.ImageEnum.PATROLBOAT)}[self.name]
 
         self.life = []
         for segment in range(self.size):
@@ -113,76 +123,6 @@ class BaseShip(BaseObject):
             self.x = self.selected_x
             self.y = self.selected_y - self.height
 
-
     def scale_ship(self, new_x, new_y, offset_size):
 
         self.image = pygame.transform.scale(self.image, (new_x*self.size - offset_size, new_y - offset_size))
-
-
-class Submarine(BaseShip):
-
-    def __init__(self, il, x=0, y=0):
-        BaseShip.__init__(self, il, x=x, y=y)
-
-        self.image = il.load_image(Images.ImageEnum.SUBMARINE)
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-
-        self.name = "submarine"
-
-        self.size = 3
-
-
-class Carrier(BaseShip):
-
-    def __init__(self, il, x=0, y=0):
-        BaseShip.__init__(self, il, x=x, y=y)
-
-        self.image = il.load_image(Images.ImageEnum.AIRCRAFTCARRIER)
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-
-        self.size = 5
-
-
-class Battleship(BaseShip):
-
-    def __init__(self, il, x=0, y=0):
-        BaseShip.__init__(self, il, x=x, y=y)
-
-        self.image = il.load_image(Images.ImageEnum.BATTLESHIP)
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-
-        self.name = "battleship"
-
-        self.size = 4
-
-
-class Cruiser(BaseShip):
-
-    def __init__(self, il, x=0, y=0):
-        BaseShip.__init__(self, il, x=x, y=y)
-
-        self.image = il.load_image(Images.ImageEnum.CRUISER)
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-
-        self.name = "cruiser"
-
-        self.size = 3
-
-
-class Destroyer(BaseShip):
-
-    def __init__(self, il, x=0, y=0):
-        BaseShip.__init__(self, il, x=x, y=y)
-
-        self.image = il.load_image(Images.ImageEnum.PATROLBOAT)
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-
-        self.name = "destroyer"
-
-        self.size = 2
-
