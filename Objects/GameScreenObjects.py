@@ -989,7 +989,7 @@ class ToMainScreen(BaseObject):
         self.quit_game_hover = self.font.render("Quit Game", True, (166, 31, 36))
         self.quit_game_pressed = self.font.render("Click again to confirm", True, (255, 255, 255))
         self.quit_game_pressed_hover = self.font.render("Click again to confirm", True, (166, 31, 36))
-        
+
     def update(self, oh):
         """
         Changes color of Quit Game message from white to red with hover
@@ -1027,7 +1027,6 @@ class ToMainScreen(BaseObject):
                 # if the user clicks to confirm quit, true is returned and they are returned to menu screen
                 elif confirm_coord and self.click_num == 1:
                     return True
-                # if user doesn't confirm to quit, quit game message and click number are reset
                 else:
                     self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
                     self.click_num = 0

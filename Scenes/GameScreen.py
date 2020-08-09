@@ -32,7 +32,6 @@ class GameScreen(SceneBase):
                 # if user clicks to confirm quit, game is terminated
                 elif confirm_coord and self.click_num == 1:
                     self.switch_to_scene(TitleScene.TitleScene(self.IL))
-                # user does not confirm to quit, click number is reset
                 else:
                     self.click_num = 0
 
