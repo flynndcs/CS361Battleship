@@ -358,11 +358,11 @@ class PlacementPhaseHandler:
         self.incorrect_placement_sound = SoundEnum.INCORRECTPLACEMENT
 
         self.ships_added = False
-        self.available_ships = [Objects.ShipObjects.Carrier(il),
-                                Objects.ShipObjects.Battleship(il),
-                                Objects.ShipObjects.Cruiser(il),
-                                Objects.ShipObjects.Submarine(il),
-                                Objects.ShipObjects.Destroyer(il)]
+        self.available_ships = [Objects.ShipObjects.BaseShip(il, "carrier"),
+                                Objects.ShipObjects.BaseShip(il, "battleship"),
+                                Objects.ShipObjects.BaseShip(il, "cruiser"),
+                                Objects.ShipObjects.BaseShip(il, "submarine"),
+                                Objects.ShipObjects.BaseShip(il, "destroyer")]
         self.ships_placed = []
 
         self.selected_ship = None
