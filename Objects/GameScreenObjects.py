@@ -392,11 +392,7 @@ class PlacementPhaseHandler:
 
         self.resize_ships()
 
-    def update(self, oh):
-        # self.player_board.activate_board()
-        # self.enemy_board.deactivate_board()
-        self.status_menu.set_status("Placement")
-        self.status_menu.set_action("Please place your ships on the player gameboard")
+    def check_timers(self, oh):
 
         if self.error_display_timer_current < self.error_display_timer_maximum:
             if self.error_display_timer_current == 0:
@@ -414,6 +410,8 @@ class PlacementPhaseHandler:
             if self.error_NASP_display_timer_current == self.error_NASP_display_timer_maximum:
                 oh.remove_object(self.NASP)
 
+    def check_ships_placed(self, oh):
+
         placed_x_offset = 0
         if not self.ships_added:
             total_width_of_lot = 0
@@ -429,6 +427,10 @@ class PlacementPhaseHandler:
                 oh.new_object(ship)
             self.ships_added = True
 
+            self.check_text_placed(oh, placed_x_offset)
+
+    def check_text_placed(self, oh, placed_x_offset):
+
         if not self.text_placed:
             middle_x = self.ship_lot_start_x + (placed_x_offset / 2)
             above_y = self.ship_lot_start_y - self.available_ships_text.height - 10
@@ -442,19 +444,23 @@ class PlacementPhaseHandler:
             board_1_right_x = self.player_board.x + self.player_board.width
             board_2_left_x = self.enemy_board.x
 
-            # self.start_game_text.x = board_1_right_x + (
-            #             (board_2_left_x - board_1_right_x) / 2)
-            # self.start_game_text.x -= self.start_game_text.width / 2
-            # self.start_game_text.y = self.ship_lot_start_y + 150
-
             self.start_game_text.x = self.ship_lot_start_x
-            # self.start_game_text.x -= self.start_game_text.width / 2
+
             self.start_game_text.y = self.ship_lot_start_y + 225
 
             oh.new_object(self.start_game_text)
             oh.new_object(self.psm)
 
             self.text_placed = True
+
+    def update(self, oh):
+        # self.player_board.activate_board()
+        # self.enemy_board.deactivate_board()
+        self.status_menu.set_status("Placement")
+        self.status_menu.set_action("Please place your ships on the player gameboard")
+
+        self.check_timers(oh)
+        self.check_ships_placed(oh)
 
         if self.selected_ship:
             self.selected_ship.selected = True
