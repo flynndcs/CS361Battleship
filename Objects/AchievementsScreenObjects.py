@@ -30,13 +30,15 @@ class ToMainScreen(BaseObject):
         self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
         self.return_to_menu = self.font.render("Return to Main Menu", True, (255, 255, 255))
 
+
     def update(self, oh):
         """
         Changes color of Return to Main Menu message from white to red with hover
         """
         location = pygame.mouse.get_pos()
+        button_cordinates = 26 < location[0] < 307 and 912 < location[1] < 934
         # if mouse is over to main screen button, color is changed to red
-        if 26 < location[0] < 307 and 912 < location[1] < 934:
+        if button_cordinates:
             self.return_to_menu = self.font.render("Return to Main Menu", True, (166, 31, 36))
         else:
             self.return_to_menu = self.font.render("Return to Main Menu", True, (255, 255, 255))

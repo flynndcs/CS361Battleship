@@ -8,6 +8,7 @@ from pygame import transform, font
 from random import randrange
 from os import path, mkdir
 from datetime import datetime
+from Tools.Sounds import SoundEnum
 
 
 class GameScreenStatusMenu(BaseObject):
@@ -75,16 +76,50 @@ class GameScreenStatusMenu(BaseObject):
         '''
         return self.font1.render(self.title, True, (0, 0, 0))
 
+    def _draw_circle(self, x, y, canvas):
+        '''
+        Draws a circle on the screen. This represents a rounded corner of the menu screen border
+        '''
+        pygame.draw.circle(canvas, (255, 255, 255), (x, y), self.border_circle_radius)
+
+    def _draw_rectangle(self, x, y, width, height, canvas):
+        '''
+        Draws a rectangle on the screen. This represents the north/south or east/west border of the menu screen border
+        '''
+        pygame.draw.rect(canvas, (255, 255, 255), (x, y, width, height))
+
     def _render_status_menu_border(self, canvas):
         '''
         Renders the status menu border
+
+        The version of pygame that was used to develop this version of battleship does not support rounded corners
+        for rectangles. Therefore, to create rounded corners, 4 circles and 2 rectangles need to be rendered on the screen.
         '''
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x, self.y), self.border_circle_radius)
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x, self.y + self.border_height), self.border_circle_radius)
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x + self.border_width, self.y), self.border_circle_radius)
-        pygame.draw.circle(canvas, (255, 255, 255), (self.border_x + self.border_width, self.y + self.border_height), self.border_circle_radius)
-        pygame.draw.rect(canvas, (255, 255, 255), (self.border_x, self.y - self.border_circle_radius, self.border_width, self.border_height + (2 * self.border_circle_radius)))
-        pygame.draw.rect(canvas, (255, 255, 255), (self.border_x - self.border_circle_radius, self.y, self.border_width + (2 * self.border_circle_radius), self.border_height))
+        #draw top left circle of border
+        self._draw_circle(self.border_x, self.y, canvas)
+
+        #draw bottom left circle of border
+        self._draw_circle(self.border_x, (self.y + self.border_height), canvas)
+
+        #draw top right circle of border
+        self._draw_circle((self.border_x + self.border_width), self.y, canvas)
+
+        #draw bottom right circle of border
+        self._draw_circle((self.border_x + self.border_width), (self.y + self.border_height), canvas)
+
+        #draw rectangle that represents the north/south border
+        x = self.border_x
+        y = self.y - self.border_circle_radius
+        width = self.border_width
+        height = self.border_height + (2 * self.border_circle_radius)
+        self._draw_rectangle(x, y, width, height, canvas)
+
+        #draw rectangle that represents the east/west border
+        x = self.border_x - self.border_circle_radius
+        y = self.y
+        width = self.border_width + (2 * self.border_circle_radius)
+        height = self.border_height
+        self._draw_rectangle(x, y, width, height, canvas)
 
     def render(self, canvas):
         self._render_status_menu_border(canvas)
@@ -282,7 +317,6 @@ class GameSceneManager(BaseObject):
                 mouseX, mouseY = pygame.mouse.get_pos()
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
                     print("pressed confirm")
-                    self.dialog_box.confirm_shot()
                     self.shot_result_displayed = True
                     self.selected_position = None
                     self.enemy_board.determine_selection_result(self.IL, self.OH)
@@ -380,12 +414,14 @@ class PlacementPhaseHandler:
         self.status_menu = status_menu
         self.phase_manager = phase_manager
 
+        self.incorrect_placement_sound = SoundEnum.INCORRECTPLACEMENT
+
         self.ships_added = False
-        self.available_ships = [Objects.ShipObjects.Carrier(il),
-                                Objects.ShipObjects.Battleship(il),
-                                Objects.ShipObjects.Cruiser(il),
-                                Objects.ShipObjects.Submarine(il),
-                                Objects.ShipObjects.Destroyer(il)]
+        self.available_ships = [Objects.ShipObjects.BaseShip(il, "carrier"),
+                                Objects.ShipObjects.BaseShip(il, "battleship"),
+                                Objects.ShipObjects.BaseShip(il, "cruiser"),
+                                Objects.ShipObjects.BaseShip(il, "submarine"),
+                                Objects.ShipObjects.BaseShip(il, "destroyer")]
         self.ships_placed = []
 
         self.selected_ship = None
@@ -415,11 +451,7 @@ class PlacementPhaseHandler:
 
         self.resize_ships()
 
-    def update(self, oh):
-        # self.player_board.activate_board()
-        # self.enemy_board.deactivate_board()
-        self.status_menu.set_status("Placement")
-        self.status_menu.set_action("Please place your ships on the player gameboard")
+    def check_timers(self, oh):
 
         if self.error_display_timer_current < self.error_display_timer_maximum:
             if self.error_display_timer_current == 0:
@@ -437,6 +469,8 @@ class PlacementPhaseHandler:
             if self.error_NASP_display_timer_current == self.error_NASP_display_timer_maximum:
                 oh.remove_object(self.NASP)
 
+    def check_ships_placed(self, oh):
+
         placed_x_offset = 0
         if not self.ships_added:
             total_width_of_lot = 0
@@ -452,6 +486,10 @@ class PlacementPhaseHandler:
                 oh.new_object(ship)
             self.ships_added = True
 
+            self.check_text_placed(oh, placed_x_offset)
+
+    def check_text_placed(self, oh, placed_x_offset):
+
         if not self.text_placed:
             middle_x = self.ship_lot_start_x + (placed_x_offset / 2)
             above_y = self.ship_lot_start_y - self.available_ships_text.height - 10
@@ -465,19 +503,23 @@ class PlacementPhaseHandler:
             board_1_right_x = self.player_board.x + self.player_board.width
             board_2_left_x = self.enemy_board.x
 
-            # self.start_game_text.x = board_1_right_x + (
-            #             (board_2_left_x - board_1_right_x) / 2)
-            # self.start_game_text.x -= self.start_game_text.width / 2
-            # self.start_game_text.y = self.ship_lot_start_y + 150
-
             self.start_game_text.x = self.ship_lot_start_x
-            # self.start_game_text.x -= self.start_game_text.width / 2
+
             self.start_game_text.y = self.ship_lot_start_y + 225
 
             oh.new_object(self.start_game_text)
             oh.new_object(self.psm)
 
             self.text_placed = True
+
+    def update(self, oh):
+        # self.player_board.activate_board()
+        # self.enemy_board.deactivate_board()
+        self.status_menu.set_status("Placement")
+        self.status_menu.set_action("Please place your ships on the player gameboard")
+
+        self.check_timers(oh)
+        self.check_ships_placed(oh)
 
         if self.selected_ship:
             self.selected_ship.selected = True
@@ -498,7 +540,7 @@ class PlacementPhaseHandler:
                                 self.error_display_timer_current = self.error_display_timer_maximum
                                 oh.remove_object(self.epm)
                         else:
-                            self.display_not_possible(self.selected_ship.x, self.selected_ship.y)
+                            self.display_not_possible(self.selected_ship.x, self.selected_ship.y, oh)
                     else:
                         mouse_pos = event.pos
                         for ship in self.available_ships:
@@ -618,12 +660,14 @@ class PlacementPhaseHandler:
 
         return allowed
 
-    def display_not_possible(self, x, y):
+    def display_not_possible(self, x, y, oh):
 
         self.epm.x = x - self.epm.width
         self.epm.y = y - self.epm.height
 
         self.error_display_timer_current = 0
+
+        oh.sound_loader.play_sound(self.incorrect_placement_sound)
 
     def display_not_all_ships_placed(self):
 
@@ -967,7 +1011,7 @@ class ToMainScreen(BaseObject):
     Author: Alex Wilson
     """
 
-    def __init__(self, il, x=23, y=900):
+    def __init__(self, il, x=700, y=3):
         BaseObject.__init__(self, il, x=x, y=y)
 
         self.click_num = 0
@@ -982,14 +1026,16 @@ class ToMainScreen(BaseObject):
         Changes color of Quit Game message from white to red with hover
         """
         location = pygame.mouse.get_pos()
+        quit_coord = 703 < location[0] < 845 and 13 < location[1] < 41
+        confirm_coord = 700 < location[0] < 989 and 12 < location[1] < 38
         # if user hovers over quit game, color is changed from white to red
-        if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
+        if quit_coord and self.click_num == 0:
             self.quit_game = self.quit_game_hover
         # if users cursor anywhere else on board, quit message is white
         elif self.click_num == 0:
             self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
         # if user hovers over confirm quit, color is changed from white to red
-        elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
+        elif confirm_coord and self.click_num == 1:
             self.quit_game = self.quit_game = self.quit_game_pressed_hover
         # if user is not hovering over confirm quit, color is white
         elif self.click_num == 1:
@@ -1001,16 +1047,17 @@ class ToMainScreen(BaseObject):
         menu scene.
         """
         location = pygame.mouse.get_pos()
+        quit_coord = 703 < location[0] < 845 and 13 < location[1] < 41
+        confirm_coord = 700 < location[0] < 989 and 12 < location[1] < 38
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # if user clicks quit game, they are prompted with a confirm quit message
-                if 23 < location[0] < 169 and 910 < location[1] < 935 and self.click_num == 0:
+                if quit_coord and self.click_num == 0:
                     self.click_num += 1
                     self.quit_game = self.quit_game_pressed
                 # if the user clicks to confirm quit, true is returned and they are returned to menu screen
-                elif 23 < location[0] < 312 and 911 < location[1] < 935 and self.click_num == 1:
+                elif confirm_coord and self.click_num == 1:
                     return True
-                # if user doesn't confirm to quit, quit game message and click number are reset
                 else:
                     self.quit_game = self.font.render("Quit Game", True, (255, 255, 255))
                     self.click_num = 0
