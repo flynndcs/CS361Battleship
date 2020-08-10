@@ -30,6 +30,63 @@ class MissIcon(BaseObject):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+
+
+# class TargetIcon(BaseObject):
+#     def __init__(self, il, coord,  x=0, y=0):
+#         BaseObject.__init__(self, il, x, y)
+#
+#         self.image = il.load_image(Images.ImageEnum.TARGET)
+#         self.width = self.image.get_width()
+#         self.height = self.image.get_height()
+#         self.coord = coord
+#         self.xdir = 1
+#         self.ydir = 1
+#
+#         self.speed = 5
+#         self.coord = coord
+#
+#     def update(self, oh):
+#             oh.new_object(self.image)
+
+class TargetIcon(BaseObject):
+    def __init__(self, il, x, y, coord):
+        BaseObject.__init__(self, il, x, y)
+
+        self.image = il.load_image(Images.ImageEnum.TARGET)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.coord = coord
+        self.xdir = 1
+        self.ydir = 1
+        self.position = 1
+        self.speed = 5
+        self.coord = coord
+        print(self.coord)
+
+
+    def update(self, oh):
+        self.x += self.speed * self.xdir
+        self.y += self.speed * self.ydir
+
+        # if self.position == len(self.coord) - 1:
+        #     return
+        #
+        # if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
+        #     self.position += 1
+        #     print(self.position)
+
+        if self.x > self.coord[self.position][0] - self.width:
+            self.xdir *= -1
+            print("here")
+
+        if self.y > self.coord[self.position][1] - self.height:
+            self.ydir *= -1
+            print("here1")
+
+
+
+
 class DialogBox(BaseObject):
 
     confirm_deny_buttons = []
@@ -191,6 +248,32 @@ class BattleshipBoard(BaseObject):
         icon_y = self._generate_icon_y()
 
         oh.new_object(MissIcon(il, icon_x, icon_y))
+
+    def show_target(self, il, oh, coord):
+        for x in range(len(coord)):
+            self.set_square_selection(coord[x][0], coord[x][1])
+            icon_x = self._generate_icon_x()
+            icon_y = self._generate_icon_y()
+            coord[x][0] =icon_x
+            coord[x][1] = icon_y
+
+        oh.new_object(TargetIcon(il, coord[0][0], coord[0][1], coord))
+
+
+
+    # def convert_coordinates(self, il, oh, coord):
+    #
+    #     for x in range(len(coord)):
+    #         self.set_square_selection(coord[x][0], coord[x][1])
+    #         icon_x = self._generate_icon_x()
+    #         icon_y = self._generate_icon_y()
+    #         coord[x][0] =icon_x
+    #         coord[x][1] = icon_y
+    #     return coord
+
+
+        # oh.new_object(TargetIcon(il, icon_x, icon_y, coord))
+
 
     def determine_selection_result(self, il, oh):
         if (self.hit):

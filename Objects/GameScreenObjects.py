@@ -198,6 +198,8 @@ class GameSceneManager(BaseObject):
         self.selected_position = None
         self.hover_position = None
 
+        # self.target = Objects.BattleshipBoard.TargetIcon(self.IL, self.generate_taget_coordinates(OH))
+
     def _initialize_placement_phase_objects(self):
         self.OH.new_object(self.player_board)
         self.OH.new_object(self.status_menu)
@@ -317,9 +319,33 @@ class GameSceneManager(BaseObject):
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
         x = randrange(10)
         y = randrange(10)
+        # oh.new_object(self.target)
+        self.target_animation(self.OH)
         self.player_board.set_square_selection(x, y)
         self.player_board.determine_selection_result(self.IL, self.OH)
         self.change_to_player_phase()
+
+
+    def target_animation(self, oh):
+        coordinates = []
+
+        for var in range(4):
+            x = randrange(10)
+            y = randrange(10)
+            coordinates.append([x, y])
+        # will append final location here
+        self.player_board.show_target(self.IL, oh, coordinates)
+
+
+    # def generate_taget_coordinates(self, oh):
+    #     coordinates = []
+    #
+    #     for int in range(4):
+    #         x = randrange(10)
+    #         y = randrange(10)
+    #         coordinates.append([x, y])
+    #     self.player_board.convert_coordinates(self.IL, self.OH, coordinates)
+    #     return coordinates
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
