@@ -78,13 +78,9 @@ class TargetIcon(BaseObject):
 
         if self.x > self.coord[self.position][0] - self.width:
             self.xdir *= -1
-            print("here")
 
         if self.y > self.coord[self.position][1] - self.height:
             self.ydir *= -1
-            print("here1")
-
-
 
 
 class DialogBox(BaseObject):
