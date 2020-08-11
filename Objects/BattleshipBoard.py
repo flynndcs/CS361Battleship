@@ -75,81 +75,6 @@ class DialogBox(BaseObject):
     #     self.image.blit(hit_or_miss, (0,0))
 
 
-# Brian Add
-
-class ShipTracker():
-    def __init___(self):
-        self.gameboard = [[0 for i in range(10)] for j in range(10)]
-        self.ship_counts = {}
-        self.total_ship_positions = 0
-
-
-    def add_ship(self, ship_name, ship_array):
-
-        for location in ship_array:
-            row = self._extract_location(location)
-            column = self._extract_location(location)
-
-        self.total_ship_positions = self.total_ship_positions + 1
-        self.gameboard[row][column] = ship_name
-        self._update_ship_count_number(ship_name, 0)
-
-    
-    def _extract_location(self, location):
-    
-    #     Return the row and column location as an array with 2 elements
-
-    #     Precondition: location must be in the format "a-b" where a is the row
-    #                   number and b is the column number
-
-        return location.split("-")
-
-    
-    def _update_ship_count_number(self, ship_name, t = 0):
-    #     '''
-    #     Uses the ship_count_tracker class dictionary to track the number of positions
-    #     each ship has taken up on the board. 
-    #     '''
-
-         if (t == 0):
-             if ship_name in self.ship_counts:
-                 self.ship_counts[ship_name] += 1
-             else:
-                 self.ship_counts[ship_name] = 1
-         else:
-             self.ship_counts[ship_name] -= 1
-
-
-    def check_hit(self, guess):
-
-        arrayLoc = _extract_location(self, guess)
-        if self.gameboard[arrayLoc[0]][arrayLoc[1]] != 0
-            return [True, gameboard[arrayLoc[0]][arrayLoc[1]]]
-    
-    
-    def _is_ship_sunk(self, ship_name):
-    #     '''
-    #     Determines if the ship that was hit has been sunk
-    #     '''
-
-         if (self.ship_counts[ship_name] == 0):
-             return True
-
-         return False
-
-    def all_ships_sunk_check(self):
-    #     '''
-    #     Determine if all ships have been sunk on a gameboard. Return true if 
-    #     all ships are sunk. Otherwise return false
-    #     '''
-
-         if (self.total_ship_positions == 0):
-             return True
-
-         return False
-
-
-
 class BattleshipBoard(BaseObject):
 
     '''
@@ -205,8 +130,115 @@ class BattleshipBoard(BaseObject):
         self.selection_x = -1
         self.selection_y = -1
         
-        # self.ship_count_tracker = {}
-        # self.total_ship_positions = 0
+
+#Begin Brian Additions
+        #board to place ships on and check guesses against
+        self.back_end_board = [[] for y in range(10)]
+
+        #track how many spaces each ship is occupying
+        self.ship_counts = {"destroyer": 2,
+                            "cruiser": 3,
+                            "submarine": 3,
+                            "battleship": 4,
+                            "carrier": 5}
+        
+        #track total remaining squares occupied by ships 
+        self.total_ship_positions = 0
+        
+    def init_back_end_board(self):
+        for i in range(10):
+            for j in range(10):
+                self.back_end_board[i][j] = 0
+
+    
+    def add_ship(self, ship_name, ship_array):
+    #     
+    #     Adds ship to the back_end_board
+    #     Increases total ship positions
+    #  
+        for location in ship_array:
+            row, column = self._extract_location(location)
+
+            self.total_ship_positions = self.total_ship_positions + 1
+            self.back_end_board[row][column] = ship_name
+
+        
+    
+    def _extract_location(self, location):
+
+    #Return the row and column location as an array with 2 elements
+
+    #Precondition: location must be in the format "a-b" where a is the row
+    #              number and b is the column number
+
+        return location.split("-")
+
+
+
+    def check_hit(self, guess):
+    #     
+    #     Check if guess was a hit or miss
+    #  
+        row, column = self._extract_location(guess)
+        boardValue = self.back_end_board[row][column]
+        if boardValue == 0:
+            return False
+        elif boardValue == "used":
+            # square has already been guessed
+            pass
+        else:
+            self.total_ship_positions = self.total_ship_positions - 1
+            if _all_ships_sunk_check():
+                #game is over. Not sure what to return
+                pass
+            self._reduce_ship_count(boardValue)
+            self.back_end_board[row][column] = "used"
+            return True
+    
+
+
+    def _reduce_ship_count(self, ship_name):
+    #     
+    #     Reduces space occupied by specific ship in dictionary
+    #     after a hit
+    #   
+        self.ship_counts[ship_name] = self.ship_counts[ship_name] - 1
+        
+    
+
+    def _is_ship_sunk(self, ship_name):
+    #     
+    #     Determines if the ship that was hit has been sunk
+    #     
+
+        if (self.ship_counts[ship_name] == 0):
+            return ship_name
+        else:
+            return False
+
+
+
+    def _all_ships_sunk_check(self):
+    #     
+    #     Determine if all ships have been sunk on the back_end_board. Return true 
+    #     if all ships are sunk. Otherwise return false
+    #     
+
+        if (self.total_ship_positions == 0):
+            return True
+
+        return False
+
+
+
+    def _get_back_end_board_info(self, row, column):
+    #     
+    #     Returns string of the back_end_board that is located at the row and column
+    #     position passed into function
+    #     
+
+        return self.back_end_board[row][column]
+#End Brian Additions
 
     def clear_board(self, oh, surface):
         if surface:
