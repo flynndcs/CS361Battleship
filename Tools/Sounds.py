@@ -48,6 +48,7 @@ class SoundLoader:
                 self.bgm[sound].fadeout()
 
     def set_se_volume(self, volume):
+
         self.se_volume = volume
         for sound in self.sound_effects:
             self.sound_effects[sound].set_volume(self.se_volume)

@@ -1,5 +1,6 @@
 import Bases.ObjectHandler
 import Tools.Sounds
+import Tools.Settings
 
 
 class SceneBase:
@@ -12,6 +13,7 @@ class SceneBase:
         self.IL = il  # image loader to make sure we are not loading images multiple times.
         self.SL = Tools.Sounds.SoundLoader()
         self.OH = Bases.ObjectHandler.ObjectHandler(self.SL)
+        self.settings = Tools.Settings.SettingsLoader(self.SL)
 
     def process_input(self, events, pressed_keys):
         """
