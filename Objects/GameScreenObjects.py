@@ -359,8 +359,12 @@ class GameSceneManager(BaseObject):
         self.change_to_player_phase()
 
     def target_animation(self, oh, x, y):
-        coordinates = []
+        # converting ai move, replace x, y parameter
+        ai_move = "2-1"
+        ai_move = [ai_move[i:i+1] for i in range(0, len(ai_move), 1)]
+        ai_move = [int(ai_move[0]), int(ai_move[2])]
 
+        coordinates = []
         for var in range(3):
             p = randrange(10)
             q = randrange(10)
