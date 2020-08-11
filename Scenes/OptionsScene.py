@@ -1,5 +1,5 @@
 from Bases.SceneBase import SceneBase
-from Objects.OptionsScreenObjects import BackgroundImage, ToMainScreen, OptionsScreenMessage, ResolutionSetting, DropDownBox, ApplyButton
+from Objects.OptionsScreenObjects import BackgroundImage, ToMainScreen, OptionsScreenMessage, ResolutionSetting, DropDownBox, ApplyButton, SoundSlider
 from Scenes import TitleScene
 import pygame
 
@@ -18,7 +18,7 @@ class OptionsScene(SceneBase):
         self.OH.new_object(DropDownBox(self.IL))
         self.OH.new_object(ApplyButton(self.IL))
         self.OH.new_object(ToMainScreen(self.IL))
-
+        self.OH.new_object(SoundSlider(self.IL, self.SL, self.settings))
 
     def process_input(self, events, pressed_keys):
         SceneBase.process_input(self, events, pressed_keys)
