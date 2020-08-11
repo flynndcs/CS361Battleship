@@ -353,7 +353,7 @@ class GameSceneManager(BaseObject):
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
         x = randrange(10)
         y = randrange(10)
-        self.target_animation(self.OH, x, y)
+        self.target_animation(oh, x, y)
         self.player_board.set_square_selection(x, y)
         self.player_board.determine_selection_result(self.IL, self.OH)
         self.change_to_player_phase()
@@ -368,7 +368,6 @@ class GameSceneManager(BaseObject):
         coordinates.append([x, y])
         # will append final location here
         self.player_board.show_target(self.IL, oh, coordinates)
-
 
     # def generate_taget_coordinates(self, oh):
     #     coordinates = []

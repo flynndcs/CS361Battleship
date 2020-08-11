@@ -57,27 +57,30 @@ class TargetIcon(BaseObject):
 
     def update(self, oh):
         if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
-            self.position += 1
+            if self.position == len(self.coord):
+                return self.remove(oh, self.image)
+            else:
+                self.position += 1
 
-        if self.position == len(self.coord) - 1:
-            self.speed = 0.5
+        if self.position != len(self.coord):
 
-        if self.x < self.coord[self.position][0]:
-            self.x += 10 * self.speed
+            if self.position == len(self.coord) - 1:
+                self.speed = 0.5
 
-        if self.y < self.coord[self.position][1]:
-            self.y += 10 * self.speed
+            if self.x < self.coord[self.position][0]:
+                self.x += 10 * self.speed
 
-        if self.y > self.coord[self.position][1]:
-            self.y -= 10 * self.speed
+            if self.y < self.coord[self.position][1]:
+                self.y += 10 * self.speed
 
-        if self.x > self.coord[self.position][0]:
-            self.x -= 10 * self.speed
+            if self.y > self.coord[self.position][1]:
+                self.y -= 10 * self.speed
 
-    def remove(self, oh):
-        oh.remove_object(self.image)
+            if self.x > self.coord[self.position][0]:
+                self.x -= 10 * self.speed
 
-
+    def remove(self, oh, item):
+        oh.remove_object(item)
 
 class DialogBox(BaseObject):
 
@@ -238,8 +241,6 @@ class BattleshipBoard(BaseObject):
             coord[x][1] = icon_y
 
         oh.new_object(TargetIcon(il, coord[0][0], coord[0][1], coord))
-
-
 
     # def convert_coordinates(self, il, oh, coord):
     #
