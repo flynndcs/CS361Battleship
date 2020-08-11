@@ -703,7 +703,7 @@ class ShipPlacerAI:
             location = self.guess_tracker.pack_guess(next_row, next_col)
             ship_location.append(location)
             self.guess_tracker.record_guess(location, "USED")
-            # d_check.append(location)
+            d_check.append(location)
 
         return ship_location
 
@@ -751,23 +751,47 @@ class ShipPlacerAI:
 
 
 # Test ship placement
-# no_d_count = 0
-# has_d_count = 0
+no_dup_count = 0
+has_dup_count = 0
+out_of_range_count = 0
 
-# for _ in range(1000000):
-#     d_check = []
-#     ai = BattleshipControllerAI(10, 10, "HARD")
-#     r = ai.place_ships()
-#     print(r)
 
-#     if len(d_check) == len(set(d_check)):
-#         # print("No duplicates")
-#         no_d_count += 1
-#     else:
-#         # print("Duplicates")
-#         has_d_count += 1
-# print("Duplicates: {}".format(has_d_count))
-# print("No duplicates: {}".format(no_d_count))
+for i in range(1000000):
+    if (i % 1000 == 0):
+        print(i)
+
+    d_check = []
+    dup_check = []
+    ai = BattleshipControllerAI(10, 10, "HARD")
+    r = ai.place_ships()
+    # print(r)
+    
+    for j in range(0, len(d_check)):
+        dup_check.append(d_check[j])
+
+    # print(dup_check)
+
+    if len(dup_check) == len(set(dup_check)):
+        # print("No duplicates")
+        no_dup_count += 1
+    else:
+        # print("Duplicates")
+        has_dup_count += 1
+
+    for element in dup_check:
+        g = element.split("-")
+        row = int(g[0])
+        col = int(g[1])
+
+        if (row < 0 or row > 9):
+            out_of_range_count += 1
+        
+        if (col < 0 or row > 9):
+            out_of_range_count += 1
+
+print("Duplicates: {}".format(has_dup_count))
+# print("No duplicates: {}".format(no_dup_count))
+print("Out of range count: {}".format(out_of_range_count))
 
 
 
