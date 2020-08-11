@@ -25,6 +25,7 @@ class GameScreen(SceneBase):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 location = pygame.mouse.get_pos()
+                print(location)
                 confirm_coord = 700 < location[0] < 989 and 12 < location[1] < 38
                 # if user clicks to quit game, click_num is incremented
                 if confirm_coord and self.click_num == 0:

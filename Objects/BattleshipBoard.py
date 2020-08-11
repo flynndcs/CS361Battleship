@@ -52,30 +52,31 @@ class TargetIcon(BaseObject):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.coord = coord
-        self.xdir = 1
-        self.ydir = 1
-        self.position = 1
-        self.speed = 5
-        self.coord = coord
-        print(self.coord)
-
+        self.position = 0
+        self.speed = 1
 
     def update(self, oh):
-        self.x += self.speed * self.xdir
-        self.y += self.speed * self.ydir
+        if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
+            self.position += 1
 
-        # if self.position == len(self.coord) - 1:
-        #     return
-        #
-        # if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
-        #     self.position += 1
-        #     print(self.position)
+        if self.position == len(self.coord) - 1:
+            self.speed = 0.5
 
-        if self.x > self.coord[self.position][0] - self.width:
-            self.xdir *= -1
+        if self.x < self.coord[self.position][0]:
+            self.x += 10 * self.speed
 
-        if self.y > self.coord[self.position][1] - self.height:
-            self.ydir *= -1
+        if self.y < self.coord[self.position][1]:
+            self.y += 10 * self.speed
+
+        if self.y > self.coord[self.position][1]:
+            self.y -= 10 * self.speed
+
+        if self.x > self.coord[self.position][0]:
+            self.x -= 10 * self.speed
+
+    def remove(self, oh):
+        oh.remove_object(self.image)
+
 
 
 class DialogBox(BaseObject):
