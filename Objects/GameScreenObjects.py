@@ -234,6 +234,7 @@ class GameSceneManager(BaseObject):
         self.selected_position = None
         self.hover_position = None
 
+
     def _initialize_placement_phase_objects(self):
         self.OH.new_object(self.player_board)
         self.OH.new_object(self.status_menu)
@@ -369,11 +370,16 @@ class GameSceneManager(BaseObject):
         coordinates.append([x, y])
         # will append final location here
         self.player_board.show_target(self.IL, oh, coordinates)
-
         self.player_board.set_square_selection(x, y)
         self.player_board.determine_selection_result(self.IL, self.OH)
         self.change_to_player_phase()
 
+        #coord = self.player_board.show_target(self.IL, oh, coordinates)
+        # move = TargetIcon(il, coord[0][0], coord[0][1], coord, oh).move
+        # if move:
+        #     self.player_board.set_square_selection(x, y)
+        #     self.player_board.determine_selection_result(self.IL, self.OH)
+        #     self.change_to_player_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass

@@ -25,24 +25,6 @@ class BoardIcon(BaseObject):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
-
-# class TargetIcon(BaseObject):
-#     def __init__(self, il, coord,  x=0, y=0):
-#         BaseObject.__init__(self, il, x, y)
-#
-#         self.image = il.load_image(Images.ImageEnum.TARGET)
-#         self.width = self.image.get_width()
-#         self.height = self.image.get_height()
-#         self.coord = coord
-#         self.xdir = 1
-#         self.ydir = 1
-#
-#         self.speed = 5
-#         self.coord = coord
-#
-#     def update(self, oh):
-#             oh.new_object(self.image)
-
 class TargetIcon(BaseObject):
     """TargetIcon position moves through random points in coordinates array until it reaches the end of the array and it is
     removed from screen"""
@@ -55,15 +37,15 @@ class TargetIcon(BaseObject):
         self.coord = coord
         self.position = 0
         self.speed = 1
-        self.move = False
         oh.new_object(self)
+
 
     def update(self, oh):
         """Updates x/y variables to move target position"""
         if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
             if self.position == len(self.coord) - 1:
                 oh.remove_object(self)
-                self.move = True
+                # self.move = True
             else:
                 self.position += 1
 
@@ -83,7 +65,9 @@ class TargetIcon(BaseObject):
 
             if self.x > self.coord[self.position][0]:
                 self.x -= 10 * self.speed
-
+    #
+    # def get_move(self):
+    #     return self.move
 
 class DialogBox(BaseObject):
     confirm_deny_buttons = []
@@ -240,8 +224,8 @@ class BattleshipBoard(BaseObject):
             icon_y = self._generate_icon_y()
             coord[x][0] = icon_x
             coord[x][1] = icon_y
-
-            TargetIcon(il, coord[0][0], coord[0][1], coord, oh)
+        # return coord
+        TargetIcon(il, coord[0][0], coord[0][1], coord, oh)
 
     # def convert_coordinates(self, il, oh, coord):
     #
