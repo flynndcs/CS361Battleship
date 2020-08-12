@@ -7,11 +7,11 @@ usage:
     player_board = BattleshipBoard()
     ai_board = BattleshipBoard()
 '''
-
 from Bases.BaseObjects import BaseObject
 from Tools import Images
 import pygame
 from pygame import *
+
 
 class BoardIcon(BaseObject):
     def __init__(self, il, icon_type, x=0, y=0):
@@ -24,7 +24,6 @@ class BoardIcon(BaseObject):
 
         self.width = self.image.get_width()
         self.height = self.image.get_height()
-
 
 
 # class TargetIcon(BaseObject):
@@ -45,20 +44,26 @@ class BoardIcon(BaseObject):
 #             oh.new_object(self.image)
 
 class TargetIcon(BaseObject):
-    def __init__(self, il, x, y, coord):
-        BaseObject.__init__(self, il, x, y)
+    """TargetIcon position moves through random points in coordinates array until it reaches the end of the array and it is
+    removed from screen"""
 
+    def __init__(self, il, x, y, coord, oh):
+        BaseObject.__init__(self, il, x, y)
         self.image = il.load_image(Images.ImageEnum.TARGET)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.coord = coord
         self.position = 0
         self.speed = 1
+        self.move = False
+        oh.new_object(self)
 
     def update(self, oh):
+        """Updates x/y variables to move target position"""
         if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
-            if self.position == len(self.coord):
-                return self.remove(oh, self.image)
+            if self.position == len(self.coord) - 1:
+                oh.remove_object(self)
+                self.move = True
             else:
                 self.position += 1
 
@@ -79,11 +84,8 @@ class TargetIcon(BaseObject):
             if self.x > self.coord[self.position][0]:
                 self.x -= 10 * self.speed
 
-    def remove(self, oh, item):
-        oh.remove_object(item)
 
 class DialogBox(BaseObject):
-
     confirm_deny_buttons = []
     def __init__(self, il, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
@@ -102,7 +104,6 @@ class DialogBox(BaseObject):
 
         self.init_confirm_deny_buttons()
 
-    
     def init_confirm_deny_buttons(self):
         self.image.fill((0,0,255))
         confirm = pygame.Surface([35, 35])
@@ -115,7 +116,6 @@ class DialogBox(BaseObject):
         self.confirm_deny_buttons.append(self.image.blit(deny, (self.denyX, self.denyY)))
 
 class BattleshipBoard(BaseObject):
-
     '''
     Keep track of ship positions and create functionality for interacting
     with the game board.
@@ -136,29 +136,29 @@ class BattleshipBoard(BaseObject):
 
         # size of board, may need to change if scaling
         self.width = 400
-        self.height = 400 
+        self.height = 400
 
-        #upper left corner of where board is created in scene
+        # upper left corner of where board is created in scene
         self.x = x
         self.y = y
 
-        #dialog position
+        # dialog position
         self.dialogX = None
         self.dialogY = None
 
-        #drawing surface 
+        # drawing surface
         self.image = Surface([self.width, self.height])
         self.image.fill((255, 255, 255))
 
-        #dialog box open
+        # dialog box open
         self.dialogOpen = False
         self.dialogPositions = []
         self.dialogBoxPosition = [self.x, self.y]
 
-        #source of rectangles that outline board positions and handle interaction
-        self.boardPositions = [[] for y in range(10)] 
+        # source of rectangles that outline board positions and handle interaction
+        self.boardPositions = [[] for y in range(10)]
 
-        #the blank rectangle for when a user is not hovering over it
+        # the blank rectangle for when a user is not hovering over it
         self.rect = pygame.Surface([35, 35])
         self.rect.set_alpha(50)
         self.rect.fill((0, 0, 255))
@@ -168,18 +168,18 @@ class BattleshipBoard(BaseObject):
         self.hit = True
         self.selection_x = -1
         self.selection_y = -1
-        
+
         # self.ship_count_tracker = {}
         # self.total_ship_positions = 0
 
     def clear_board(self, oh, surface):
         if surface:
             oh.remove_object(surface)
-        self.image.fill((255,255,255))
+        self.image.fill((255, 255, 255))
         for i in range(10):
             for j in range(10):
-                self.image.blit(self.rect, ((i*40), (j * 40)))
-    
+                self.image.blit(self.rect, ((i * 40), (j * 40)))
+
     def init_board_positions(self):
         for i in range(10):
             for j in range(10):
@@ -187,16 +187,16 @@ class BattleshipBoard(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.image, (self.x, self.y))
-    
+
     def confirm_shot_dialog(self, boardPosition):
         shot_dialog = pygame.Surface([100, 51])
-        shot_dialog.fill((0,0,255))
+        shot_dialog.fill((0, 0, 255))
 
         confirm = pygame.Surface([35, 35])
-        confirm.fill((0,255,0))
+        confirm.fill((0, 255, 0))
 
         deny = pygame.Surface([35, 35])
-        deny.fill((255,0,0))
+        deny.fill((255, 0, 0))
 
         self.dialogPositions.append(shot_dialog.blit(confirm, (10, 8)))
         self.dialogPositions.append(shot_dialog.blit(deny, (55, 8)))
@@ -206,8 +206,8 @@ class BattleshipBoard(BaseObject):
         self.image.blit(shot_dialog, boardPosition)
 
     def hoverHighlight(self, boardPosition):
-        highlightRect = pygame.Surface([35,35])
-        highlightRect.fill((255,0,0))
+        highlightRect = pygame.Surface([35, 35])
+        highlightRect.fill((255, 0, 0))
         self.image.blit(highlightRect, boardPosition)
 
     def set_square_selection(self, x, y):
@@ -233,14 +233,15 @@ class BattleshipBoard(BaseObject):
         oh.new_object(BoardIcon(il, "MISS", icon_x, icon_y))
 
     def show_target(self, il, oh, coord):
+
         for x in range(len(coord)):
             self.set_square_selection(coord[x][0], coord[x][1])
             icon_x = self._generate_icon_x()
             icon_y = self._generate_icon_y()
-            coord[x][0] =icon_x
+            coord[x][0] = icon_x
             coord[x][1] = icon_y
 
-        oh.new_object(TargetIcon(il, coord[0][0], coord[0][1], coord))
+            TargetIcon(il, coord[0][0], coord[0][1], coord, oh)
 
     # def convert_coordinates(self, il, oh, coord):
     #
@@ -252,9 +253,7 @@ class BattleshipBoard(BaseObject):
     #         coord[x][1] = icon_y
     #     return coord
 
-
-        # oh.new_object(TargetIcon(il, icon_x, icon_y, coord))
-
+    # oh.new_object(TargetIcon(il, icon_x, icon_y, coord))
 
     def determine_selection_result(self, il, oh):
         if (self.hit):
@@ -263,5 +262,3 @@ class BattleshipBoard(BaseObject):
         else:
             self._show_miss(il, oh)
             self.hit = True
-        
-    
