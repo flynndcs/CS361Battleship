@@ -448,18 +448,6 @@ class OptionsMenu(BaseObject):
         self.y = self.yPosition
         canvas.blit(self.image, (self.x, self.y))
         pass
-        # self.x = self.xPosition
-        # self.y = self.yPosition
-        # for array in self.choiceRects:
-        #     canvas.blit(self.font.render(array[0], True, (0,0,0)), (self.x, self.y))
-        #     self.y += 100
-        #     canvas.blit(self.font.render(array[1][1], True, (0,0,0)), (self.x, self.y))
-        #     self.x += 200
-        #     canvas.blit(self.font.render(array[2][1], True, (0,0,0)), (self.x, self.y))
-        # self.y += 100
-        # canvas.blit(self.confirm_buttons[0][1], (self.x, self.y))
-        # self.y += 200
-        # canvas.blit(self.confirm_buttons[1][1], (self.x, self.y))
 
 
 class OptionsPhaseHandler:
@@ -499,7 +487,9 @@ class OptionsPhaseHandler:
                             self.choiceSelected = group[2]
                             self.options_menu.render_choice(self.choiceSelected)
                             self.options_menu.ai_choice = group[2][1]
-                    if self.confirm_buttons[0][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
+                    if self.confirm_buttons[0][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y) and self.options_menu.ai_choice is None:
+                        pass
+                    elif self.confirm_buttons[0][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
                         self.clean_up_options_phase(oh)
                         self.phase_manager.change_to_placement_phase(self.options_menu.ai_choice)
                     elif self.confirm_buttons[1][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
