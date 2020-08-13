@@ -218,7 +218,7 @@ class GameSceneManager(BaseObject):
 
         self.status_menu = GameScreenStatusMenu(self.IL, 60, 60)
 
-        self.options_menu = OptionsMenu(self.IL, 150, 300)
+        self.options_menu = OptionsMenu(self.IL, 300, 150)
 
         self.options_phase_manager = OptionsPhaseHandler(self.IL, self.options_menu, self.status_menu, self)
         self._initialize_options_phase_objects()
@@ -406,8 +406,8 @@ class OptionsMenu(BaseObject):
         self.font = font.Font("Fonts/OpenSans-Light.ttf", 40)
         self.prompts_with_choices = [["Choose your difficulty", "EASY", "HARD"]]
 
-        self.image = pygame.Surface([500, 500])
-        self.image.fill((255,255,255))
+        self.image = pygame.Surface([500, 500], pygame.SRCALPHA, 32)
+        self.image = self.image.convert_alpha()
 
         self.choiceRects = [] 
         self.confirm_buttons = []
@@ -423,25 +423,28 @@ class OptionsMenu(BaseObject):
         for prompt in self.prompts_with_choices:
             innerArray = []
             innerArray.append(prompt[0])
-            self.image.blit(self.font.render(prompt[0], True, (0,0,0)), (self.x, self.y))
+            self.image.blit(self.font.render(prompt[0], True, (255,255,255)), (self.x, self.y))
             self.y += 100
             for i in range (1, len(prompt)):
-                choiceRender = self.font.render(prompt[i], True, (0,0,0))
+                choiceRender = self.font.render(prompt[i], True, (255,255,255))
                 innerArray.append((self.image.blit(choiceRender, (self.x, self.y)), prompt[i]))
-                self.x += 200
+                self.x += 300 
             self.y += 100
             self.choiceRects.append(innerArray)
 
     def _init_confirm_dialog(self):
-        self.x = 0 
-        confirm = self.font.render("Confirm", True, (0,0,0))
+        self.x = 50 
+        confirm = self.font.render("Confirm", True, (255,255,255))
         self.confirm_buttons.append((self.image.blit(confirm, (self.x, self.y)), confirm))
-        self.x += 200
-        deny = self.font.render("Discard", True, (0,0,0))
+        self.x += 180 
+        deny = self.font.render("Discard", True, (255,255,255))
         self.confirm_buttons.append((self.image.blit(deny, (self.x, self.y)), deny))
     
     def render_choice(self, rectTuple):
-        self.image.blit(self.font.render(rectTuple[1], True, (0,0,0)), (0,0))
+        s = pygame.Surface((400,100))
+        s.set_alpha(255)
+        self.image.blit(s, (0,0,))
+        self.image.blit(self.font.render("Selected: " + rectTuple[1], True, (0,120,0)), (0,0))
 
     def render(self, canvas):
         self.x = self.xPosition
@@ -471,10 +474,9 @@ class OptionsPhaseHandler:
                 mouseX, mouseY = pygame.mouse.get_pos()
                 for group in self.choiceRects:
                     if group[1][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
-                        self.choiceSelected = group[1][0]
+                        pass
                     if group[2][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
-                        self.choiceSelected = group[2][0]
-
+                        pass
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mouseX, mouseY = pygame.mouse.get_pos()
