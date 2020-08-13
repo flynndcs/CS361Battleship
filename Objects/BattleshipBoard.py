@@ -9,7 +9,7 @@ usage:
 '''
 
 from Bases.BaseObjects import BaseObject
-from Tools import Images
+from Tools import Images, Sounds
 import pygame
 from pygame import *
 
@@ -115,6 +115,10 @@ class BattleshipBoard(BaseObject):
         # self.ship_count_tracker = {}
         # self.total_ship_positions = 0
 
+        # sounds
+        self.hit_sound = Sounds.SoundEnum.EXPLOSION
+        self.miss_sound = Sounds.SoundEnum.MISS
+
     def clear_board(self, oh, surface):
         if surface:
             oh.remove_object(surface)
@@ -179,8 +183,10 @@ class BattleshipBoard(BaseObject):
         if (self.hit):
             self._show_hit(il, oh)
             self.hit = False
+            oh.sound_loader.play_sound(self.hit_sound)
         else:
             self._show_miss(il, oh)
             self.hit = True
+            oh.sound_loader.play_sound(self.miss_sound)
         
     
