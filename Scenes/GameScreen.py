@@ -13,8 +13,6 @@ class GameScreen(SceneBase):
         :param il: the imageloader
         """
         SceneBase.__init__(self, il)
-        # self.master_board = MasterBoard()
-        # self.OH.new_object(self.master_board)
         self.OH.new_object(BackgroundImage(self.IL))
         self.OH.new_object(GameSceneManager(self.IL, self.OH))
         self.OH.new_object(ToMainScreen(self.IL))

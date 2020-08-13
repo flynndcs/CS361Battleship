@@ -20,8 +20,8 @@ class GameScreenStatusMenu(BaseObject):
     def __init__(self, il, x=0, y= 0):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        self.font1 = font.Font("Fonts/OpenSans-Light.ttf", 25)
-        self.font2 = font.Font("Fonts/OpenSans-Light.ttf", 20)
+        self.font1 = font.Font("Fonts/OpenSans-Light.ttf", 20)
+        self.font2 = font.Font("Fonts/OpenSans-Light.ttf", 18)
 
         self.window_width, self.window_height = pygame.display.get_surface().get_size()
 
@@ -209,16 +209,22 @@ class GameSceneManager(BaseObject):
         self.enemy_board_x = 550
         self.board_y = 300
         self.enemy_board_initialized = False
+        self.ai_choice = None
         
         self.player_board = BattleshipBoard(self.IL, self.player_board_x, self.board_y)
         self.player_title = BoardIdentifier(self.IL, "Player Board", 128, 25, self.player_board_x + 10, self.board_y - 35)
         self.enemy_board = BattleshipBoard(self.IL, self.enemy_board_x, self.board_y)
         self.enemy_title = BoardIdentifier(self.IL, "Enemy Board", 128, 25, self.enemy_board_x + 10, self.board_y - 35)
+
         self.status_menu = GameScreenStatusMenu(self.IL, 60, 60)
 
-        self.placement_phase_manager = PlacementPhaseHandler(self.IL, self.status_menu, self.player_board, self.enemy_board, self)
-        self._initialize_placement_phase_objects()
+        self.options_menu = OptionsMenu(self.IL, 150, 300)
 
+        self.options_phase_manager = OptionsPhaseHandler(self.IL, self.options_menu, self.status_menu, self)
+        self._initialize_options_phase_objects()
+
+        self.placement_phase_manager = PlacementPhaseHandler(self.IL, self.status_menu, self.player_board, self.enemy_board, self)
+        # self._initialize_placement_phase_objects()
 
         #VARIABLES FOR THE PLAYER TURN PHASE
         self.battleship_board_positions = self.enemy_board.boardPositions
@@ -232,6 +238,9 @@ class GameSceneManager(BaseObject):
 
         self.selected_position = None
         self.hover_position = None
+
+    def _initialize_options_phase_objects(self):
+        self.OH.new_object(self.options_menu)
 
     def _initialize_placement_phase_objects(self):
         self.OH.new_object(self.player_board)
@@ -268,9 +277,14 @@ class GameSceneManager(BaseObject):
             self.game_ending_phase_input(oh, events, pressed_keys)
 
     def options_phase(self, oh):
-        self.current_phase = "PLACEMENT"  # just skipping this phase for now
+        self.options_phase_manager = OptionsPhaseHandler(self.IL, self.options_menu, self.status_menu, self)
+        self._initialize_options_phase_objects()
+        self.options_phase_manager.update(oh)
+        # self.current_phase = "PLACEMENT"  # just skipping this phase for now
 
     def placement_phase(self, oh):
+        # self.placement_phase_manager = PlacementPhaseHandler(self.IL, self.status_menu, self.player_board, self.enemy_board, self)
+        self._initialize_placement_phase_objects()
         self.placement_phase_manager.update(oh)
 
     def player_turn_phase(self, oh):
@@ -284,7 +298,7 @@ class GameSceneManager(BaseObject):
         pass
 
     def options_phase_input(self, oh, events, pressed_keys):
-        pass
+        self.options_phase_manager.handle_input(oh, events, pressed_keys)
 
     def placement_phase_input(self, oh, events, pressed_keys):
         self.placement_phase_manager.handle_input(oh, events, pressed_keys)
@@ -314,7 +328,6 @@ class GameSceneManager(BaseObject):
             elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position:
                 mouseX, mouseY = pygame.mouse.get_pos()
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
-                    print("pressed confirm")
                     self.shot_result_displayed = True
                     self.selected_position = None
                     self.enemy_board.determine_selection_result(self.IL, self.OH)
@@ -322,7 +335,6 @@ class GameSceneManager(BaseObject):
                     self.enemy_board.clear_board(oh, self.dialog_box)
 
                 elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
-                    print("pressed deny")
                     self.selected_position = None
                     self.enemy_board.clear_board(oh, self.dialog_box)
 
@@ -358,6 +370,12 @@ class GameSceneManager(BaseObject):
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
 
+    def change_to_placement_phase(self, ai_choice):
+        self.current_phase = "PLACEMENT"
+        self.status_menu.set_status("Placement, AI = " + ai_choice)
+        self.status_menu.set_action("Please place your ships on the player gameboard.")
+        self.ai_choice = ai_choice
+
     def change_to_player_phase(self):
         '''
         Change phase to player turn
@@ -365,7 +383,7 @@ class GameSceneManager(BaseObject):
         # self.player_board.deactivate_board()
         # self.enemy_board.activate_board()
         self.current_phase = "PLAYER_TURN"
-        self.status_menu.set_status("Player Turn")
+        self.status_menu.set_status("Player Turn, AI = " + self.ai_choice)
         self.status_menu.set_action("Please make a selection on the Enemy board")
 
     def _change_to_enemy_phase(self):
@@ -378,11 +396,122 @@ class GameSceneManager(BaseObject):
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
 
+class OptionsMenu(BaseObject):
+    def __init__(self, il, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.xPosition = x
+        self.yPosition = y
+
+        self.font = font.Font("Fonts/OpenSans-Light.ttf", 40)
+        self.prompts_with_choices = [["Choose your difficulty", "EASY", "HARD"]]
+
+        self.image = pygame.Surface([500, 500])
+        self.image.fill((255,255,255))
+
+        self.choiceRects = [] 
+        self.confirm_buttons = []
+
+        self.ai_choice = None
+
+        self._init_prompts_with_choices()
+        self._init_confirm_dialog()
+
+    def _init_prompts_with_choices(self):
+        self.x = 0
+        self.y = 0
+        for prompt in self.prompts_with_choices:
+            innerArray = []
+            innerArray.append(prompt[0])
+            self.image.blit(self.font.render(prompt[0], True, (0,0,0)), (self.x, self.y))
+            self.y += 100
+            for i in range (1, len(prompt)):
+                choiceRender = self.font.render(prompt[i], True, (0,0,0))
+                innerArray.append((self.image.blit(choiceRender, (self.x, self.y)), prompt[i]))
+                self.x += 200
+            self.y += 100
+            self.choiceRects.append(innerArray)
+
+    def _init_confirm_dialog(self):
+        self.x = 0 
+        confirm = self.font.render("Confirm", True, (0,0,0))
+        self.confirm_buttons.append((self.image.blit(confirm, (self.x, self.y)), confirm))
+        self.x += 200
+        deny = self.font.render("Discard", True, (0,0,0))
+        self.confirm_buttons.append((self.image.blit(deny, (self.x, self.y)), deny))
+    
+    def render_choice(self, rectTuple):
+        self.image.blit(self.font.render(rectTuple[1], True, (0,0,0)), (0,0))
+
+    def render(self, canvas):
+        self.x = self.xPosition
+        self.y = self.yPosition
+        canvas.blit(self.image, (self.x, self.y))
+        pass
+        # self.x = self.xPosition
+        # self.y = self.yPosition
+        # for array in self.choiceRects:
+        #     canvas.blit(self.font.render(array[0], True, (0,0,0)), (self.x, self.y))
+        #     self.y += 100
+        #     canvas.blit(self.font.render(array[1][1], True, (0,0,0)), (self.x, self.y))
+        #     self.x += 200
+        #     canvas.blit(self.font.render(array[2][1], True, (0,0,0)), (self.x, self.y))
+        # self.y += 100
+        # canvas.blit(self.confirm_buttons[0][1], (self.x, self.y))
+        # self.y += 200
+        # canvas.blit(self.confirm_buttons[1][1], (self.x, self.y))
+
+
+class OptionsPhaseHandler:
+    def __init__(self, il, options_menu, status_menu, phase_manager):
+        self.options_menu = options_menu
+        self.status_menu = status_menu
+        self.phase_manager = phase_manager
+
+        self.choiceSelected = None
+
+        self.choiceRects = self.options_menu.choiceRects
+        self.confirm_buttons = self.options_menu.confirm_buttons
+    
+    def update(self, oh):
+        self.status_menu.set_status("Options")
+        self.status_menu.set_action("Choose your game options")
+
+    def handle_input(self, oh, events, pressed_keys):
+        for event in events:
+            if event.type == pygame.MOUSEMOTION:
+                mouseX, mouseY = pygame.mouse.get_pos()
+                for group in self.choiceRects:
+                    if group[1][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
+                        self.choiceSelected = group[1][0]
+                    if group[2][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
+                        self.choiceSelected = group[2][0]
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    mouseX, mouseY = pygame.mouse.get_pos()
+                    for group in self.choiceRects:
+                        if group[1][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
+                            self.choiceSelected = group[1]
+                            self.options_menu.render_choice(self.choiceSelected)
+                            self.options_menu.ai_choice = group[1][1]
+                        if group[2][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
+                            self.choiceSelected = group[2]
+                            self.options_menu.render_choice(self.choiceSelected)
+                            self.options_menu.ai_choice = group[2][1]
+                    if self.confirm_buttons[0][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
+                        self.clean_up_options_phase(oh)
+                        self.phase_manager.change_to_placement_phase(self.options_menu.ai_choice)
+                    elif self.confirm_buttons[1][0].collidepoint(mouseX - self.options_menu.x, mouseY - self.options_menu.y):
+                        self.options_menu.ai_choice = 'EASY'
+                        self.choiceSelected = None
+
+    def clean_up_options_phase(self, oh):
+        oh.remove_object(self.phase_manager.options_menu)
 
 class PlacementPhaseHandler:
 
     def __init__(self, il, status_menu, player_board, enemy_board, phase_manager):
-
         self.player_board = player_board
         self.enemy_board = enemy_board
         self.status_menu = status_menu
@@ -489,8 +618,8 @@ class PlacementPhaseHandler:
     def update(self, oh):
         # self.player_board.activate_board()
         # self.enemy_board.deactivate_board()
-        self.status_menu.set_status("Placement")
-        self.status_menu.set_action("Please place your ships on the player gameboard")
+        # self.status_menu.set_status("Placement")
+        # self.status_menu.set_action("Please place your ships on the player gameboard")
 
         self.check_timers(oh)
         self.check_ships_placed(oh)
@@ -877,7 +1006,6 @@ class PlacementSaveManager(BaseObject):
                 try:
                     mkdir(self.save_folder)
                 except OSError:
-                    print("Creation of the save directory failed")
                     return False
             open_file = open(self.save_file, "w")
             open_file.close()
