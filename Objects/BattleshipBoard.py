@@ -133,7 +133,7 @@ class BattleshipBoard(BaseObject):
 
 #Begin Brian Additions
         #board to place ships on and check guesses against
-        self.back_end_board = [[] for y in range(10)]
+        self.back_end_board = [[0 for x in range(10)] for y in range(10)]
 
         #track how many spaces each ship is occupying
         self.ship_counts = {"destroyer": 2,
@@ -157,12 +157,11 @@ class BattleshipBoard(BaseObject):
     #     Increases total ship positions
     #  
         for location in ship_array:
-            row, column = self._extract_location(location)
-
+            column, row = self._extract_location(location)
+            intRow = int(row)
+            intColumn = int(column)
             self.total_ship_positions = self.total_ship_positions + 1
-            self.back_end_board[row][column] = ship_name
-
-        
+            self.back_end_board[intRow][intColumn] = ship_name
     
     def _extract_location(self, location):
 
@@ -180,21 +179,43 @@ class BattleshipBoard(BaseObject):
     #     Check if guess was a hit or miss
     #  
         row, column = self._extract_location(guess)
-        boardValue = self.back_end_board[row][column]
+        intRow = int(row)
+        intColumn = int(column)        
+        boardValue = self.back_end_board[intRow][intColumn]
+#        for r in self.back_end_board:
+#            for c in r:
+#                print(c,end = " ")
+#            print()
         if boardValue == 0:
+            self.back_end_board[intRow][intColumn] = "used"
+            print("Spot was empty. Board updated to used")
             return False
         elif boardValue == "used":
             # square has already been guessed
+            print("Spot has already been chosen")
             pass
         else:
+            print("It's a hit! Proceed with all the updates")
+            self.back_end_board[intRow][intColumn] = "used"            
             self.total_ship_positions = self.total_ship_positions - 1
-            if _all_ships_sunk_check():
-                #game is over. Not sure what to return
-                pass
+            self._all_ships_sunk_check()
             self._reduce_ship_count(boardValue)
-            self.back_end_board[row][column] = "used"
+            self._is_ship_sunk(boardValue)
             return True
     
+
+    def get_coordinates(self, coordY, coordX):
+        if (coordX != 0):
+            X = coordX - 1
+        else:
+            X = 0
+        if (coordY != 0):
+            Y = coordY - 1
+        else:
+            Y = 0
+        guess_coordinates = str(X) + "-" + str(Y)
+        return guess_coordinates
+
 
 
     def _reduce_ship_count(self, ship_name):

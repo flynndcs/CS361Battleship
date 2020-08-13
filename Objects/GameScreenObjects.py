@@ -174,6 +174,7 @@ class GameSceneManager(BaseObject):
         self.enemy_board_x = 550
         self.board_y = 300
         self.enemy_board_initialized = False
+        self.back_end_coords = "0-0"
         
         self.player_board = BattleshipBoard(self.IL, self.player_board_x, self.board_y)
         self.player_title = BoardIdentifier(self.IL, "Player Board", 128, 25, self.player_board_x + 10, self.board_y - 35)
@@ -189,6 +190,10 @@ class GameSceneManager(BaseObject):
         self.battleship_board_positions = self.enemy_board.boardPositions
 
         self.dialog_box = Objects.BattleshipBoard.DialogBox(self.IL)
+
+        #Initialize back end boards to track ship positions
+        self.player_board.init_back_end_board()
+        self.enemy_board.init_back_end_board()
 
         #avoids bug where the second turn selection automatically pops up a "hit" dialog without confirm
         self.post_confirm = False
@@ -278,10 +283,29 @@ class GameSceneManager(BaseObject):
 
             elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position:
                 mouseX, mouseY = pygame.mouse.get_pos()
+                if ((mouseX > 550 and mouseX <= 950) and (mouseY > 300 and mouseY <= 700)):
+                    mouse_pos_x = mouseX - self.enemy_board.x
+                    mouse_pos_y = mouseY - self.enemy_board.y
+
+                    board_position_x = int(mouse_pos_x / 40)
+                    board_position_y = int(mouse_pos_y / 40)
+#                   
+#                    I'm subtracting 1 in the get_coordinates function so this isn't needed
+#                    if (board_position_x == 10):
+#                        board_position_x -= 1
+#                    
+#                    if (board_position_y == 10):
+#                        board_position_y -= 1
+
+                    print(board_position_x, board_position_y)
+                    self.back_end_coords = self.player_board.get_coordinates(board_position_x, board_position_y)
+                    print(self.back_end_coords)
+               
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
                     print("pressed confirm")
                     self.dialog_box.confirm_shot()
                     self.shot_result_displayed = True
+                    self.player_board.check_hit(self.back_end_coords)
                     self.selected_position = None
                     self.enemy_board.determine_selection_result(self.IL, self.OH)
                     self._change_to_enemy_phase()
@@ -626,7 +650,7 @@ class PlacementPhaseHandler:
 
         for ship in self.ships_placed:
             ship_array = self.get_ship_array(ship)
-            # self.player_board.add_ship(ship.name, ship_array)
+            self.player_board.add_ship(ship.name, ship_array)
 
     def get_ship_array(self, ship):
         ship_array = []

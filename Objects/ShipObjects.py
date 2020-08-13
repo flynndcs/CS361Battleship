@@ -142,6 +142,8 @@ class Carrier(BaseShip):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+        self.name = "carrier"
+        
         self.size = 5
 
 
