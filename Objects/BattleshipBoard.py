@@ -172,21 +172,20 @@ class BattleshipBoard(BaseObject):
         icon_y = self._generate_icon_y()
 
         oh.new_object(BoardIcon(il, "HIT", icon_x, icon_y))
+        oh.sound_loader.play_sound(self.hit_sound)
 
     def _show_miss(self, il, oh):
         icon_x = self._generate_icon_x()
         icon_y = self._generate_icon_y()
 
         oh.new_object(BoardIcon(il, "MISS", icon_x, icon_y))
+        oh.sound_loader.play_sound(self.miss_sound)
 
     def determine_selection_result(self, il, oh):
         if (self.hit):
             self._show_hit(il, oh)
             self.hit = False
-            oh.sound_loader.play_sound(self.hit_sound)
         else:
             self._show_miss(il, oh)
             self.hit = True
-            oh.sound_loader.play_sound(self.miss_sound)
-        
     
