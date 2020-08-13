@@ -174,20 +174,22 @@ class BattleshipBoard(BaseObject):
 
 
 
-    def check_hit(self, guess):
+    def check_hit(self, guess, il, oh, gpm):
     #     
     #     Check if guess was a hit or miss
     #  
         row, column = self._extract_location(guess)
         intRow = int(row)
-        intColumn = int(column)        
+        intColumn = int(column)
+        print(intRow, intColumn)        
         boardValue = self.back_end_board[intRow][intColumn]
-#        for r in self.back_end_board:
-#            for c in r:
-#                print(c,end = " ")
-#            print()
+        for r in self.back_end_board:
+            for c in r:
+                print(c,end = " ")
+            print()
         if boardValue == 0:
             self.back_end_board[intRow][intColumn] = "used"
+            self._show_miss(il, oh)
             print("Spot was empty. Board updated to used")
             return False
         elif boardValue == "used":
@@ -196,24 +198,22 @@ class BattleshipBoard(BaseObject):
             pass
         else:
             print("It's a hit! Proceed with all the updates")
+            self._show_hit(il, oh)
             self.back_end_board[intRow][intColumn] = "used"            
             self.total_ship_positions = self.total_ship_positions - 1
-            self._all_ships_sunk_check()
-            self._reduce_ship_count(boardValue)
-            self._is_ship_sunk(boardValue)
+            game_over = self._all_ships_sunk_check()
+            if (game_over):
+                print("Game Over Function")
+                gpm.change_to_game_ending_phase(1)
+                return None
+            else:
+                self._reduce_ship_count(boardValue)
+                self._is_ship_sunk(boardValue)
             return True
     
 
     def get_coordinates(self, coordY, coordX):
-        if (coordX != 0):
-            X = coordX - 1
-        else:
-            X = 0
-        if (coordY != 0):
-            Y = coordY - 1
-        else:
-            Y = 0
-        guess_coordinates = str(X) + "-" + str(Y)
+        guess_coordinates = str(coordY) + "-" + str(coordX)
         return guess_coordinates
 
 
@@ -248,7 +248,7 @@ class BattleshipBoard(BaseObject):
         if (self.total_ship_positions == 0):
             return True
 
-        return False
+        return True
 
 
 

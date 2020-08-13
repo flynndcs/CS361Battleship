@@ -283,12 +283,9 @@ class GameSceneManager(BaseObject):
 
             elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position:
                 mouseX, mouseY = pygame.mouse.get_pos()
-                if ((mouseX > 550 and mouseX <= 950) and (mouseY > 300 and mouseY <= 700)):
-                    mouse_pos_x = mouseX - self.enemy_board.x
-                    mouse_pos_y = mouseY - self.enemy_board.y
 
-                    board_position_x = int(mouse_pos_x / 40)
-                    board_position_y = int(mouse_pos_y / 40)
+                board_position_x = int(self.selected_position.y / 40)
+                board_position_y = int(self.selected_position.x / 40)
 #                   
 #                    I'm subtracting 1 in the get_coordinates function so this isn't needed
 #                    if (board_position_x == 10):
@@ -297,18 +294,18 @@ class GameSceneManager(BaseObject):
 #                    if (board_position_y == 10):
 #                        board_position_y -= 1
 
-                    print(board_position_x, board_position_y)
-                    self.back_end_coords = self.player_board.get_coordinates(board_position_x, board_position_y)
-                    print(self.back_end_coords)
+                self.back_end_coords = self.player_board.get_coordinates(board_position_x, board_position_y)
+                print(self.back_end_coords)
                
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
                     print("pressed confirm")
                     self.dialog_box.confirm_shot()
                     self.shot_result_displayed = True
-                    self.player_board.check_hit(self.back_end_coords)
+                    check_hit_return = self.enemy_board.check_hit(self.back_end_coords, self.IL, self.OH, self)
                     self.selected_position = None
-                    self.enemy_board.determine_selection_result(self.IL, self.OH)
-                    self._change_to_enemy_phase()
+                    #self.enemy_board.determine_selection_result(self.IL, self.OH)
+                    if (check_hit_return is not None):
+                        self._change_to_enemy_phase()
                     self.enemy_board.clear_board(oh, self.dialog_box)
 
                 elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
@@ -341,12 +338,16 @@ class GameSceneManager(BaseObject):
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
         x = randrange(10)
         y = randrange(10)
+        coords = self.player_board.get_coordinates(y, x)
         self.player_board.set_square_selection(x, y)
-        self.player_board.determine_selection_result(self.IL, self.OH)
-        self.change_to_player_phase()
+        self.player_board.check_hit(coords, self.IL, self.OH, self)
+        #Brezevar AI Implementation
+        #self.player_board.determine_selection_result(self.IL, self.OH)
+        if (self.current_phase != "GAME ENDING"):
+            self.change_to_player_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
-        pass
+        print("game_ending_phase called")
 
     def change_to_player_phase(self):
         '''
@@ -367,6 +368,10 @@ class GameSceneManager(BaseObject):
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
+
+    def change_to_game_ending_phase(self, outcome):
+
+        self.current_phase = "GAME_ENDING"
 
 
 class PlacementPhaseHandler:
