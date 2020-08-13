@@ -389,6 +389,7 @@ class PlacementPhaseHandler:
         self.phase_manager = phase_manager
 
         self.incorrect_placement_sound = SoundEnum.INCORRECTPLACEMENT
+        self.button_press_sound = SoundEnum.CLICK
 
         self.ships_added = False
         self.available_ships = [Objects.ShipObjects.BaseShip(il, "carrier"),
@@ -528,12 +529,13 @@ class PlacementPhaseHandler:
 
                 if event.button == 1:
                     if self.start_game_text.hovered:
-
+                        oh.sound_loader.play_sound(
+                            self.button_press_sound)
                         if len(self.ships_placed) == len(self.available_ships):
                             self.clean_up_placement_phase(oh)
                             self.phase_manager.change_to_player_phase()
                         else:
-                            self.display_not_all_ships_placed()
+                            self.display_not_all_ships_placed(oh)
 
     def clean_up_placement_phase(self, oh):
 
@@ -643,12 +645,14 @@ class PlacementPhaseHandler:
 
         oh.sound_loader.play_sound(self.incorrect_placement_sound)
 
-    def display_not_all_ships_placed(self):
+    def display_not_all_ships_placed(self, oh):
 
         self.NASP.x = (self.start_game_text.x + self.start_game_text.width/2) - (self.NASP.width/2)
         self.NASP.y = self.start_game_text.y + self.start_game_text.height + 50
 
         self.error_NASP_display_timer_current = 0
+
+        oh.sound_loader.play_sound(self.incorrect_placement_sound)
 
     def place_ship(self):
         if self.selected_ship not in self.ships_placed:
