@@ -14,9 +14,9 @@ class OptionsScene(SceneBase):
 
         self.OH.new_object(BackgroundImage(self.IL))
         self.OH.new_object(OptionsScreenMessage(self.IL))
-        self.OH.new_object(ResolutionSetting(self.IL))
-        self.OH.new_object(DropDownBox(self.IL))
-        self.OH.new_object(ApplyButton(self.IL))
+        # self.OH.new_object(ResolutionSetting(self.IL))
+        # self.OH.new_object(DropDownBox(self.IL))
+        # self.OH.new_object(ApplyButton(self.IL))
         self.OH.new_object(ToMainScreen(self.IL))
         self.OH.new_object(SoundSlider(self.IL, self.SL, self.settings))
 
