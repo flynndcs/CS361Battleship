@@ -348,12 +348,12 @@ class GameSceneManager(BaseObject):
 #                    if (board_position_y == 10):
 #                        board_position_y -= 1
 
-                self.back_end_coords = self.player_board.get_coordinates(board_position_x, board_position_y)
+                back_end_coords = self.player_board.get_coordinates(board_position_x, board_position_y)
                 print(self.back_end_coords)
                
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
                     self.shot_result_displayed = True
-                    check_hit_return = self.enemy_board.check_hit(self.back_end_coords, self.IL, self.OH, self)
+                    check_hit_return = self.enemy_board.check_hit(back_end_coords, self.IL, self.OH, self)
                     self.selected_position = None
                     #self.enemy_board.determine_selection_result(self.IL, self.OH)
                     if (check_hit_return is not None):
@@ -387,11 +387,17 @@ class GameSceneManager(BaseObject):
                     self.enemy_board.hoverHighlight(self.hover_position)
 
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
-        x = randrange(10)
-        y = randrange(10)
-        coords = self.player_board.get_coordinates(y, x)
-        self.player_board.set_square_selection(x, y)
-        self.player_board.check_hit(coords, self.IL, self.OH, self)
+
+        coords = self.ai.get_next_guess()
+        self.player_board.set_square_selection(int(coords[2]), int(coords[0]))
+        result = self.player_board.check_hit(coords, self.IL, self.OH, self)
+        if result is True:
+            if isinstance(result, str):
+                self.ai.record_result("HIT", result)
+            else:
+                self.ai.record_result("HIT")
+        else:
+            self.ai.record_result("MISS")
         #Brezevar AI Implementation
         #self.player_board.determine_selection_result(self.IL, self.OH)
         if (self.current_phase != "GAME ENDING"):
@@ -406,8 +412,9 @@ class GameSceneManager(BaseObject):
         self.status_menu.set_action("Please place your ships on the player gameboard.")
         self.ai_choice = ai_choice
         self.ai = Objects.BattleshipAI.BattleshipControllerAI(10, 10, self.ai_choice)
-        ship_names, ship_arrays = self.ai.place_ships()
-        for ship in range(0, len(ship_names)-1):
+        ship_arrays, ship_names = self.ai.place_ships()
+        print(ship_names, ship_arrays)
+        for ship in range(0, len(ship_names)):
             print(ship)
             self.enemy_board.add_ship(ship_names[ship], ship_arrays[ship])
 
@@ -554,11 +561,11 @@ class PlacementPhaseHandler:
         self.button_press_sound = SoundEnum.CLICK
 
         self.ships_added = False
-        self.available_ships = [Objects.ShipObjects.BaseShip(il, "carrier"),
-                                Objects.ShipObjects.BaseShip(il, "battleship"),
-                                Objects.ShipObjects.BaseShip(il, "cruiser"),
-                                Objects.ShipObjects.BaseShip(il, "submarine"),
-                                Objects.ShipObjects.BaseShip(il, "destroyer")]
+        self.available_ships = [Objects.ShipObjects.BaseShip(il, "Carrier"),
+                                Objects.ShipObjects.BaseShip(il, "Battleship"),
+                                Objects.ShipObjects.BaseShip(il, "Cruiser"),
+                                Objects.ShipObjects.BaseShip(il, "Submarine"),
+                                Objects.ShipObjects.BaseShip(il, "Destroyer")]
         self.ships_placed = []
 
         self.selected_ship = None
