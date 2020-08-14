@@ -22,6 +22,8 @@ then "pipenv run python Battleship.py"
 
 start with fresh clone of master - "git clone THE-URL-ON-THE-SITE"
 
+CD in to the folder that you just cloned
+
 make sure you have the dev pipenv install - "pipenv install --dev"
 
 Uninstall the setuptools that gets installed - "pipenv uninstall setuptools"
