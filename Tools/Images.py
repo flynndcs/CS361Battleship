@@ -54,3 +54,4 @@ class ImageEnum(Enum):
     SAVEDPLACEMENTS = "res/SavedPlacements_smaller.png"
     STANDARDSLIDER = "res/StandardSlider.png"
     STANDARDSLIDERWIGGLER = "res/StandardSliderWiggler.png"
+    TARGET = "res/Target.png"

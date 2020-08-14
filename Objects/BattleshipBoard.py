@@ -13,6 +13,62 @@ from Tools import Images, Sounds
 import pygame
 from pygame import *
 
+
+class Animating:
+    """Sets animating when target is moving"""
+    def __init__(self):
+        self.animating = False
+
+    def set_animating(self, value):
+        self.animating = value
+
+    def get_animating(self):
+        return self.animating
+
+
+class TargetIcon(BaseObject):
+    """TargetIcon position moves through random points in coordinates array until it reaches the end of the array and it is
+    removed from screen"""
+
+    def __init__(self, il, x, y, coord, oh, animating):
+        BaseObject.__init__(self, il, x, y)
+        self.image = il.load_image(Images.ImageEnum.TARGET)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.coord = coord
+        self.position = 0
+        self.speed = 1
+        oh.new_object(self)
+        self.animating = animating
+
+
+    def update(self, oh):
+        """Updates x/y variables to move target position"""
+        if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
+            if self.position == len(self.coord) - 1:
+                self.animating.set_animating(False)
+                oh.remove_object(self)
+                # print(self.animating.get_animating())
+            else:
+                self.position += 1
+
+        if self.position != len(self.coord):
+
+            if self.position == len(self.coord) - 1:
+                self.speed = 0.5
+
+            if self.x < self.coord[self.position][0]:
+                self.x += 10 * self.speed
+
+            if self.y < self.coord[self.position][1]:
+                self.y += 10 * self.speed
+
+            if self.y > self.coord[self.position][1]:
+                self.y -= 10 * self.speed
+
+            if self.x > self.coord[self.position][0]:
+                self.x -= 10 * self.speed
+
 class BoardIcon(BaseObject):
     def __init__(self, il, icon_type, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
@@ -329,6 +385,15 @@ class BattleshipBoard(BaseObject):
 
         oh.new_object(BoardIcon(il, "MISS", icon_x, icon_y))
         oh.sound_loader.play_sound(self.miss_sound)
+
+    def show_target(self, il, oh, coord, animating):
+        for x in range(len(coord)):
+            self.set_square_selection(coord[x][0], coord[x][1])
+            icon_x = self._generate_icon_x()
+            icon_y = self._generate_icon_y()
+            coord[x][0] = icon_x
+            coord[x][1] = icon_y
+        TargetIcon(il, coord[0][0], coord[0][1], coord, oh, animating)
 
     def determine_selection_result(self, il, oh):
         if (self.hit):
