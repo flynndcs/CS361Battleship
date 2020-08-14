@@ -55,3 +55,5 @@ class ImageEnum(Enum):
     STANDARDSLIDER = "res/StandardSlider.png"
     STANDARDSLIDERWIGGLER = "res/StandardSliderWiggler.png"
     TARGET = "res/Target.png"
+    VICTORY = "res/victory.png"
+    DEFEAT = "res/defeat.png"
