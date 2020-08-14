@@ -150,6 +150,7 @@ class DropDownBox(BaseObject):
             canvas.blit(self.res2Display, (self.res2x, self.res2y))
             canvas.blit(self.res3Display, (self.res3x, self.res3y))
 
+
 class ApplyButton(BaseObject):
 
     # User hits button to apply setting changes
@@ -185,11 +186,80 @@ class ToMainScreen(BaseObject):
     def update(self, oh):
         """ Changes text color from white to red"""
         location = pygame.mouse.get_pos()
+        button_coordinates = 26 < location[0] < 307 and 912 < location[1] < 934
         # if mouse is over to main screen button, color is changed to red
-        if 26 < location[0] < 307 and 912 < location[1] < 934:
+        if button_coordinates:
             self.start_button = self.font.render("Return to Main Menu", True, (166, 31, 36))
         else:
             self.start_button = self.font.render("Return to Main Menu", True, (255, 255, 255))
 
     def render(self, canvas):
         canvas.blit(self.start_button, (self.x, self.y))
+
+
+class SoundSlider(BaseObject):
+
+    def __init__(self, il, sl, settings, x=375, y=450):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        self.image = il.load_image(Images.ImageEnum.STANDARDSLIDER)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.slider = il.load_image(Images.ImageEnum.STANDARDSLIDERWIGGLER)
+
+        self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 35)
+        self.sound_volume_text = self.font.render("Sound Volume:", True,
+                                                  (255, 255, 255))
+
+        self.sl = sl
+        self.settings = settings
+
+        self.value = int(self.sl.se_volume * 100)
+        self.slider_selected = False
+
+    def render(self, canvas):
+        BaseObject.render(self, canvas)
+
+        slider_position = self.x + 10 + (380 * (self.value / 100)) - self.slider.get_width()/2
+        slider_position_y = self.y+30-(self.slider.get_height()/2)
+        canvas.blit(self.slider, (slider_position, slider_position_y))
+
+        canvas.blit(self.sound_volume_text, (self.x - 300, self.y))
+        new_font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
+        value_text = new_font.render(str(self.value), True, (0, 0, 0))
+        pygame.draw.rect(canvas, (255, 255, 255), pygame.Rect(self.x+self.image.get_width(), self.y, 50, 50))
+        canvas.blit(value_text, (self.x+self.image.get_width(), self.y))
+
+    def handle_input(self, oh, events, pressed_keys):
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                location = pygame.mouse.get_pos()
+                slider_position = self.x + 10 + (380 * (
+                        self.value / 100)) - self.slider.get_width() / 2
+                slider_position_y = self.y + 30 - (
+                            self.slider.get_height() / 2)
+                if slider_position <= location[0] <= slider_position + self.slider.get_width():
+                    if slider_position_y <= location[1] <= slider_position_y + self.slider.get_height():
+                        self.slider_selected = True
+            if event.type == pygame.MOUSEBUTTONUP:
+                if self.slider_selected:
+                    self.slider_selected = False
+                    self.sl.set_se_volume(self.value / 100)
+                    self.settings.write_setting_volume(self.value / 100)
+
+    def update(self, oh):
+
+        if self.slider_selected:
+            location = pygame.mouse.get_pos()
+            if location[0] < self.x:
+                self.value = 0
+            elif location[0] > self.x + self.width:
+                self.value = 100
+            else:
+                self.value = int(((location[0] - self.x - 10) / 380) * 100)
+
+            if self.value > 100:
+                self.value = 100
+            elif self.value < 0:
+                self.value = 0
+
