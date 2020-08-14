@@ -215,13 +215,12 @@ class GameSceneManager(BaseObject):
 
         self.ai_choice = None
         self.ai = None
-
         
         self.player_board = BattleshipBoard(self.IL, self.player_board_x, self.board_y)
         self.player_title = BoardIdentifier(self.IL, "Player Board", 128, 25, self.player_board_x + 10, self.board_y - 35)
         self.enemy_board = BattleshipBoard(self.IL, self.enemy_board_x, self.board_y)
         self.enemy_title = BoardIdentifier(self.IL, "Enemy Board", 128, 25, self.enemy_board_x + 10, self.board_y - 35)
-
+        self.player_board.player = True
         self.status_menu = GameScreenStatusMenu(self.IL, 60, 60)
 
         self.options_menu = OptionsMenu(self.IL, 300, 150)
@@ -248,6 +247,9 @@ class GameSceneManager(BaseObject):
 
         self.selected_position = None
         self.hover_position = None
+
+        self.win_sound = SoundEnum.WIN
+        self.loss_sound = SoundEnum.LOSS
 
     def _initialize_options_phase_objects(self):
         self.OH.new_object(self.options_menu)
@@ -398,13 +400,12 @@ class GameSceneManager(BaseObject):
                 self.ai.record_result("HIT")
         else:
             self.ai.record_result("MISS")
-        #Brezevar AI Implementation
-        #self.player_board.determine_selection_result(self.IL, self.OH)
-        if (self.current_phase != "GAME ENDING"):
+        # self.player_board.determine_selection_result(self.IL, self.OH)
+        if self.current_phase != "GAME_ENDING":
             self.change_to_player_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
-        print("game_ending_phase called")
+        pass
 
     def change_to_placement_phase(self, ai_choice):
         self.current_phase = "PLACEMENT"
@@ -438,9 +439,13 @@ class GameSceneManager(BaseObject):
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
 
-    def change_to_game_ending_phase(self, outcome):
+    def change_to_game_ending_phase(self, outcome, oh):
 
         self.current_phase = "GAME_ENDING"
+        if outcome == 0:
+            oh.sound_loader.play_sound(self.loss_sound)
+        elif outcome == 1:
+            oh.sound_loader.play_sound(self.win_sound)
 
 
 class OptionsMenu(BaseObject):

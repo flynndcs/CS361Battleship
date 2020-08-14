@@ -66,5 +66,5 @@ class SoundEnum(Enum):
     INCORRECTPLACEMENT = "res/sounds/incorrect_placement.wav"
     LOSS = "res/sounds/loss.wav"
     MISS = "res/sounds/miss.wav"
-    BGM = "Victory-AShamaluevMusic.wav"
-    WIN = "win.wav"
+    BGM = "res/sounds/Victory-AShamaluevMusic.wav"
+    WIN = "res/sounds/win.wav"
