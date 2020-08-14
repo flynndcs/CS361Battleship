@@ -396,7 +396,7 @@ class GameSceneManager(BaseObject):
         result = self.player_board.check_hit(coords, self.IL, self.OH, self)
         if result is True:
             if isinstance(result, str):
-                self.ai.record_result("HIT", result)
+                self.ai.record_result("HIT", sunk=result)
             else:
                 self.ai.record_result("HIT")
         else:
@@ -415,9 +415,7 @@ class GameSceneManager(BaseObject):
         self.ai_choice = ai_choice
         self.ai = Objects.BattleshipAI.BattleshipControllerAI(10, 10, self.ai_choice)
         ship_arrays, ship_names = self.ai.place_ships()
-        print(ship_names, ship_arrays)
         for ship in range(0, len(ship_names)):
-            print(ship)
             self.enemy_board.add_ship(ship_names[ship], ship_arrays[ship])
 
     def change_to_player_phase(self):
@@ -1265,6 +1263,5 @@ class EndOfGameAnimation(BaseObject):
                                              self.animation_scale)))
 
     def render(self, canvas):
-        print("RENDERING ANIMATION IMAGE")
-        print(self.image)
+
         canvas.blit(self.image, (self.x, self.y))
