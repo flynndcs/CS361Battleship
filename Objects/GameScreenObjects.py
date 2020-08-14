@@ -222,6 +222,7 @@ class GameSceneManager(BaseObject):
         self.enemy_title = BoardIdentifier(self.IL, "Enemy Board", 128, 25, self.enemy_board_x + 10, self.board_y - 35)
         self.player_board.player = True
         self.status_menu = GameScreenStatusMenu(self.IL, 60, 60)
+        self.animating = Objects.BattleshipBoard.Animating()
 
         self.options_menu = OptionsMenu(self.IL, 300, 150)
 
@@ -250,6 +251,7 @@ class GameSceneManager(BaseObject):
 
         self.win_sound = SoundEnum.WIN
         self.loss_sound = SoundEnum.LOSS
+        self.coords = None
 
     def _initialize_options_phase_objects(self):
         self.OH.new_object(self.options_menu)
@@ -273,6 +275,8 @@ class GameSceneManager(BaseObject):
             self.player_turn_phase(oh)
         elif self.current_phase == "ENEMY_TURN":
             self.enemy_turn_phase(oh)
+        elif self.current_phase == "ANIMATING":
+            self.animating_phase()
         elif self.current_phase == "GAME_ENDING":
             self.game_ending_phase(oh)
 
@@ -285,6 +289,8 @@ class GameSceneManager(BaseObject):
             self.player_turn_phase_input(oh, events, pressed_keys)
         elif self.current_phase == "ENEMY_TURN":
             self.enemy_turn_phase_input(oh, events, pressed_keys)
+        elif self.current_phase == "ANIMATING":
+            self.animating_phase_input(oh, events, pressed_keys)
         elif self.current_phase == "GAME_ENDING":
             self.game_ending_phase_input(oh, events, pressed_keys)
 
@@ -304,9 +310,28 @@ class GameSceneManager(BaseObject):
             self._initialize_enemy_board()
 
     def enemy_turn_phase(self, oh):
-        pass
+        self.coords = self.ai.get_next_guess()
+        self.target_animation(oh, int(self.coords[2]), int(self.coords[0]))
 
     def game_ending_phase(self, oh):
+        pass
+
+    def animating_phase(self):
+        """When target animation is finished, result is displayed to user"""
+        if self.animating.get_animating() == False:
+            result = self.player_board.check_hit(self.coords, self.IL, self.OH, self)
+            if result is True:
+                if isinstance(result, str):
+                    self.ai.record_result("HIT", result)
+                else:
+                    self.ai.record_result("HIT")
+            else:
+                self.ai.record_result("MISS")
+            # self.player_board.determine_selection_result(self.IL, self.OH)
+            if self.current_phase != "GAME_ENDING":
+                self.change_to_player_phase()
+
+    def animating_phase_input(self, oh, events, pressed_keys):
         pass
 
     def options_phase_input(self, oh, events, pressed_keys):
@@ -390,20 +415,38 @@ class GameSceneManager(BaseObject):
                     self.enemy_board.hoverHighlight(self.hover_position)
 
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
+        pass
+        # This is called in the enemy_turn_phase
+        # self.coords = self.ai.get_next_guess()
+        # self.target_animation(oh, int(self.coords[2]), int(self.coords[0]))
 
-        coords = self.ai.get_next_guess()
-        self.player_board.set_square_selection(int(coords[2]), int(coords[0]))
-        result = self.player_board.check_hit(coords, self.IL, self.OH, self)
-        if result is True:
-            if isinstance(result, str):
-                self.ai.record_result("HIT", sunk=result)
-            else:
-                self.ai.record_result("HIT")
-        else:
-            self.ai.record_result("MISS")
-        # self.player_board.determine_selection_result(self.IL, self.OH)
-        if self.current_phase != "GAME_ENDING":
-            self.change_to_player_phase()
+        # This is called in animating_phase
+        # self.player_board.set_square_selection(int(coords[2]), int(coords[0]))
+        # result = self.player_board.check_hit(coords, self.IL, self.OH, self)
+        # if result is True:
+        #     if isinstance(result, str):
+        #         self.ai.record_result("HIT", result)
+        #     else:
+        #         self.ai.record_result("HIT")
+        # else:
+        #     self.ai.record_result("MISS")
+        # # self.player_board.determine_selection_result(self.IL, self.OH)
+        # if self.current_phase != "GAME_ENDING":
+        #     self.change_to_player_phase()
+
+    def target_animation(self, oh, x, y):
+        """Calls target animation"""
+
+        coordinates = []
+        for var in range(3):
+            p = randrange(10)
+            q = randrange(10)
+            coordinates.append([p, q])
+        coordinates.append([x, y])
+        self.player_board.show_target(self.IL, oh, coordinates, self.animating)
+        self.player_board.set_square_selection(x, y)
+        self.animating.set_animating(True)
+        self.change_to_animating_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
         pass
@@ -435,6 +478,14 @@ class GameSceneManager(BaseObject):
         # self.player_board.deactivate_board()
         # self.enemy_board.deactivate_board()
         self.current_phase = "ENEMY_TURN"
+        self.status_menu.set_status("Enemy Turn")
+        self.status_menu.set_action("Please wait. The enemy is making a selection.")
+
+    def change_to_animating_phase(self):
+        """
+        Changes to animation phase
+        """
+        self.current_phase = "ANIMATING"
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
 
