@@ -8,12 +8,14 @@ How to use:
         -[cols]: the number of cols on gameboard (integer)
         -[mode]: EASY or HARD (must be capitalized)
 
-    ship_placements = ai.place_ships()
+    ship_placements, ship_names = ai.place_ships()
         - Returns a list of ship placements in the format "a-b" where a refers to row number and b refers to col number
         - ship_placements will have the following format:
             - ship_placements = [element, element, element, element, element]
             - element will have the following format (list lenght will vary depending on ship length):
                 - element = ["a-b", "a-b", "a-b"]
+        - ship_names will have the following format:
+            - ["Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"]
 
     guess = ai.get_next_guess()
         - Returns a guess to be used on the player board in the format "a-b"
@@ -723,18 +725,32 @@ class ShipPlacerAI:
 
         return self._pack_ship_location(guess, ship_len, direction)
 
+    def _get_ship_names(self):
+        '''
+        Returns the names of the ships
+        '''
+
+        ship_names = []
+
+        ship_names.append("Carrier")
+        ship_names.append("Battleship")
+        ship_names.append("Cruiser")
+        ship_names.append("Submarine")
+        ship_names.append("Destroyer")
+
+        return ship_names
+
     def place_ships(self):
         '''
         Places each ship on the board that is in the ship_length_array
         '''
         ship_locations = []
+        ship_names = self._get_ship_names()
 
         for ship_len in self.ship_length_array:
             ship_locations.append(self._determine_ship_location(ship_len))
 
-        return ship_locations
-
-
+        return ship_locations, ship_names
 
 # FOR TESTING PURPOSES ONLY - DANIEL BREZAVAR   
 
@@ -756,14 +772,15 @@ class ShipPlacerAI:
 # out_of_range_count = 0
 
 
-# for i in range(1000000):
+# for i in range(10):
 #     if (i % 1000 == 0):
 #         print(i)
 
 #     d_check = []
 #     dup_check = []
 #     ai = BattleshipControllerAI(10, 10, "HARD")
-#     r = ai.place_ships()
+#     r, f = ai.place_ships()
+#     print(f)
 #     # print(r)
     
 #     for j in range(0, len(d_check)):
