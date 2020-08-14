@@ -315,25 +315,41 @@ class GuessNavigatorAI:
         self.ccc += 1
         print("Round: {}".format(self.ccc))
 
-        print("Stack:")
-        print(self.stack)
-        print("Queue:")
-        print(self.pending_hits_queue)
+        # print("Stack:")
+        # print(self.stack)
+        # print("Queue:")
+        # print(self.pending_hits_queue)
 
         # ensures the next guess is a valid guess
         while True:
-            # print(self.stack)
+            if (len(self.stack) == 0):
+                if (len(self.pending_hits_queue) == 0):
+                    return self.get_next_guess_location() # return a random guess
+                else:
+                    guess, direction = self._pop_queue()
+
+                    self._stack_push(guess, direction)
+
+                break
+
             guess = self.stack[-1][0]
 
             if (self.guess_tracker.is_guess_valid(guess)):
                 self.pending_guess = self.stack[-1]
                 break
             else:
-                self._stack_pop()
+                guess, direction = self._stack_pop()
+
+                if (direction == None):
+                    row, col = self.guess_tracker.unpack_guess(guess)
+
+                    self.row = row
+                    self.col = col
+                    self._process_base_hit()
 
         guess = self._stack_pop(return_type=1)
-        print("Guess: " + guess)
-        print("\n")
+        print("Guess: {}\n" + guess)
+    
         return guess
 
     def _next_location(self, check_type=0):
@@ -449,6 +465,8 @@ class GuessNavigatorAI:
         '''
         Returns the length of the ship sunk
         '''
+        sunk = sunk.upper()
+
         if (sunk == "CARRIER"):
             return 5
         elif (sunk == "BATTLESHIP"):
@@ -476,6 +494,8 @@ class GuessNavigatorAI:
         for _ in range(length):
             self._next_location(check_type=9)
             guess_list.append(self.guess_tracker.pack_guess(self.row, self.col))
+
+        print(guess_list)
 
         self._remove_pending_hits(guess_list)
 
@@ -520,6 +540,13 @@ class GuessNavigatorAI:
         guess = self.guess_tracker.pack_guess(self.row, self.col)
         self.guess_tracker.record_guess(guess, "MIS")
 
+    def print_info(self):
+        print("\n\nINFORMATION:\n")
+        print("Stack:")
+        print(self.stack)
+        print("Queue:")
+        print(self.pending_hits_queue)
+
 class BattleshipHardAI:
     '''
     Author: Daniel Brezavar
@@ -535,10 +562,6 @@ class BattleshipHardAI:
                  4) 2 or more ships are place side by side and the AI encounters a hit on either
                     end of the line. In this case the AI will proceed perpendicular in the direction
                     of the initial hit. The hits are 
-
-                uses dfs to find hits after an initial hit.
-                Need a check that the guess in stack is valid
-                need a check that the ship is sunk
     '''
     def __init__(self, guess_tracker, random_guesser):
         self.guess_tracker = guess_tracker
@@ -552,10 +575,17 @@ class BattleshipHardAI:
         return self.navigator.get_next_guess_location()
 
     def record_result(self, result, sunk=""):
+        print("RESULT:")
+        print(result)
+        print("SUNK:")
+        print(sunk)
+
         if (result == "HIT"):
             self.navigator.process_hit(sunk)
         elif (result == "MISS"):
             self.navigator.process_miss()
+
+        self.navigator.print_info()
 
 class BattleshipControllerAI:
     '''
