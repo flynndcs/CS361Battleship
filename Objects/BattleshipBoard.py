@@ -129,6 +129,8 @@ class BattleshipBoard(BaseObject):
         # sounds
         self.hit_sound = Sounds.SoundEnum.EXPLOSION
         self.miss_sound = Sounds.SoundEnum.MISS
+
+        self.player = False
         
 
 #Begin Brian Additions
@@ -202,9 +204,11 @@ class BattleshipBoard(BaseObject):
             self.back_end_board[intRow][intColumn] = "used"            
             self.total_ship_positions = self.total_ship_positions - 1
             game_over = self._all_ships_sunk_check()
-            if (game_over):
-                print("Game Over Function")
-                gpm.change_to_game_ending_phase(1)
+            if game_over:
+                if self.player:
+                    gpm.change_to_game_ending_phase(0, oh)
+                else:
+                    gpm.change_to_game_ending_phase(1, oh)
                 return None
             else:
                 self._reduce_ship_count(boardValue)
@@ -212,7 +216,6 @@ class BattleshipBoard(BaseObject):
                 if ship_sunk:
                     return ship_sunk
             return True
-    
 
     def get_coordinates(self, coordY, coordX):
         guess_coordinates = str(coordY) + "-" + str(coordX)
