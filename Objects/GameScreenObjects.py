@@ -9,6 +9,7 @@ from random import randrange
 from os import path, mkdir
 from datetime import datetime
 from Tools.Sounds import SoundEnum
+import Objects.BattleshipAI
 
 
 class GameScreenStatusMenu(BaseObject):
@@ -213,6 +214,7 @@ class GameSceneManager(BaseObject):
         self.back_end_coords = "0-0"
 
         self.ai_choice = None
+        self.ai = None
 
         
         self.player_board = BattleshipBoard(self.IL, self.player_board_x, self.board_y)
@@ -403,6 +405,11 @@ class GameSceneManager(BaseObject):
         self.status_menu.set_status("Placement, AI = " + ai_choice)
         self.status_menu.set_action("Please place your ships on the player gameboard.")
         self.ai_choice = ai_choice
+        self.ai = Objects.BattleshipAI.BattleshipControllerAI(10, 10, self.ai_choice)
+        ship_names, ship_arrays = self.ai.place_ships()
+        for ship in range(0, len(ship_names)-1):
+            print(ship)
+            self.enemy_board.add_ship(ship_names[ship], ship_arrays[ship])
 
     def change_to_player_phase(self):
         '''
@@ -423,7 +430,6 @@ class GameSceneManager(BaseObject):
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
-
 
     def change_to_game_ending_phase(self, outcome):
 
