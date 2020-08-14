@@ -309,6 +309,32 @@ class GameSceneManager(BaseObject):
         if (self.enemy_board_initialized == False):
             self._initialize_enemy_board()
 
+        if self.selected_position is None and self.shot_result_displayed is False:
+            mouseX, mouseY = pygame.mouse.get_pos()
+            if ((mouseX > 550 and mouseX <= 950) and (
+                    mouseY > 300 and mouseY <= 700)):
+                mouse_pos_x = mouseX - self.enemy_board.x
+                mouse_pos_y = mouseY - self.enemy_board.y
+
+                board_position_x = int(mouse_pos_x / 40)
+                board_position_y = int(mouse_pos_y / 40)
+
+                if (board_position_x == 10):
+                    board_position_x -= 1
+
+                if (board_position_y == 10):
+                    board_position_y -= 1
+
+                self.enemy_board.set_square_selection(board_position_x,
+                                                      board_position_y)
+
+                if self.hover_position:
+                    self.enemy_board.clear_board(oh, None)
+                self.hover_position = \
+                self.battleship_board_positions[board_position_x][
+                    board_position_y]
+                self.enemy_board.hoverHighlight(self.hover_position)
+
     def enemy_turn_phase(self, oh):
         self.coords = self.ai.get_next_guess()
         self.target_animation(oh, int(self.coords[2]), int(self.coords[0]))
@@ -392,27 +418,6 @@ class GameSceneManager(BaseObject):
                     self.selected_position = None
                     self.enemy_board.clear_board(oh, self.dialog_box)
 
-            elif event.type == pygame.MOUSEMOTION and self.selected_position is None and self.shot_result_displayed is False:
-                mouseX, mouseY = pygame.mouse.get_pos()
-                if ((mouseX > 550 and mouseX <= 950) and (mouseY > 300 and mouseY <= 700)):
-                    mouse_pos_x = mouseX - self.enemy_board.x
-                    mouse_pos_y = mouseY - self.enemy_board.y
-
-                    board_position_x = int(mouse_pos_x / 40)
-                    board_position_y = int(mouse_pos_y / 40)
-
-                    if (board_position_x == 10):
-                        board_position_x -= 1
-                    
-                    if (board_position_y == 10):
-                        board_position_y -= 1
-
-                    self.enemy_board.set_square_selection(board_position_x, board_position_y)
-
-                    if self.hover_position:
-                        self.enemy_board.clear_board(oh, None)
-                    self.hover_position = self.battleship_board_positions[board_position_x][board_position_y]
-                    self.enemy_board.hoverHighlight(self.hover_position)
 
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
         pass
