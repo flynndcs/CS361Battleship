@@ -54,43 +54,34 @@ class DropDownBox(BaseObject):
     def __init__(self, il, x = 375, y = 375):
         BaseObject.__init__(self, il, x = x, y = y)
 
-        # Rectangle dimensions and color
         self.width = 250
         self.height = 40
         self.rgb = 255
-        self.resWide = 1000
-        self.resHeight = 955
+        self.resolution = [1000, 955]
         
-        # Used to track if dropdown box is open or not
         self.active = False
 
-        # Font for dropdown options
         self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 35)
         
-        # Dropdown option 1
         self.res1 = "1000 x 955"
         self.res1Display = self.font.render(self.res1, True, (0, 0, 0))
         self.res1x = x + 10
         self.res1y = y + 40
 
-        # Dropdown option 2
         self.res2 = "1100 x 955"
         self.res2Display = self.font.render(self.res2, True, (0, 0, 0))
         self.res2x = x + 10
         self.res2y = y + 80
 
-        # Dropdown option 3
         self.res3 = "1200 x 955"
         self.res3Display = self.font.render(self.res3, True, (0, 0, 0))
         self.res3x = x + 10
         self.res3y = y + 120
 
-        # Active display
         self.activeDisplay = self.res1Display
         self.activeDisplayX = self.x + 10
         self.activeDisplayY = self.y - 5
 
-        #Screen
         self.screen = [1000, 955]
 
 
@@ -100,37 +91,32 @@ class DropDownBox(BaseObject):
             if event.type == pygame.MOUSEBUTTONDOWN and self.active == False:
                 # User clicks on the display
                 if 375 < location[0] < 625 and 375 < location[1] < 415:
-                    # Expand drop down box to larger size to accomodate all options
                     self.active = True
                     self.width = 250
-                    self.height = 160  # space for 20 pxl between each dropdown option
+                    self.height = 160
                     self.rgb = 169
             elif event.type == pygame.MOUSEBUTTONDOWN and self.active == True:
                 # User selects menu option 1
                 if 375 < location[0] < 625 and 425 < location[1] < 455:
-                    # Contract dropdown menu and display selection
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1000
-                    self.resHeight = 955
+                    self.resolution = [1000, 955]
                     self.activeDisplay = self.res1Display
                 elif 375 < location[0] < 625 and 465 < location[1] < 495:
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1100
-                    self.resHeight = 955
+                    self.resolution = [1100, 955]
                     self.activeDisplay = self.res2Display
                 elif 375 < location[0] < 625 and 505 < location[1] < 535:
                     self.active = False
                     self.width = 250
                     self.height = 40
                     self.rgb = 255
-                    self.resWide = 1200
-                    self.resHeight = 955
+                    self.resolution = [1200, 955]
                     self.activeDisplay = self.res3Display
                 else:
                     self.active = False
@@ -138,7 +124,6 @@ class DropDownBox(BaseObject):
                     self.height = 40
                     self.rgb = 255
     
-    # Highlighting on dropdown options
     def update(self, oh):
         location = pygame.mouse.get_pos()
         if self.active == True:
@@ -173,12 +158,10 @@ class ApplyButton(BaseObject):
     def __init__(self, il, x=450, y=700):
         BaseObject.__init__(self, il, x=x, y=y)
 
-        # Button characteristics
         self.width = 100
         self.height = 40
         self.rgb = 255
 
-        # Apply text written on button
         self.font = pygame.font.Font("Fonts/OpenSans-Light.ttf", 30)
         self.applyText = self.font.render("Apply", True, (0, 0, 0))
         self.applyTextX = x + 10

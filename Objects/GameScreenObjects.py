@@ -209,7 +209,11 @@ class GameSceneManager(BaseObject):
         self.enemy_board_x = 550
         self.board_y = 300
         self.enemy_board_initialized = False
+
+        self.back_end_coords = "0-0"
+
         self.ai_choice = None
+
         
         self.player_board = BattleshipBoard(self.IL, self.player_board_x, self.board_y)
         self.player_title = BoardIdentifier(self.IL, "Player Board", 128, 25, self.player_board_x + 10, self.board_y - 35)
@@ -230,6 +234,10 @@ class GameSceneManager(BaseObject):
         self.battleship_board_positions = self.enemy_board.boardPositions
 
         self.dialog_box = Objects.BattleshipBoard.DialogBox(self.IL)
+
+        #Initialize back end boards to track ship positions
+        self.player_board.init_back_end_board()
+        self.enemy_board.init_back_end_board()
 
         #avoids bug where the second turn selection automatically pops up a "hit" dialog without confirm
         self.post_confirm = False
@@ -327,11 +335,27 @@ class GameSceneManager(BaseObject):
 
             elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position:
                 mouseX, mouseY = pygame.mouse.get_pos()
+
+                board_position_x = int(self.selected_position.y / 40)
+                board_position_y = int(self.selected_position.x / 40)
+#                   
+#                    I'm subtracting 1 in the get_coordinates function so this isn't needed
+#                    if (board_position_x == 10):
+#                        board_position_x -= 1
+#                    
+#                    if (board_position_y == 10):
+#                        board_position_y -= 1
+
+                self.back_end_coords = self.player_board.get_coordinates(board_position_x, board_position_y)
+                print(self.back_end_coords)
+               
                 if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
                     self.shot_result_displayed = True
+                    check_hit_return = self.enemy_board.check_hit(self.back_end_coords, self.IL, self.OH, self)
                     self.selected_position = None
-                    self.enemy_board.determine_selection_result(self.IL, self.OH)
-                    self._change_to_enemy_phase()
+                    #self.enemy_board.determine_selection_result(self.IL, self.OH)
+                    if (check_hit_return is not None):
+                        self._change_to_enemy_phase()
                     self.enemy_board.clear_board(oh, self.dialog_box)
 
                 elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
@@ -363,12 +387,16 @@ class GameSceneManager(BaseObject):
     def enemy_turn_phase_input(self, oh, events, pressed_keys):
         x = randrange(10)
         y = randrange(10)
+        coords = self.player_board.get_coordinates(y, x)
         self.player_board.set_square_selection(x, y)
-        self.player_board.determine_selection_result(self.IL, self.OH)
-        self.change_to_player_phase()
+        self.player_board.check_hit(coords, self.IL, self.OH, self)
+        #Brezevar AI Implementation
+        #self.player_board.determine_selection_result(self.IL, self.OH)
+        if (self.current_phase != "GAME ENDING"):
+            self.change_to_player_phase()
 
     def game_ending_phase_input(self, oh, events, pressed_keys):
-        pass
+        print("game_ending_phase called")
 
     def change_to_placement_phase(self, ai_choice):
         self.current_phase = "PLACEMENT"
@@ -395,6 +423,12 @@ class GameSceneManager(BaseObject):
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
+
+
+    def change_to_game_ending_phase(self, outcome):
+
+        self.current_phase = "GAME_ENDING"
+
 
 class OptionsMenu(BaseObject):
     def __init__(self, il, x=0, y=0):
@@ -500,6 +534,7 @@ class OptionsPhaseHandler:
 
     def clean_up_options_phase(self, oh):
         oh.remove_object(self.phase_manager.options_menu)
+
 
 class PlacementPhaseHandler:
 
@@ -795,7 +830,7 @@ class PlacementPhaseHandler:
 
         for ship in self.ships_placed:
             ship_array = self.get_ship_array(ship)
-            # self.player_board.add_ship(ship.name, ship_array)
+            self.player_board.add_ship(ship.name, ship_array)
 
     def get_ship_array(self, ship):
         ship_array = []
