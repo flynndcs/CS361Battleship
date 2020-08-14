@@ -13,6 +13,7 @@ import pygame
 from pygame import *
 
 
+
 class BoardIcon(BaseObject):
     def __init__(self, il, icon_type, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
@@ -25,11 +26,25 @@ class BoardIcon(BaseObject):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
+
+class Animating:
+    def __init__(self):
+        self.animating = False
+
+    def set_animating(self, value):
+        self.animating = value
+
+    def get_animating(self):
+        return self.animating
+
+
+
+
 class TargetIcon(BaseObject):
     """TargetIcon position moves through random points in coordinates array until it reaches the end of the array and it is
     removed from screen"""
 
-    def __init__(self, il, x, y, coord, oh):
+    def __init__(self, il, x, y, coord, oh, animating):
         BaseObject.__init__(self, il, x, y)
         self.image = il.load_image(Images.ImageEnum.TARGET)
         self.width = self.image.get_width()
@@ -38,14 +53,16 @@ class TargetIcon(BaseObject):
         self.position = 0
         self.speed = 1
         oh.new_object(self)
+        self.animating = animating
 
 
     def update(self, oh):
         """Updates x/y variables to move target position"""
         if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
             if self.position == len(self.coord) - 1:
+                self.animating.set_animating(False)
                 oh.remove_object(self)
-                # self.move = True
+                print(self.animating.get_animating())
             else:
                 self.position += 1
 
@@ -103,7 +120,6 @@ class BattleshipBoard(BaseObject):
     '''
     Keep track of ship positions and create functionality for interacting
     with the game board.
-
     Attributes:
         gameboard               2D board that keeps track of ship positions
                                     "0" = No ship located at position
@@ -216,7 +232,7 @@ class BattleshipBoard(BaseObject):
 
         oh.new_object(BoardIcon(il, "MISS", icon_x, icon_y))
 
-    def show_target(self, il, oh, coord):
+    def show_target(self, il, oh, coord, animating):
 
         for x in range(len(coord)):
             self.set_square_selection(coord[x][0], coord[x][1])
@@ -225,7 +241,7 @@ class BattleshipBoard(BaseObject):
             coord[x][0] = icon_x
             coord[x][1] = icon_y
         # return coord
-        TargetIcon(il, coord[0][0], coord[0][1], coord, oh)
+        TargetIcon(il, coord[0][0], coord[0][1], coord, oh, animating)
 
     # def convert_coordinates(self, il, oh, coord):
     #
@@ -246,3 +262,4 @@ class BattleshipBoard(BaseObject):
         else:
             self._show_miss(il, oh)
             self.hit = True
+

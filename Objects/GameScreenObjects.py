@@ -151,6 +151,7 @@ class BoardIdentifier(BaseObject):
         self.border_height = height
         self.border_circle_radius = 10
 
+
     def _get_formatted_title(self):
         '''
         Returns the status message with font format
@@ -210,23 +211,25 @@ class GameSceneManager(BaseObject):
         self.enemy_board_x = 550
         self.board_y = 300
         self.enemy_board_initialized = False
-        
+
         self.player_board = BattleshipBoard(self.IL, self.player_board_x, self.board_y)
-        self.player_title = BoardIdentifier(self.IL, "Player Board", 128, 25, self.player_board_x + 10, self.board_y - 35)
+        self.player_title = BoardIdentifier(self.IL, "Player Board", 128, 25, self.player_board_x + 10,
+                                            self.board_y - 35)
         self.enemy_board = BattleshipBoard(self.IL, self.enemy_board_x, self.board_y)
         self.enemy_title = BoardIdentifier(self.IL, "Enemy Board", 128, 25, self.enemy_board_x + 10, self.board_y - 35)
+        self.animating = Objects.BattleshipBoard.Animating()
         self.status_menu = GameScreenStatusMenu(self.IL, 60, 60)
 
-        self.placement_phase_manager = PlacementPhaseHandler(self.IL, self.status_menu, self.player_board, self.enemy_board, self)
+        self.placement_phase_manager = PlacementPhaseHandler(self.IL, self.status_menu, self.player_board,
+                                                             self.enemy_board, self)
         self._initialize_placement_phase_objects()
 
-
-        #VARIABLES FOR THE PLAYER TURN PHASE
+        # VARIABLES FOR THE PLAYER TURN PHASE
         self.battleship_board_positions = self.enemy_board.boardPositions
 
         self.dialog_box = Objects.BattleshipBoard.DialogBox(self.IL)
 
-        #avoids bug where the second turn selection automatically pops up a "hit" dialog without confirm
+        # avoids bug where the second turn selection automatically pops up a "hit" dialog without confirm
         self.post_confirm = False
 
         self.shot_result_displayed = False
@@ -234,12 +237,11 @@ class GameSceneManager(BaseObject):
         self.selected_position = None
         self.hover_position = None
 
-
     def _initialize_placement_phase_objects(self):
         self.OH.new_object(self.player_board)
         self.OH.new_object(self.status_menu)
         self.OH.new_object(self.player_title)
-    
+
     def _initialize_enemy_board(self):
         self.OH.new_object(self.enemy_board)
         self.OH.new_object(self.enemy_title)
@@ -254,6 +256,8 @@ class GameSceneManager(BaseObject):
             self.player_turn_phase(oh)
         elif self.current_phase == "ENEMY_TURN":
             self.enemy_turn_phase(oh)
+        elif self.current_phase == "ANIMATING":
+            self.animating_phase()
         elif self.current_phase == "GAME_ENDING":
             self.game_ending_phase(oh)
 
@@ -266,6 +270,8 @@ class GameSceneManager(BaseObject):
             self.player_turn_phase_input(oh, events, pressed_keys)
         elif self.current_phase == "ENEMY_TURN":
             self.enemy_turn_phase_input(oh, events, pressed_keys)
+        elif self.current_phase == "ANIMATING":
+            self.animating_phase_input(oh, events, pressed_keys)
         elif self.current_phase == "GAME_ENDING":
             self.game_ending_phase_input(oh, events, pressed_keys)
 
@@ -285,6 +291,22 @@ class GameSceneManager(BaseObject):
     def game_ending_phase(self, oh):
         pass
 
+    def animating_phase(self): ## LOOK HERE
+        # print(self.animating.get_animating())
+        # if self.animating.get_animating() == False:
+        #     # self.player_board.determine_selection_result(self.IL, self.OH)
+        #     # self.change_to_player_phase()
+        #     print("jere")
+        if self.animating.get_animating() == False:
+            self.player_board.determine_selection_result(self.IL, self.OH)
+            self.change_to_player_phase()
+
+    def animating_phase_input(self, oh, events, pressed_keys):
+        # if self.animating.get_animating() == False:
+        #     self.player_board.determine_selection_result(self.IL, self.OH)
+        #     self.change_to_player_phase()
+        pass
+
     def options_phase_input(self, oh, events, pressed_keys):
         pass
 
@@ -302,7 +324,8 @@ class GameSceneManager(BaseObject):
                     mouseX, mouseY = pygame.mouse.get_pos()
                     for i in range(10):
                         for j in range(10):
-                            if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x, mouseY - self.enemy_board.y):
+                            if self.battleship_board_positions[i][j].collidepoint(mouseX - self.enemy_board.x,
+                                                                                  mouseY - self.enemy_board.y):
                                 self.enemy_board.clear_board(oh, None)
                                 self.selected_position = self.battleship_board_positions[i][j]
                                 if self.dialog_box not in oh.objects:
@@ -315,7 +338,8 @@ class GameSceneManager(BaseObject):
 
             elif event.type == pygame.MOUSEBUTTONDOWN and self.selected_position:
                 mouseX, mouseY = pygame.mouse.get_pos()
-                if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
+                if self.dialog_box.confirm_deny_buttons[0].collidepoint(mouseX - self.dialog_box.x,
+                                                                        mouseY - self.dialog_box.y):
                     print("pressed confirm")
                     self.shot_result_displayed = True
                     self.selected_position = None
@@ -323,7 +347,8 @@ class GameSceneManager(BaseObject):
                     self._change_to_enemy_phase()
                     self.enemy_board.clear_board(oh, self.dialog_box)
 
-                elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
+                elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x,
+                                                                          mouseY - self.dialog_box.y):
                     print("pressed deny")
                     self.selected_position = None
                     self.enemy_board.clear_board(oh, self.dialog_box)
@@ -339,7 +364,7 @@ class GameSceneManager(BaseObject):
 
                     if (board_position_x == 10):
                         board_position_x -= 1
-                    
+
                     if (board_position_y == 10):
                         board_position_y -= 1
 
@@ -355,11 +380,10 @@ class GameSceneManager(BaseObject):
         y = randrange(10)
         self.target_animation(oh, x, y)
 
-
     def target_animation(self, oh, x, y):
         # converting ai move, replace x, y parameter
         ai_move = "2-1"
-        ai_move = [ai_move[i:i+1] for i in range(0, len(ai_move), 1)]
+        ai_move = [ai_move[i:i + 1] for i in range(0, len(ai_move), 1)]
         ai_move = [int(ai_move[0]), int(ai_move[2])]
 
         coordinates = []
@@ -369,12 +393,13 @@ class GameSceneManager(BaseObject):
             coordinates.append([p, q])
         coordinates.append([x, y])
         # will append final location here
-        self.player_board.show_target(self.IL, oh, coordinates)
+        self.player_board.show_target(self.IL, oh, coordinates, self.animating)
         self.player_board.set_square_selection(x, y)
-        self.player_board.determine_selection_result(self.IL, self.OH)
-        self.change_to_player_phase()
+        self.animating.set_animating(True)
+        # animating is set to True, and object is animating.
+        self.change_to_animating_phase()
 
-        #coord = self.player_board.show_target(self.IL, oh, coordinates)
+        # coord = self.player_board.show_target(self.IL, oh, coordinates)
         # move = TargetIcon(il, coord[0][0], coord[0][1], coord, oh).move
         # if move:
         #     self.player_board.set_square_selection(x, y)
@@ -403,6 +428,15 @@ class GameSceneManager(BaseObject):
         self.current_phase = "ENEMY_TURN"
         self.status_menu.set_status("Enemy Turn")
         self.status_menu.set_action("Please wait. The enemy is making a selection.")
+
+    def change_to_animating_phase(self):
+        """
+        Changes to animation phase
+        """
+        self.current_phase = "ANIMATING"
+        self.status_menu.set_status("Enemy Turn")
+        self.status_menu.set_action("Please wait. The enemy is making a selection.")
+
 
 class PlacementPhaseHandler:
 
