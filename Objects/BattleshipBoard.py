@@ -125,6 +125,10 @@ class BattleshipBoard(BaseObject):
         self.hit = True
         self.selection_x = -1
         self.selection_y = -1
+
+        # sounds
+        self.hit_sound = Sounds.SoundEnum.EXPLOSION
+        self.miss_sound = Sounds.SoundEnum.MISS
         
 
 #Begin Brian Additions
@@ -255,11 +259,9 @@ class BattleshipBoard(BaseObject):
     #     
 
         return self.back_end_board[row][column]
-#End Brian Additions
+        #End Brian Additions
 
-        # sounds
-        self.hit_sound = Sounds.SoundEnum.EXPLOSION
-        self.miss_sound = Sounds.SoundEnum.MISS
+
 
     def clear_board(self, oh, surface):
         if surface:
