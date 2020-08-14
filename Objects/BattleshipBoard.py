@@ -136,11 +136,11 @@ class BattleshipBoard(BaseObject):
         self.back_end_board = [[0 for x in range(10)] for y in range(10)]
 
         #track how many spaces each ship is occupying
-        self.ship_counts = {"destroyer": 2,
-                            "cruiser": 3,
-                            "submarine": 3,
-                            "battleship": 4,
-                            "carrier": 5}
+        self.ship_counts = {"Destroyer": 2,
+                            "Cruiser": 3,
+                            "Submarine": 3,
+                            "Battleship": 4,
+                            "Carrier": 5}
         
         #track total remaining squares occupied by ships 
         self.total_ship_positions = 0
@@ -208,7 +208,9 @@ class BattleshipBoard(BaseObject):
                 return None
             else:
                 self._reduce_ship_count(boardValue)
-                self._is_ship_sunk(boardValue)
+                ship_sunk = self._is_ship_sunk(boardValue)
+                if ship_sunk:
+                    return ship_sunk
             return True
     
 
@@ -248,7 +250,7 @@ class BattleshipBoard(BaseObject):
         if (self.total_ship_positions == 0):
             return True
 
-        return True
+        return False
 
 
 
