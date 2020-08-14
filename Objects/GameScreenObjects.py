@@ -360,6 +360,7 @@ class GameSceneManager(BaseObject):
                     #self.enemy_board.determine_selection_result(self.IL, self.OH)
                     if (check_hit_return is not None):
                         self._change_to_enemy_phase()
+                    self.shot_result_displayed = False
                     self.enemy_board.clear_board(oh, self.dialog_box)
 
                 elif self.dialog_box.confirm_deny_buttons[1].collidepoint(mouseX - self.dialog_box.x, mouseY - self.dialog_box.y):
@@ -446,6 +447,7 @@ class GameSceneManager(BaseObject):
             oh.sound_loader.play_sound(self.loss_sound)
         elif outcome == 1:
             oh.sound_loader.play_sound(self.win_sound)
+        oh.new_object(EndOfGameAnimation(self.IL, outcome, x=200, y=200))
 
 
 class OptionsMenu(BaseObject):
@@ -1215,3 +1217,54 @@ class ToMainScreen(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.quit_game, (self.x, self.y))
+
+
+class EndOfGameAnimation(BaseObject):
+
+    def __init__(self, il, condition, x=0, y=0):
+        BaseObject.__init__(self, il, x=x, y=y)
+
+        if condition == 1:
+            self.original_image = il.load_image(Images.ImageEnum.VICTORY)
+        else:
+            self.original_image = il.load_image(Images.ImageEnum.DEFEAT)
+
+        self.image = self.original_image
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
+        self.animation_scale = 1
+        self.animation_min_size = 0.5
+        self.animation_max_size = 1.3
+        self.animation_direction = -1
+        self.animation_speed = 0.01
+
+    def update(self, oh):
+
+        if self.animation_direction == -1:
+            self.animation_scale = max(self.animation_min_size,
+                                       self.animation_scale +
+                                       (self.animation_direction *
+                                        self.animation_speed))
+            if self.animation_scale == self.animation_min_size:
+                self.animation_direction = 1
+        else:
+            self.animation_scale = min(self.animation_max_size,
+                                       self.animation_scale +
+                                       (self.animation_direction *
+                                        self.animation_speed))
+            if self.animation_scale == self.animation_max_size:
+                self.animation_direction = -1
+        self.scale_image()
+
+    def scale_image(self):
+
+        self.image = pygame.transform.scale(self.original_image,
+                                            (int(self.width * self.animation_scale),
+                                             int(self.height *
+                                             self.animation_scale)))
+
+    def render(self, canvas):
+        print("RENDERING ANIMATION IMAGE")
+        print(self.image)
+        canvas.blit(self.image, (self.x, self.y))
