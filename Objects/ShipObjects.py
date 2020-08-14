@@ -29,16 +29,16 @@ class BaseShip(BaseObject):
         self.selected = False
 
         self.name = name
-        self.size = {"submarine": 3,
-                     "carrier": 5,
-                     "battleship": 4,
-                     "cruiser": 3,
-                     "destroyer": 2}[self.name]
-        self.image = {"submarine": il.load_image(Images.ImageEnum.SUBMARINE),
-                      "carrier": il.load_image(Images.ImageEnum.AIRCRAFTCARRIER),
-                      "battleship": il.load_image(Images.ImageEnum.BATTLESHIP),
-                      "cruiser": il.load_image(Images.ImageEnum.CRUISER),
-                      "destroyer": il.load_image(Images.ImageEnum.PATROLBOAT)}[self.name]
+        self.size = {"Submarine": 3,
+                     "Carrier": 5,
+                     "Battleship": 4,
+                     "Cruiser": 3,
+                     "Destroyer": 2}[self.name]
+        self.image = {"Submarine": il.load_image(Images.ImageEnum.SUBMARINE),
+                      "Carrier": il.load_image(Images.ImageEnum.AIRCRAFTCARRIER),
+                      "Battleship": il.load_image(Images.ImageEnum.BATTLESHIP),
+                      "Cruiser": il.load_image(Images.ImageEnum.CRUISER),
+                      "Destroyer": il.load_image(Images.ImageEnum.PATROLBOAT)}[self.name]
 
         self.life = []
         for segment in range(self.size):

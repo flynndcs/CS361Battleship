@@ -48,6 +48,7 @@ class SoundLoader:
                 self.bgm[sound].fadeout()
 
     def set_se_volume(self, volume):
+
         self.se_volume = volume
         for sound in self.sound_effects:
             self.sound_effects[sound].set_volume(self.se_volume)
@@ -65,5 +66,5 @@ class SoundEnum(Enum):
     INCORRECTPLACEMENT = "res/sounds/incorrect_placement.wav"
     LOSS = "res/sounds/loss.wav"
     MISS = "res/sounds/miss.wav"
-    BGM = "Victory-AShamaluevMusic.wav"
-    WIN = "win.wav"
+    BGM = "res/sounds/Victory-AShamaluevMusic.wav"
+    WIN = "res/sounds/win.wav"

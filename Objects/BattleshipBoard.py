@@ -7,12 +7,11 @@ usage:
     player_board = BattleshipBoard()
     ai_board = BattleshipBoard()
 '''
+
 from Bases.BaseObjects import BaseObject
-from Tools import Images
+from Tools import Images, Sounds
 import pygame
 from pygame import *
-
-
 
 class BoardIcon(BaseObject):
     def __init__(self, il, icon_type, x=0, y=0):
@@ -26,67 +25,8 @@ class BoardIcon(BaseObject):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
-
-class Animating:
-    def __init__(self):
-        self.animating = False
-
-    def set_animating(self, value):
-        self.animating = value
-
-    def get_animating(self):
-        return self.animating
-
-
-
-
-class TargetIcon(BaseObject):
-    """TargetIcon position moves through random points in coordinates array until it reaches the end of the array and it is
-    removed from screen"""
-
-    def __init__(self, il, x, y, coord, oh, animating):
-        BaseObject.__init__(self, il, x, y)
-        self.image = il.load_image(Images.ImageEnum.TARGET)
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-        self.coord = coord
-        self.position = 0
-        self.speed = 1
-        oh.new_object(self)
-        self.animating = animating
-
-
-    def update(self, oh):
-        """Updates x/y variables to move target position"""
-        if self.x == self.coord[self.position][0] and self.y == self.coord[self.position][1]:
-            if self.position == len(self.coord) - 1:
-                self.animating.set_animating(False)
-                oh.remove_object(self)
-                print(self.animating.get_animating())
-            else:
-                self.position += 1
-
-        if self.position != len(self.coord):
-
-            if self.position == len(self.coord) - 1:
-                self.speed = 0.5
-
-            if self.x < self.coord[self.position][0]:
-                self.x += 10 * self.speed
-
-            if self.y < self.coord[self.position][1]:
-                self.y += 10 * self.speed
-
-            if self.y > self.coord[self.position][1]:
-                self.y -= 10 * self.speed
-
-            if self.x > self.coord[self.position][0]:
-                self.x -= 10 * self.speed
-    #
-    # def get_move(self):
-    #     return self.move
-
 class DialogBox(BaseObject):
+
     confirm_deny_buttons = []
     def __init__(self, il, x=0, y=0):
         BaseObject.__init__(self, il, x=x, y=y)
@@ -105,6 +45,7 @@ class DialogBox(BaseObject):
 
         self.init_confirm_deny_buttons()
 
+    
     def init_confirm_deny_buttons(self):
         self.image.fill((0,0,255))
         confirm = pygame.Surface([35, 35])
@@ -116,10 +57,26 @@ class DialogBox(BaseObject):
         self.confirm_deny_buttons.append(self.image.blit(confirm, (self.confirmX, self.confirmY)))
         self.confirm_deny_buttons.append(self.image.blit(deny, (self.denyX, self.denyY)))
 
+    
+    def confirm_shot(self):
+        mouseX, mouseY = pygame.mouse.get_pos()
+    #     for button in self.confirm_deny_buttons:
+    #     print("confirm within dialog class")
+    #     hit_or_miss = pygame.Surface([99,49])
+    #     hit_or_miss.fill((0,255,0))
+        
+    #     font = pygame.font.Font(pygame.font.get_default_font(),50)
+    #     text = font.render('Hit', True, (0,0,0))
+    #     hit_or_miss.blit(text, (0,0))
+    #     self.image.blit(hit_or_miss, (0,0))
+
+
 class BattleshipBoard(BaseObject):
+
     '''
     Keep track of ship positions and create functionality for interacting
     with the game board.
+
     Attributes:
         gameboard               2D board that keeps track of ship positions
                                     "0" = No ship located at position
@@ -136,29 +93,29 @@ class BattleshipBoard(BaseObject):
 
         # size of board, may need to change if scaling
         self.width = 400
-        self.height = 400
+        self.height = 400 
 
-        # upper left corner of where board is created in scene
+        #upper left corner of where board is created in scene
         self.x = x
         self.y = y
 
-        # dialog position
+        #dialog position
         self.dialogX = None
         self.dialogY = None
 
-        # drawing surface
+        #drawing surface 
         self.image = Surface([self.width, self.height])
         self.image.fill((255, 255, 255))
 
-        # dialog box open
+        #dialog box open
         self.dialogOpen = False
         self.dialogPositions = []
         self.dialogBoxPosition = [self.x, self.y]
 
-        # source of rectangles that outline board positions and handle interaction
-        self.boardPositions = [[] for y in range(10)]
+        #source of rectangles that outline board positions and handle interaction
+        self.boardPositions = [[] for y in range(10)] 
 
-        # the blank rectangle for when a user is not hovering over it
+        #the blank rectangle for when a user is not hovering over it
         self.rect = pygame.Surface([35, 35])
         self.rect.set_alpha(50)
         self.rect.fill((0, 0, 255))
@@ -169,17 +126,156 @@ class BattleshipBoard(BaseObject):
         self.selection_x = -1
         self.selection_y = -1
 
-        # self.ship_count_tracker = {}
-        # self.total_ship_positions = 0
+        # sounds
+        self.hit_sound = Sounds.SoundEnum.EXPLOSION
+        self.miss_sound = Sounds.SoundEnum.MISS
+
+        self.player = False
+        
+
+#Begin Brian Additions
+        #board to place ships on and check guesses against
+        self.back_end_board = [[0 for x in range(10)] for y in range(10)]
+
+        #track how many spaces each ship is occupying
+        self.ship_counts = {"Destroyer": 2,
+                            "Cruiser": 3,
+                            "Submarine": 3,
+                            "Battleship": 4,
+                            "Carrier": 5}
+        
+        #track total remaining squares occupied by ships 
+        self.total_ship_positions = 0
+        
+    def init_back_end_board(self):
+        for i in range(10):
+            for j in range(10):
+                self.back_end_board[i][j] = 0
+
+    
+    def add_ship(self, ship_name, ship_array):
+    #     
+    #     Adds ship to the back_end_board
+    #     Increases total ship positions
+    #  
+        for location in ship_array:
+            column, row = self._extract_location(location)
+            intRow = int(row)
+            intColumn = int(column)
+            self.total_ship_positions = self.total_ship_positions + 1
+            self.back_end_board[intRow][intColumn] = ship_name
+    
+    def _extract_location(self, location):
+
+    #Return the row and column location as an array with 2 elements
+
+    #Precondition: location must be in the format "a-b" where a is the row
+    #              number and b is the column number
+
+        return location.split("-")
+
+
+
+    def check_hit(self, guess, il, oh, gpm):
+    #     
+    #     Check if guess was a hit or miss
+    #  
+        row, column = self._extract_location(guess)
+        intRow = int(row)
+        intColumn = int(column)
+        print(intRow, intColumn)        
+        boardValue = self.back_end_board[intRow][intColumn]
+        for r in self.back_end_board:
+            for c in r:
+                print(c,end = " ")
+            print()
+        if boardValue == 0:
+            self.back_end_board[intRow][intColumn] = "used"
+            self._show_miss(il, oh)
+            print("Spot was empty. Board updated to used")
+            return False
+        elif boardValue == "used":
+            # square has already been guessed
+            print("Spot has already been chosen")
+            pass
+        else:
+            print("It's a hit! Proceed with all the updates")
+            self._show_hit(il, oh)
+            self.back_end_board[intRow][intColumn] = "used"            
+            self.total_ship_positions = self.total_ship_positions - 1
+            game_over = self._all_ships_sunk_check()
+            if game_over:
+                if self.player:
+                    gpm.change_to_game_ending_phase(0, oh)
+                else:
+                    gpm.change_to_game_ending_phase(1, oh)
+                return None
+            else:
+                self._reduce_ship_count(boardValue)
+                ship_sunk = self._is_ship_sunk(boardValue)
+                if ship_sunk:
+                    return ship_sunk
+            return True
+
+    def get_coordinates(self, coordY, coordX):
+        guess_coordinates = str(coordY) + "-" + str(coordX)
+        return guess_coordinates
+
+
+
+    def _reduce_ship_count(self, ship_name):
+    #     
+    #     Reduces space occupied by specific ship in dictionary
+    #     after a hit
+    #   
+        self.ship_counts[ship_name] = self.ship_counts[ship_name] - 1
+        
+    
+
+    def _is_ship_sunk(self, ship_name):
+    #     
+    #     Determines if the ship that was hit has been sunk
+    #     
+
+        if (self.ship_counts[ship_name] == 0):
+            return ship_name
+        else:
+            return False
+
+
+
+    def _all_ships_sunk_check(self):
+    #     
+    #     Determine if all ships have been sunk on the back_end_board. Return true 
+    #     if all ships are sunk. Otherwise return false
+    #     
+
+        if (self.total_ship_positions == 0):
+            return True
+
+        return False
+
+
+
+    def _get_back_end_board_info(self, row, column):
+    #     
+    #     Returns string of the back_end_board that is located at the row and column
+    #     position passed into function
+    #     
+
+        return self.back_end_board[row][column]
+        #End Brian Additions
+
+
 
     def clear_board(self, oh, surface):
         if surface:
             oh.remove_object(surface)
-        self.image.fill((255, 255, 255))
+        self.image.fill((255,255,255))
         for i in range(10):
             for j in range(10):
-                self.image.blit(self.rect, ((i * 40), (j * 40)))
-
+                self.image.blit(self.rect, ((i*40), (j * 40)))
+    
     def init_board_positions(self):
         for i in range(10):
             for j in range(10):
@@ -187,16 +283,16 @@ class BattleshipBoard(BaseObject):
 
     def render(self, canvas):
         canvas.blit(self.image, (self.x, self.y))
-
+    
     def confirm_shot_dialog(self, boardPosition):
         shot_dialog = pygame.Surface([100, 51])
-        shot_dialog.fill((0, 0, 255))
+        shot_dialog.fill((0,0,255))
 
         confirm = pygame.Surface([35, 35])
-        confirm.fill((0, 255, 0))
+        confirm.fill((0,255,0))
 
         deny = pygame.Surface([35, 35])
-        deny.fill((255, 0, 0))
+        deny.fill((255,0,0))
 
         self.dialogPositions.append(shot_dialog.blit(confirm, (10, 8)))
         self.dialogPositions.append(shot_dialog.blit(deny, (55, 8)))
@@ -206,8 +302,8 @@ class BattleshipBoard(BaseObject):
         self.image.blit(shot_dialog, boardPosition)
 
     def hoverHighlight(self, boardPosition):
-        highlightRect = pygame.Surface([35, 35])
-        highlightRect.fill((255, 0, 0))
+        highlightRect = pygame.Surface([35,35])
+        highlightRect.fill((255,0,0))
         self.image.blit(highlightRect, boardPosition)
 
     def set_square_selection(self, x, y):
@@ -225,35 +321,14 @@ class BattleshipBoard(BaseObject):
         icon_y = self._generate_icon_y()
 
         oh.new_object(BoardIcon(il, "HIT", icon_x, icon_y))
+        oh.sound_loader.play_sound(self.hit_sound)
 
     def _show_miss(self, il, oh):
         icon_x = self._generate_icon_x()
         icon_y = self._generate_icon_y()
 
         oh.new_object(BoardIcon(il, "MISS", icon_x, icon_y))
-
-    def show_target(self, il, oh, coord, animating):
-
-        for x in range(len(coord)):
-            self.set_square_selection(coord[x][0], coord[x][1])
-            icon_x = self._generate_icon_x()
-            icon_y = self._generate_icon_y()
-            coord[x][0] = icon_x
-            coord[x][1] = icon_y
-        # return coord
-        TargetIcon(il, coord[0][0], coord[0][1], coord, oh, animating)
-
-    # def convert_coordinates(self, il, oh, coord):
-    #
-    #     for x in range(len(coord)):
-    #         self.set_square_selection(coord[x][0], coord[x][1])
-    #         icon_x = self._generate_icon_x()
-    #         icon_y = self._generate_icon_y()
-    #         coord[x][0] =icon_x
-    #         coord[x][1] = icon_y
-    #     return coord
-
-    # oh.new_object(TargetIcon(il, icon_x, icon_y, coord))
+        oh.sound_loader.play_sound(self.miss_sound)
 
     def determine_selection_result(self, il, oh):
         if (self.hit):
@@ -262,4 +337,4 @@ class BattleshipBoard(BaseObject):
         else:
             self._show_miss(il, oh)
             self.hit = True
-
+    

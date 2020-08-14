@@ -16,7 +16,6 @@ class TitleScene(SceneBase):
         self.OH.new_object(BackgroundImage(self.IL))
         self.OH.new_object(PlayButton(self.IL))
         self.OH.new_object(SettingsButton(self.IL))
-        self.OH.new_object(AchievementButton(self.IL))
         self.OH.new_object(BattleshipTitle(self.IL))
         self.OH.new_object(ExitGame(self.IL))
 
@@ -31,9 +30,6 @@ class TitleScene(SceneBase):
                 # user presses settings button, screen is switched to settings screen
                 if 420 < location[0] < 591 and 434 < location[1] < 516:
                     self.switch_to_scene(OptionsScene(self.IL))
-                # user presses achievements button, screen is switched to achievements screen
-                if 355 < location[0] < 662 and 598 < location[1] < 635:
-                    self.switch_to_scene(AchievementScene(self.IL))
                 # user presses exit game button, game is terminated
                 if 25 < location[0] < 159 and 912 < location[1] < 935:
                     self.terminate()

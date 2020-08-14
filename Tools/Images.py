@@ -52,4 +52,5 @@ class ImageEnum(Enum):
     HIT = "res/Hit.png"
     MISS = "res/Miss.png"
     SAVEDPLACEMENTS = "res/SavedPlacements_smaller.png"
-    TARGET = "res/Target.png"
+    STANDARDSLIDER = "res/StandardSlider.png"
+    STANDARDSLIDERWIGGLER = "res/StandardSliderWiggler.png"
